@@ -15,12 +15,7 @@ export const types: TypeModel[] = [
     img: 'font.png',
     attribution: 'Freepik',
   },
-  {
-    name: 'Number',
-    value: 'number',
-    img: 'pin.png',
-    attribution: 'Fathema Khanom',
-  },
+
   {
     name: 'Date',
     value: 'date',
@@ -43,6 +38,12 @@ export const types: TypeModel[] = [
     attribution: 'Bharat Icons',
   },
   { name: 'Dropdown', value: 'select', img: 'dropdown.png', attribution: 'Royyan Wijaya' },
+  {
+    name: 'Number',
+    value: 'number',
+    img: 'pin.png',
+    attribution: 'Fathema Khanom',
+  },
   {
     name: 'Long Text',
     description:

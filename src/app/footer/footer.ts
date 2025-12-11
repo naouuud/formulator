@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { types } from '../types';
+import { types } from '../models/ui-types';
 
 @Component({
   selector: 'app-footer',
