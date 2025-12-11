@@ -1,0 +1,1 @@
+import{$a as i,Ta as r,Ua as a,za as n}from"./chunk-HVPHMAC5.js";var o=class t{static \u0275fac=function(e){return new(e||t)};static \u0275cmp=n({type:t,selectors:[["app-builder-parent"]],decls:2,vars:0,template:function(e,l){e&1&&(r(0,"p"),i(1,"builder-parent works!"),a())},encapsulation:2})};export{o as BuilderParent};
