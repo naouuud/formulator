@@ -1,12 +1,12 @@
-import { Radio, Text } from './json-types';
+import { CheckBoxField, DateField, SelectField, RadioField, TextField } from './json-types';
 
-export const textTest: Text = new Text();
+export const textTest: TextField = new TextField();
 textTest.label = 'First Name';
 textTest.maxLength = 36;
 textTest.required = true;
 textTest.placeholder = 'Enter first name here';
 
-export const radioTest: Radio = new Radio();
+export const radioTest: RadioField = new RadioField();
 radioTest.label = 'Favorite Fruit';
 radioTest.required = true;
 radioTest.options = [
@@ -23,3 +23,31 @@ radioTest.options = [
     value: 'orange',
   },
 ];
+
+export const checkTest: CheckBoxField = new CheckBoxField();
+checkTest.label = 'Preferred contact methods';
+checkTest.options = [
+  {
+    label: 'Email',
+    value: 'email',
+  },
+  {
+    label: 'Phone',
+    value: 'phone',
+  },
+  { label: 'Mail', value: 'mail' },
+];
+
+export const selectTest: SelectField = new SelectField();
+selectTest.label = 'Country';
+selectTest.required = true;
+selectTest.options = [
+  { label: 'United States', value: 'us' },
+  { label: 'Canada', value: 'ca' },
+  { label: 'United Kingdom', value: 'uk' },
+  { label: 'Australia', value: 'au' },
+];
+selectTest.placeholder = 'Select your country';
+
+export const dateTest: DateField = new DateField();
+dateTest.label = 'Date of Birth';
