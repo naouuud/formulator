@@ -1,12 +1,13 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, computed, Input, OnInit, Signal, signal, WritableSignal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { HTMLType, Radio, Text } from '../models/json-types';
+import { HTMLType, RadioField, TextField } from '../models/json-types';
+import { RendererDateField } from '../renderer-date-field/renderer-date-field';
 
-type Field = Text | Radio;
+type Field = TextField | RadioField;
 
 @Component({
   selector: 'app-renderer-field',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RendererDateField],
   templateUrl: './renderer-field.html',
   styleUrl: './renderer-field.css',
 })

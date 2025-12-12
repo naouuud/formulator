@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormModel } from '../models/json-types';
-import { radioTest, textTest } from '../models/testing-models';
+import { checkTest, dateTest, radioTest, selectTest, textTest } from '../models/testing-models';
 import { FormGroup } from '@angular/forms';
 import { RendererField } from '../renderer-field/renderer-field';
 
@@ -12,7 +12,7 @@ import { RendererField } from '../renderer-field/renderer-field';
 })
 export class RendererForm {
   formGroup = new FormGroup({});
-  form: FormModel = [textTest, radioTest];
+  form: FormModel = [textTest, radioTest, checkTest, selectTest, dateTest];
 
   constructor() {}
 }
