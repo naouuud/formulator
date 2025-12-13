@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {
+  addressTest,
   booleanTest,
   checkTest,
   dateTest,
@@ -8,6 +9,7 @@ import {
   radioTest,
   selectTest,
   sentimentTest,
+  testForm,
   textareaTest,
   textTest,
 } from '../models/testing-models';
@@ -23,21 +25,5 @@ import { FormModel } from '../models/json-types';
 })
 export class RendererForm {
   formGroup = new FormGroup({});
-  testForm: FormModel = new FormModel();
-
-  constructor() {
-    this.testForm.name = 'Test Form';
-    this.testForm.fields = [
-      textTest,
-      radioTest,
-      checkTest,
-      selectTest,
-      dateTest,
-      booleanTest,
-      sentimentTest,
-      numberTest,
-      emailTest,
-      textareaTest,
-    ];
-  }
+  testForm = testForm;
 }

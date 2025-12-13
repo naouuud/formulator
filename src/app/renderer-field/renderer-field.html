@@ -121,3 +121,8 @@
 @if (field.type === FieldType.TEXTAREA) {
 <app-renderer-textarea [field]="field" [formGroupIn]="formGroupIn"></app-renderer-textarea>
 }
+
+<!-- ADDRESS -->
+@if (field.type === FieldType.ADDRESS) {
+<app-renderer-address [field]="field" [formGroupIn]="formGroupIn"></app-renderer-address>
+}
