@@ -1,4 +1,6 @@
-<div class="p-4 flex flex-col gap-2 items-center bg-gray-700 rounded-lg">
+<div
+  class="p-4 flex flex-col gap-2 items-center bg-gray-600/80 backdrop-blur-md border-b border-white/10 shadow-md rounded-lg"
+>
   <img [src]="'assets/' + type.img" alt="{{ type.name }} input" class="text-sm w-[50%]" />
   <p class="font-[300] text-sm">{{ type.name }}</p>
   @if (type.description) {

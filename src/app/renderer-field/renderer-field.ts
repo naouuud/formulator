@@ -1,19 +1,19 @@
-import { Component, computed, Input, OnInit, Signal, signal, WritableSignal } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { HTMLType, RadioField, TextField } from '../models/json-types';
+import { Component, Input, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { FieldType } from '../models/json-types';
 import { RendererDateField } from '../renderer-date-field/renderer-date-field';
-
-type Field = TextField | RadioField;
+import { CommonModule } from '@angular/common';
+import { RendererTextarea } from '../renderer-textarea/renderer-textarea';
 
 @Component({
   selector: 'app-renderer-field',
-  imports: [ReactiveFormsModule, RendererDateField],
+  imports: [RendererDateField, RendererTextarea, CommonModule],
   templateUrl: './renderer-field.html',
   styleUrl: './renderer-field.css',
 })
 export class RendererField implements OnInit {
-  HTMLType = HTMLType;
-  @Input() formGroup!: FormGroup;
+  FieldType = FieldType;
+  @Input() formGroupIn!: FormGroup;
   @Input() field!: any;
 
   ngOnInit() {
