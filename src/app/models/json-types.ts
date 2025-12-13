@@ -1,3 +1,5 @@
+import { leb_governorates } from './lebanon';
+
 export enum FieldType {
   TEXT = 'text',
   NUMBER = 'number',
@@ -7,6 +9,7 @@ export enum FieldType {
   RADIO = 'radio',
   SELECT = 'select',
   TEXTAREA = 'textarea',
+  ADDRESS = 'address',
 }
 
 export interface FieldI {
@@ -116,6 +119,36 @@ export class EmailField extends BaseField {
   minLength: number = 0;
   placeholder: string = 'Enter your email...';
   override label: string = 'Email';
+}
+
+export class AddressField extends BaseField {
+  type: FieldType = FieldType.ADDRESS;
+  override label: string = 'Address';
+  fields: FieldI[] = [];
+  geoData = leb_governorates;
+
+  constructor() {
+    super();
+    const governorateField = new SelectField();
+    governorateField.label = 'Governorate';
+    governorateField.placeholder = 'Select governorate';
+    governorateField.options = this.geoData.map((g) => ({
+      label: g.name,
+      value: g.value,
+    }));
+    const districtField = new SelectField();
+    districtField.label = 'District';
+    districtField.placeholder = 'Select district';
+    const streetField = new TextField();
+    streetField.label = 'Street and Building';
+    streetField.placeholder = 'Enter street and building name...';
+    streetField.maxLength = 60;
+    const cityField = new TextField();
+    cityField.label = 'City';
+    cityField.placeholder = 'Enter city...';
+    cityField.maxLength = 20;
+    this.fields.push(governorateField, districtField, streetField, cityField);
+  }
 }
 
 export class FormModel {

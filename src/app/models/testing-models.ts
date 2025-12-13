@@ -9,6 +9,8 @@ import {
   NumberField,
   EmailField,
   TextareaField,
+  AddressField,
+  FormModel,
 } from './json-types';
 
 export const textTest: TextField = new TextField();
@@ -79,3 +81,21 @@ export const emailTest: EmailField = new EmailField();
 export const textareaTest: TextareaField = new TextareaField();
 textareaTest.label = 'Please explain why are you interested in this grant (max 500 words)';
 textareaTest.maxLength = 500;
+
+export const addressTest: AddressField = new AddressField();
+
+export const testForm: FormModel = new FormModel();
+testForm.name = 'My First Form';
+testForm.fields = [
+  textTest,
+  radioTest,
+  checkTest,
+  selectTest,
+  dateTest,
+  booleanTest,
+  sentimentTest,
+  numberTest,
+  emailTest,
+  textareaTest,
+  addressTest,
+];

@@ -4,10 +4,11 @@ import { FieldType } from '../models/json-types';
 import { RendererDateField } from '../renderer-date-field/renderer-date-field';
 import { CommonModule } from '@angular/common';
 import { RendererTextarea } from '../renderer-textarea/renderer-textarea';
+import { RendererAddress } from '../renderer-address/renderer-address';
 
 @Component({
   selector: 'app-renderer-field',
-  imports: [RendererDateField, RendererTextarea, CommonModule],
+  imports: [CommonModule, RendererDateField, RendererTextarea, RendererAddress],
   templateUrl: './renderer-field.html',
   styleUrl: './renderer-field.css',
 })
