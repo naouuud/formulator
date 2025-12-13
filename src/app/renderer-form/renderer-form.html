@@ -1,5 +1,6 @@
-<div class="flex flex-col gap-6">
-  @for (field of form; track $index) {
-  <app-renderer-field [formGroup]="formGroup" [field]="field"></app-renderer-field>
+<form [formGroup]="formGroup" class="flex flex-col gap-6">
+  <h1 class="!font-logo text-xl font-[500] text-gray-900">{{ testForm.name }}</h1>
+  @for (field of testForm.fields; track $index) {
+  <app-renderer-field [formGroupIn]="formGroup" [field]="field"></app-renderer-field>
   }
-</div>
+</form>
