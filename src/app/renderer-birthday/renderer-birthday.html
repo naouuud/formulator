@@ -1,0 +1,57 @@
+<div class="mb-2">
+  <label class="block text-md font-medium text-gray-900 mb-2">
+    {{ field.label }}
+  </label>
+  <div class="flex space-x-4 px-4 border border-gray-300 rounded-md pt-2 pb-4">
+    <!-- Month -->
+    <div class="w-1/3">
+      <label for="month" class="block mb-1 text-sm font-medium text-gray-900">Month</label>
+      <select
+        id="month"
+        class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+        (input)="selectMonth($event)"
+      >
+        <option value="" disabled selected>Select month</option>
+        @for (month of months(); track $index) {
+        <option [disabled]="selectedYear() === thisYear() && $index > thisMonth()" [value]="$index">
+          {{ month }}
+        </option>
+        }
+      </select>
+    </div>
+    <!-- Day -->
+    <div class="w-1/3">
+      <label for="day" class="block mb-1 text-sm font-medium text-gray-900">Day</label>
+      <select
+        id="day"
+        class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+      >
+        <option value="" disabled selected>Select day</option>
+        @for (day of numberOfDays(); track $index) {
+        <option
+          [value]="day"
+          [disabled]="
+            selectedYear() === thisYear() && selectedMonth() === thisMonth() && day > today()
+          "
+        >
+          {{ day }}
+        </option>
+        }
+      </select>
+    </div>
+    <!-- Year -->
+    <div class="w-1/3">
+      <label for="year" class="block mb-1 text-sm font-medium text-gray-900">Year</label>
+      <select
+        id="year"
+        class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+        (input)="selectYear($event)"
+      >
+        <option value="" disabled selected>Select year</option>
+        @for (year of years(); track $index) {
+        <option [value]="year">{{ year }}</option>
+        }
+      </select>
+    </div>
+  </div>
+</div>

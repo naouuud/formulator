@@ -1,3 +1,4 @@
+import { Field } from '@angular/forms/signals';
 import { leb_governorates } from './lebanon';
 
 export enum FieldType {
@@ -10,6 +11,9 @@ export enum FieldType {
   SELECT = 'select',
   TEXTAREA = 'textarea',
   ADDRESS = 'address',
+  NAME = 'name',
+  PHONE = 'phone',
+  BIRTHDAY = 'birthday',
 }
 
 export interface FieldI {
@@ -58,6 +62,7 @@ export class RadioField extends BaseField {
 }
 
 export class BooleanField extends RadioField {
+  private unsureOption: boolean = false;
   override options: OptionI[] = [
     {
       label: 'Yes',
@@ -68,6 +73,45 @@ export class BooleanField extends RadioField {
       value: 'no',
     },
   ];
+
+  includeUnsure(val: boolean) {
+    if (val === this.unsureOption) return;
+    if (val) {
+      this.unsureOption = true;
+      this.options.push({
+        label: 'Unsure',
+        value: 'unsure',
+      });
+    } else {
+      this.unsureOption = false;
+      this.options.splice(2, 1);
+    }
+  }
+}
+
+export class GenderField extends RadioField {
+  private nonbinaryOption: boolean = false;
+  override options: OptionI[] = [
+    { label: 'Female', value: 'f' },
+    {
+      label: 'Male',
+      value: 'm',
+    },
+  ];
+
+  includeNonBinary(val: boolean) {
+    if (val === this.nonbinaryOption) return;
+    if (val) {
+      this.nonbinaryOption = true;
+      this.options.push({
+        label: 'Non-binary',
+        value: 'n',
+      });
+    } else {
+      this.nonbinaryOption = false;
+      this.options.splice(2, 1);
+    }
+  }
 }
 
 export class SentimentField extends RadioField {
@@ -109,8 +153,24 @@ export class SelectField extends BaseField {
 
 export class DateField extends BaseField {
   type: FieldType = FieldType.DATE;
-  maxYear: number = new Date().getFullYear();
-  minYear: number = new Date().getFullYear() - 100;
+  maxYear: number;
+  minYear: number;
+
+  constructor() {
+    super();
+    const year = new Date().getFullYear();
+    this.maxYear = year;
+    this.minYear = year - 100;
+  }
+}
+
+export class BirthdayField extends DateField {
+  override type: FieldType = FieldType.BIRTHDAY;
+
+  constructor() {
+    super();
+    this.minYear = new Date().getFullYear() - 125;
+  }
 }
 
 export class EmailField extends BaseField {
@@ -121,7 +181,23 @@ export class EmailField extends BaseField {
   override label: string = 'Email';
 }
 
-export class AddressField extends BaseField {
+export class NameGroup extends BaseField {
+  override type: FieldType = FieldType.NAME;
+  fields: FieldI[] = [];
+
+  constructor() {
+    super();
+    const firstNameField = new TextField();
+    firstNameField.label = 'First Name';
+    firstNameField.placeholder = 'Enter first name...';
+    const lastNameField = new TextField();
+    lastNameField.label = 'Last Name';
+    lastNameField.placeholder = 'Enter last name...';
+    this.fields.push(firstNameField, lastNameField);
+  }
+}
+
+export class AddressGroup extends BaseField {
   type: FieldType = FieldType.ADDRESS;
   override label: string = 'Address';
   fields: FieldI[] = [];

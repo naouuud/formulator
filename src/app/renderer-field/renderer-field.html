@@ -114,15 +114,25 @@
 
 <!-- DATE -->
 @if (field.type === FieldType.DATE) {
-<app-renderer-date-field [field]="field" [formGroupIn]="formGroupIn" />
+<app-renderer-date [field]="field" [formGroupIn]="formGroupIn" />
+}
+
+<!-- BIRTHDAY -->
+@if (field.type === FieldType.BIRTHDAY) {
+<app-renderer-birthday [field]="field" [formGroupIn]="formGroupIn" />
 }
 
 <!-- TEXTAREA -->
 @if (field.type === FieldType.TEXTAREA) {
-<app-renderer-textarea [field]="field" [formGroupIn]="formGroupIn"></app-renderer-textarea>
+<app-renderer-textarea [field]="field" [formGroupIn]="formGroupIn" />
 }
 
 <!-- ADDRESS -->
 @if (field.type === FieldType.ADDRESS) {
-<app-renderer-address [field]="field" [formGroupIn]="formGroupIn"></app-renderer-address>
+<app-renderer-address [field]="field" [formGroupIn]="formGroupIn" />
+}
+
+<!-- NAME -->
+@if (field.type === FieldType.NAME) {
+<app-renderer-name app-renderer-name [field]="field" [formGroupIn]="formGroupIn" />
 }

@@ -9,17 +9,22 @@ import {
   NumberField,
   EmailField,
   TextareaField,
-  AddressField,
+  AddressGroup,
   FormModel,
+  NameGroup,
+  GenderField,
+  BirthdayField,
 } from './json-types';
 
-export const textTest: TextField = new TextField();
-textTest.label = 'First Name';
+const nameTest: NameGroup = new NameGroup();
+
+const textTest: TextField = new TextField();
+textTest.label = 'Favorite Animal';
 textTest.maxLength = 20;
 textTest.required = true;
-textTest.placeholder = 'Enter first name...';
+textTest.placeholder = 'Enter your favorite animal...';
 
-export const radioTest: RadioField = new RadioField();
+const radioTest: RadioField = new RadioField();
 radioTest.label = 'Favorite Fruit';
 radioTest.required = true;
 radioTest.options = [
@@ -37,7 +42,7 @@ radioTest.options = [
   },
 ];
 
-export const checkTest: CheckBoxField = new CheckBoxField();
+const checkTest: CheckBoxField = new CheckBoxField();
 checkTest.label = 'Preferred contact methods';
 checkTest.options = [
   {
@@ -51,7 +56,7 @@ checkTest.options = [
   { label: 'Mail', value: 'mail' },
 ];
 
-export const selectTest: SelectField = new SelectField();
+const selectTest: SelectField = new SelectField();
 selectTest.label = 'Country';
 selectTest.required = true;
 selectTest.options = [
@@ -62,31 +67,42 @@ selectTest.options = [
 ];
 selectTest.placeholder = 'Select your country';
 
-export const dateTest: DateField = new DateField();
-dateTest.label = 'Date of Birth';
+const dateTest: DateField = new DateField();
+dateTest.label = 'Date you moved/will move to this address';
 
-export const booleanTest: BooleanField = new BooleanField();
+const booleanTest: BooleanField = new BooleanField();
 booleanTest.label = 'Do you wish to receive promotional emails?';
+booleanTest.includeUnsure(true);
 
-export const sentimentTest: SentimentField = new SentimentField();
+const sentimentTest: SentimentField = new SentimentField();
 sentimentTest.label = 'My room is very organized';
 
-export const numberTest: NumberField = new NumberField();
+const numberTest: NumberField = new NumberField();
 numberTest.maxValue = 20;
 numberTest.label = 'How many siblings do you have?';
 numberTest.maxLength = 5;
 
-export const emailTest: EmailField = new EmailField();
+const emailTest: EmailField = new EmailField();
 
-export const textareaTest: TextareaField = new TextareaField();
+const textareaTest: TextareaField = new TextareaField();
 textareaTest.label = 'Please explain why are you interested in this grant (max 500 words)';
 textareaTest.maxLength = 500;
 
-export const addressTest: AddressField = new AddressField();
+const addressTest: AddressGroup = new AddressGroup();
+
+const genderTest: GenderField = new GenderField();
+genderTest.label = 'Gender';
+genderTest.includeNonBinary(true);
+
+const birthdayTest = new BirthdayField();
+birthdayTest.label = 'Date of Birth';
 
 export const testForm: FormModel = new FormModel();
 testForm.name = 'My First Form';
 testForm.fields = [
+  nameTest,
+  genderTest,
+  birthdayTest,
   textTest,
   radioTest,
   checkTest,
