@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RendererDateField } from './renderer-date-field';
+import { RendererName } from './renderer-name';
 
-describe('RendererDateField', () => {
-  let component: RendererDateField;
-  let fixture: ComponentFixture<RendererDateField>;
+describe('RendererName', () => {
+  let component: RendererName;
+  let fixture: ComponentFixture<RendererName>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RendererDateField]
+      imports: [RendererName]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(RendererDateField);
+    fixture = TestBed.createComponent(RendererName);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

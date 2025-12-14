@@ -2,23 +2,24 @@ import { Component, computed, Input, OnInit, Signal, signal, WritableSignal } fr
 import { FormGroup } from '@angular/forms';
 
 @Component({
-  selector: 'app-renderer-date-field',
+  selector: 'app-renderer-date',
   imports: [],
-  templateUrl: './renderer-date-field.html',
-  styleUrl: './renderer-date-field.css',
+  templateUrl: './renderer-date.html',
+  styleUrl: './renderer-date.css',
 })
-export class RendererDateField implements OnInit {
+export class RendererDate implements OnInit {
   @Input() field: any;
   @Input() formGroupIn!: FormGroup;
+
   years: WritableSignal<number[]> = signal([]);
   selectedYear: WritableSignal<number | null> = signal(null);
-  selectedMonth: WritableSignal<number> = signal(1);
+  selectedMonth: WritableSignal<number | null> = signal(null);
   monthDays: Signal<number[]> = computed(() => {
     const year = this.selectedYear();
-    if (year === null) {
+    const month = this.selectedMonth();
+    if (month === null) {
       return Array.from({ length: 31 }, (_, i) => i + 1);
     }
-    const month = this.selectedMonth();
     let maxDays;
     switch (month) {
       case 2:

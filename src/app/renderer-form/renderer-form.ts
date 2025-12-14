@@ -1,18 +1,5 @@
 import { Component } from '@angular/core';
-import {
-  addressTest,
-  booleanTest,
-  checkTest,
-  dateTest,
-  emailTest,
-  numberTest,
-  radioTest,
-  selectTest,
-  sentimentTest,
-  testForm,
-  textareaTest,
-  textTest,
-} from '../models/testing-models';
+import { testForm } from '../models/testing-models';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RendererField } from '../renderer-field/renderer-field';
 import { FormModel } from '../models/json-types';
