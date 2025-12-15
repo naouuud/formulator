@@ -1,33 +1,33 @@
 <!-- TOP LABEL ("Address") -->
 <label class="block text-md font-medium text-gray-900 mb-2">
-  {{ field.label }}
+  {{ group.label }}
 </label>
-<div class="flex flex-col gap-4 px-4 pt-2 pb-4 border border-gray-300 rounded-md">
-  @for (field of field.fields; track $index) {
+<div class="grid grid-cols-2 gap-4">
+  @for (field of group.fields; track $index) {
   <!-- TEXT FIELD FOR STREET AND CITY -->
-  @if (field.type === FieldType.TEXT) {
-  <div>
-    <label [for]="field.fieldId" class="block text-md font-medium text-gray-900">
+  @if (field.fieldType === FieldType.TEXT && isTextField(field)) {
+  <div class="col-span-2">
+    <label [for]="field.fieldId" class="w-full block text-md font-medium text-gray-500">
       {{ field.label }}
     </label>
     <input
       [id]="field.fieldId"
       type="text"
-      class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
+      class="w-full mt-1 block bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
       [placeholder]="field.placeholder"
       [attr.maxlength]="field.maxLength"
     />
   </div>
   }
   <!-- SELECT FIELD FOR GOVERNORATE AND DISTRICT -->
-  @if (field.type === FieldType.SELECT) {
+  @if (field.fieldType === FieldType.SELECT && isSelectField(field)) {
   <div>
-    <label class="block text-md font-medium text-gray-900"> {{ field.label }} </label>
+    <label class="block text-md font-medium text-gray-500"> {{ field.label }} </label>
     <!-- GOVERNORATE (FIXED OPTIONS) -->
     @if (field.options.length > 0) {
     <select
       (input)="toggleDistrict($event)"
-      class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"
+      class="w-full mt-1 block bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"
     >
       <option [value]="null" disabled selected class="text-gray-800">
         {{ field.placeholder && field.placeholder.length > 0 ? field.placeholder : '---' }}
@@ -41,7 +41,7 @@
     <!-- DISTRICT (DYNAMIC OPTIONS) -->
     } @else {
     <select
-      class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"
+      class="w-full mt-1 block bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"
     >
       <option [value]="null" disabled selected class="text-gray-800">
         {{ field.placeholder && field.placeholder.length > 0 ? field.placeholder : '---' }}

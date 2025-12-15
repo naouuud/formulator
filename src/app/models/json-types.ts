@@ -1,4 +1,3 @@
-import { Field } from '@angular/forms/signals';
 import { leb_governorates } from './lebanon';
 
 export enum FieldType {
@@ -12,13 +11,13 @@ export enum FieldType {
   TEXTAREA = 'textarea',
   ADDRESS = 'address',
   NAME = 'name',
-  PHONE = 'phone',
   BIRTHDAY = 'birthday',
+  PHONE = 'phone',
 }
 
 export interface FieldI {
   fieldId: string;
-  type: FieldType;
+  fieldType: FieldType;
   label: string;
   required: boolean;
 }
@@ -30,37 +29,46 @@ interface OptionI {
 
 abstract class BaseField implements FieldI {
   fieldId = crypto.randomUUID();
-  abstract type: FieldType;
+  abstract fieldType: FieldType;
   label: string = '';
   required: boolean = false;
 }
 
 export class TextField extends BaseField {
-  type: FieldType = FieldType.TEXT;
+  fieldType: FieldType = FieldType.TEXT;
   maxLength: number = 100;
   minLength: number = 0;
   placeholder: string = '';
 }
 
 export class NumberField extends TextField {
-  override type: FieldType = FieldType.NUMBER;
+  override fieldType: FieldType = FieldType.NUMBER;
   maxValue: number = 100;
   minValue: number = 0;
   override placeholder: string = 'Enter number...';
 }
 
+export class PhoneField extends TextField {
+  override fieldType: FieldType = FieldType.PHONE;
+  override maxLength: number = 8;
+  override placeholder: string = 'Enter phone number...';
+  override label: string = 'Phone Number';
+  pattern: RegExp = /^d(?:s?d){7}$/;
+}
+
 export class TextareaField extends TextField {
-  override type: FieldType = FieldType.TEXTAREA;
+  override fieldType: FieldType = FieldType.TEXTAREA;
   override maxLength: number = 500;
   override placeholder: string = 'Enter your text...';
 }
 
 export class RadioField extends BaseField {
-  type: FieldType = FieldType.RADIO;
+  fieldType: FieldType = FieldType.RADIO;
   options: OptionI[] = [];
   col: boolean = true;
 }
 
+// custom RadioField, no special rendering
 export class BooleanField extends RadioField {
   private unsureOption: boolean = false;
   override options: OptionI[] = [
@@ -89,6 +97,7 @@ export class BooleanField extends RadioField {
   }
 }
 
+// custom RadioField, no special rendering
 export class GenderField extends RadioField {
   private nonbinaryOption: boolean = false;
   override options: OptionI[] = [
@@ -98,6 +107,7 @@ export class GenderField extends RadioField {
       value: 'm',
     },
   ];
+  override col: boolean = false;
 
   includeNonBinary(val: boolean) {
     if (val === this.nonbinaryOption) return;
@@ -141,18 +151,18 @@ export class SentimentField extends RadioField {
 }
 
 export class CheckBoxField extends BaseField {
-  type: FieldType = FieldType.CHECKBOX;
+  fieldType: FieldType = FieldType.CHECKBOX;
   options: OptionI[] = [];
 }
 
 export class SelectField extends BaseField {
-  type: FieldType = FieldType.SELECT;
+  fieldType: FieldType = FieldType.SELECT;
   options: OptionI[] = [];
   placeholder: string = '';
 }
 
 export class DateField extends BaseField {
-  type: FieldType = FieldType.DATE;
+  fieldType: FieldType = FieldType.DATE;
   maxYear: number;
   minYear: number;
 
@@ -165,7 +175,7 @@ export class DateField extends BaseField {
 }
 
 export class BirthdayField extends DateField {
-  override type: FieldType = FieldType.BIRTHDAY;
+  override fieldType: FieldType = FieldType.BIRTHDAY;
 
   constructor() {
     super();
@@ -174,7 +184,7 @@ export class BirthdayField extends DateField {
 }
 
 export class EmailField extends BaseField {
-  type: FieldType = FieldType.EMAIL;
+  fieldType: FieldType = FieldType.EMAIL;
   maxLength: number = 50;
   minLength: number = 0;
   placeholder: string = 'Enter your email...';
@@ -182,7 +192,7 @@ export class EmailField extends BaseField {
 }
 
 export class NameGroup extends BaseField {
-  override type: FieldType = FieldType.NAME;
+  override fieldType: FieldType = FieldType.NAME;
   fields: FieldI[] = [];
 
   constructor() {
@@ -198,7 +208,7 @@ export class NameGroup extends BaseField {
 }
 
 export class AddressGroup extends BaseField {
-  type: FieldType = FieldType.ADDRESS;
+  fieldType: FieldType = FieldType.ADDRESS;
   override label: string = 'Address';
   fields: FieldI[] = [];
   geoData = leb_governorates;
