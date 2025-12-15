@@ -1,5 +1,6 @@
 import { Component, computed, Input, OnInit, Signal, signal, WritableSignal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { BirthdayField } from '../models/json-types';
 
 @Component({
   selector: 'app-renderer-birthday',
@@ -8,7 +9,7 @@ import { FormGroup } from '@angular/forms';
   styleUrl: './renderer-birthday.css',
 })
 export class RendererBirthday {
-  @Input() field: any;
+  @Input() field!: BirthdayField;
   @Input() formGroupIn!: FormGroup;
 
   months: WritableSignal<any[]> = signal([
@@ -25,14 +26,14 @@ export class RendererBirthday {
     'November',
     'December',
   ]);
-  selectedMonth: WritableSignal<number | null> = signal(null);
   thisMonth = signal(new Date().getMonth());
+  selectedMonth: WritableSignal<number | null> = signal(null);
 
   years: WritableSignal<number[]> = signal([]);
-  selectedYear: WritableSignal<number | null> = signal(null);
   thisYear = signal(new Date().getFullYear());
+  selectedYear: WritableSignal<number | null> = signal(null);
 
-  numberOfDays: Signal<number[]> = computed(() => {
+  days: Signal<number[]> = computed(() => {
     const year = this.selectedYear();
     const month = this.selectedMonth();
     // Initialize to 31

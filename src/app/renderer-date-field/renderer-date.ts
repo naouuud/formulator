@@ -1,5 +1,6 @@
 import { Component, computed, Input, OnInit, Signal, signal, WritableSignal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { DateField } from '../models/json-types';
 
 @Component({
   selector: 'app-renderer-date',
@@ -8,7 +9,7 @@ import { FormGroup } from '@angular/forms';
   styleUrl: './renderer-date.css',
 })
 export class RendererDate implements OnInit {
-  @Input() field: any;
+  @Input() field!: DateField;
   @Input() formGroupIn!: FormGroup;
 
   years: WritableSignal<number[]> = signal([]);

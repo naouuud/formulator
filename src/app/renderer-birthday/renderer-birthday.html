@@ -1,14 +1,14 @@
-<div class="mb-2">
+<div class="mb-2 w-full">
   <label class="block text-md font-medium text-gray-900 mb-2">
     {{ field.label }}
   </label>
-  <div class="flex space-x-4 px-4 border border-gray-300 rounded-md pt-2 pb-4">
+  <div class="flex space-x-4">
     <!-- Month -->
     <div class="w-1/3">
-      <label for="month" class="block mb-1 text-sm font-medium text-gray-900">Month</label>
+      <label for="month" class="block mb-1 text-sm font-medium text-gray-500">Month</label>
       <select
         id="month"
-        class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+        class="w-full mt-1 block bg-gray-50 p-3 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
         (input)="selectMonth($event)"
       >
         <option value="" disabled selected>Select month</option>
@@ -21,13 +21,13 @@
     </div>
     <!-- Day -->
     <div class="w-1/3">
-      <label for="day" class="block mb-1 text-sm font-medium text-gray-900">Day</label>
+      <label for="day" class="block mb-1 text-sm font-medium text-gray-500">Day</label>
       <select
         id="day"
-        class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+        class="w-full mt-1 block bg-gray-50 p-3 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
       >
         <option value="" disabled selected>Select day</option>
-        @for (day of numberOfDays(); track $index) {
+        @for (day of days(); track $index) {
         <option
           [value]="day"
           [disabled]="
@@ -41,10 +41,10 @@
     </div>
     <!-- Year -->
     <div class="w-1/3">
-      <label for="year" class="block mb-1 text-sm font-medium text-gray-900">Year</label>
+      <label for="year" class="block mb-1 text-sm font-medium text-gray-500">Year</label>
       <select
         id="year"
-        class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
+        class="w-full mt-1 block bg-gray-50 p-3 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
         (input)="selectYear($event)"
       >
         <option value="" disabled selected>Select year</option>

@@ -14,6 +14,7 @@ import {
   NameGroup,
   GenderField,
   BirthdayField,
+  PhoneField,
 } from './json-types';
 
 const nameTest: NameGroup = new NameGroup();
@@ -85,7 +86,7 @@ numberTest.maxLength = 5;
 const emailTest: EmailField = new EmailField();
 
 const textareaTest: TextareaField = new TextareaField();
-textareaTest.label = 'Please explain why are you interested in this grant (max 500 words)';
+textareaTest.label = 'Please explain why are you interested in this grant (max. 500 words)';
 textareaTest.maxLength = 500;
 
 const addressTest: AddressGroup = new AddressGroup();
@@ -97,21 +98,24 @@ genderTest.includeNonBinary(true);
 const birthdayTest = new BirthdayField();
 birthdayTest.label = 'Date of Birth';
 
+const phoneTest: PhoneField = new PhoneField();
+
 export const testForm: FormModel = new FormModel();
 testForm.name = 'My First Form';
 testForm.fields = [
   nameTest,
-  genderTest,
   birthdayTest,
-  textTest,
-  radioTest,
-  checkTest,
-  selectTest,
-  dateTest,
-  booleanTest,
-  sentimentTest,
-  numberTest,
+  genderTest,
+  phoneTest,
   emailTest,
-  textareaTest,
   addressTest,
+  checkTest,
+  textareaTest,
+  // textTest,
+  // radioTest,
+  // selectTest,
+  // dateTest,
+  // booleanTest,
+  // sentimentTest,
+  // numberTest,
 ];
