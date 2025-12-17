@@ -1,6 +1,6 @@
 import { leb_governorates } from './lebanon';
 
-export enum FieldType {
+export enum Type {
   TEXT = 'text',
   NUMBER = 'number',
   EMAIL = 'email',
@@ -15,41 +15,47 @@ export enum FieldType {
   PHONE = 'phone',
 }
 
-export interface FieldI {
-  fieldId: string;
-  fieldType: FieldType;
-  label: string;
-  required: boolean;
-}
+// export interface FormSectionI {
+//   type: Type;
+//   label: string;
+//   required: boolean;
+// }
 
 interface OptionI {
   label: string;
   value: string;
 }
 
-abstract class BaseField implements FieldI {
+export abstract class Field {
+  abstract type: Type;
   fieldId = crypto.randomUUID();
-  abstract fieldType: FieldType;
   label: string = '';
   required: boolean = false;
 }
 
-export class TextField extends BaseField {
-  fieldType: FieldType = FieldType.TEXT;
+export abstract class Group {
+  abstract type: Type;
+  label: string = '';
+  required: boolean = false;
+  fields: Field[] = [];
+}
+
+export class TextField extends Field {
+  type: Type = Type.TEXT;
   maxLength: number = 100;
   minLength: number = 0;
   placeholder: string = '';
 }
 
 export class NumberField extends TextField {
-  override fieldType: FieldType = FieldType.NUMBER;
+  override type: Type = Type.NUMBER;
   maxValue: number = 100;
   minValue: number = 0;
   override placeholder: string = 'Enter number...';
 }
 
 export class PhoneField extends TextField {
-  override fieldType: FieldType = FieldType.PHONE;
+  override type: Type = Type.PHONE;
   override maxLength: number = 8;
   override placeholder: string = 'Enter phone number...';
   override label: string = 'Phone Number';
@@ -57,13 +63,13 @@ export class PhoneField extends TextField {
 }
 
 export class TextareaField extends TextField {
-  override fieldType: FieldType = FieldType.TEXTAREA;
+  override type: Type = Type.TEXTAREA;
   override maxLength: number = 500;
   override placeholder: string = 'Enter your text...';
 }
 
-export class RadioField extends BaseField {
-  fieldType: FieldType = FieldType.RADIO;
+export class RadioField extends Field {
+  type: Type = Type.RADIO;
   options: OptionI[] = [];
   col: boolean = true;
 }
@@ -150,19 +156,19 @@ export class SentimentField extends RadioField {
   override col: boolean = false;
 }
 
-export class CheckBoxField extends BaseField {
-  fieldType: FieldType = FieldType.CHECKBOX;
+export class CheckBoxField extends Field {
+  type: Type = Type.CHECKBOX;
   options: OptionI[] = [];
 }
 
-export class SelectField extends BaseField {
-  fieldType: FieldType = FieldType.SELECT;
+export class SelectField extends Field {
+  type: Type = Type.SELECT;
   options: OptionI[] = [];
   placeholder: string = '';
 }
 
-export class DateField extends BaseField {
-  fieldType: FieldType = FieldType.DATE;
+export class DateField extends Field {
+  type: Type = Type.DATE;
   maxYear: number;
   minYear: number;
 
@@ -175,7 +181,7 @@ export class DateField extends BaseField {
 }
 
 export class BirthdayField extends DateField {
-  override fieldType: FieldType = FieldType.BIRTHDAY;
+  override type: Type = Type.BIRTHDAY;
 
   constructor() {
     super();
@@ -183,17 +189,16 @@ export class BirthdayField extends DateField {
   }
 }
 
-export class EmailField extends BaseField {
-  fieldType: FieldType = FieldType.EMAIL;
+export class EmailField extends Field {
+  type: Type = Type.EMAIL;
   maxLength: number = 50;
   minLength: number = 0;
   placeholder: string = 'Enter your email...';
   override label: string = 'Email';
 }
 
-export class NameGroup extends BaseField {
-  override fieldType: FieldType = FieldType.NAME;
-  fields: FieldI[] = [];
+export class NameGroup extends Group {
+  override type: Type = Type.NAME;
 
   constructor() {
     super();
@@ -207,10 +212,9 @@ export class NameGroup extends BaseField {
   }
 }
 
-export class AddressGroup extends BaseField {
-  fieldType: FieldType = FieldType.ADDRESS;
+export class AddressGroup extends Group {
+  type: Type = Type.ADDRESS;
   override label: string = 'Address';
-  fields: FieldI[] = [];
   geoData = leb_governorates;
 
   constructor() {
@@ -237,7 +241,9 @@ export class AddressGroup extends BaseField {
   }
 }
 
+export type Section = Field | Group;
+
 export class FormModel {
   name: string = '';
-  fields: FieldI[] = [];
+  sections: Section[] = [];
 }
