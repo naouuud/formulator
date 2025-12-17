@@ -1,58 +1,61 @@
 <!-- TEXT FIELD -->
-@if (field.fieldType === FieldType.TEXT && checkers.isTextField(field)) {
-<label [for]="field.fieldId" class="block text-md font-medium text-gray-900 mb-1">
-  {{ field.label }}
+@if (section.type === Type.TEXT && checkers.isTextField(section)) {
+<label [for]="section.fieldId" class="block text-md font-medium text-gray-900 mb-1">
+  {{ section.label }}
 </label>
-<input
-  [id]="field.fieldId"
-  type="text"
-  class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
-  [placeholder]="field.placeholder"
-  [attr.maxlength]="field.maxLength"
-/>
+<div [formGroup]="formGroupIn">
+  <input
+    [id]="section.fieldId"
+    [formControlName]="section.fieldId"
+    type="text"
+    class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
+    [placeholder]="section.placeholder"
+    [attr.maxlength]="section.maxLength"
+  />
+</div>
 }
 
 <!-- NUMBER -->
-@if (field.fieldType === FieldType.NUMBER && checkers.isNumberField(field)) {
-<label [for]="field.fieldId" class="block text-md font-medium text-gray-900 mb-1">
-  {{ field.label }}
+@if (section.type === Type.NUMBER && checkers.isNumberField(section)) {
+<label [for]="section.fieldId" class="block text-md font-medium text-gray-900 mb-1">
+  {{ section.label }}
 </label>
 <input
-  [id]="field.fieldId"
+  [id]="section.fieldId"
   type="text"
   class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
-  [placeholder]="field.placeholder"
-  [attr.maxlength]="field.maxLength"
+  [placeholder]="section.placeholder"
+  [attr.maxlength]="section.maxLength"
 />
 }
 
 <!-- EMAIL -->
-@if (field.fieldType === FieldType.EMAIL && checkers.isEmailField(field)) {
-<label [for]="field.fieldId" class="block text-md font-medium text-gray-900 mb-1">
-  {{ field.label }}
+@if (section.type === Type.EMAIL && checkers.isEmailField(section)) {
+<label [for]="section.fieldId" class="block text-md font-medium text-gray-900 mb-1">
+  {{ section.label }}
 </label>
 <input
-  [id]="field.fieldId"
+  [id]="section.fieldId"
   type="email"
   class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
-  [placeholder]="field.placeholder"
-  [attr.maxlength]="field.maxLength"
+  [placeholder]="section.placeholder"
+  [attr.maxlength]="section.maxLength"
 />
 }
 
 <!-- RADIO FIELD -->
-@if (field.fieldType === FieldType.RADIO && checkers.isRadioField(field)) {
+@if (section.type === Type.RADIO && checkers.isRadioField(section)) {
 <label class="block text-md font-medium text-gray-900 mb-2">
-  {{ field.label }}
+  {{ section.label }}
 </label>
-<div class="flex gap-2" [ngClass]="field.col ? 'flex-col' : 'flex-row'">
-  @for (option of field.options; track $index) {
+<div class="flex gap-2" [ngClass]="section.col ? 'flex-col' : 'flex-row'">
+  @for (option of section.options; track $index) {
   <label
     class="cursor-pointer select-none flex items-center px-3 py-2 border rounded-full text-gray-700 bg-gray-100 hover:bg-gray-300 transition-all duration-75"
   >
     <input
       type="radio"
-      [name]="field.fieldId"
+      [name]="section.fieldId"
       [value]="option.value"
       class="appearance-none w-5 h-5 rounded-full border border-gray-400 checked:bg-blue-600 checked:border-blue-600 transition duration-75 ease-in-out mr-3 flex-shrink-0"
     />
@@ -63,16 +66,16 @@
 }
 
 <!-- CHECKBOX -->
-@if (field.fieldType === FieldType.CHECKBOX && checkers.isCheckboxField(field)) {
+@if (section.type === Type.CHECKBOX && checkers.isCheckboxField(section)) {
 <label class="block text-md font-medium text-gray-900 mb-2">
-  {{ field.label }}
+  {{ section.label }}
 </label>
 <div class="grid grid-cols-2 gap-2">
-  @for (option of field.options; track $index) {
+  @for (option of section.options; track $index) {
   <label
     class="flex items-center gap-3 px-3 p-2 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50 transition select-none"
   >
-    <input type="checkbox" [name]="field.fieldId" [value]="option.value" class="peer hidden" />
+    <input type="checkbox" [name]="section.fieldId" [value]="option.value" class="peer hidden" />
 
     <span
       class="flex items-center justify-center w-4 h-4 mr-2 rounded border border-gray-400 bg-gray-100 peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-all duration-75"
@@ -96,15 +99,15 @@
 }
 
 <!-- SELECT -->
-@if (field.fieldType === FieldType.SELECT && checkers.isSelectField(field)) {
-<label class="block text-md font-medium text-gray-900 mb-2"> {{ field.label }} </label>
+@if (section.type === Type.SELECT && checkers.isSelectField(section)) {
+<label class="block text-md font-medium text-gray-900 mb-2"> {{ section.label }} </label>
 <select
   class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"
 >
   <option [value]="null" disabled selected class="text-gray-800">
-    {{ field.placeholder && field.placeholder.length > 0 ? field.placeholder : '---' }}
+    {{ section.placeholder && section.placeholder.length > 0 ? section.placeholder : '---' }}
   </option>
-  @for (option of field.options; track $index) {
+  @for (option of section.options; track $index) {
   <option [value]="option.value" class="text-gray-800">
     {{ option.label }}
   </option>
@@ -113,41 +116,41 @@
 }
 
 <!-- PHONE FIELD -->
-@if (field.fieldType === FieldType.PHONE && checkers.isPhoneField(field)) {
-<label [for]="field.fieldId" class="block text-md font-medium text-gray-900 mb-1">
-  {{ field.label }}
+@if (section.type === Type.PHONE && checkers.isPhoneField(section)) {
+<label [for]="section.fieldId" class="block text-md font-medium text-gray-900 mb-1">
+  {{ section.label }}
 </label>
 <input
-  [id]="field.fieldId"
+  [id]="section.fieldId"
   type="text"
   class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
-  [placeholder]="field.placeholder"
-  [attr.maxlength]="field.maxLength"
-  [pattern]="field.pattern"
+  [placeholder]="section.placeholder"
+  [attr.maxlength]="section.maxLength"
+  [pattern]="section.pattern"
 />
 }
 
 <!-- DATE -->
-@if (field.fieldType === FieldType.DATE && checkers.isDateField(field)) {
-<app-renderer-date [field]="field" [formGroupIn]="formGroupIn" />
+@if (section.type === Type.DATE && checkers.isDateField(section)) {
+<app-renderer-date [field]="section" [formGroupIn]="formGroupIn" />
 }
 
 <!-- BIRTHDAY -->
-@if (field.fieldType === FieldType.BIRTHDAY && checkers.isBirthdayField(field)) {
-<app-renderer-birthday [field]="field" [formGroupIn]="formGroupIn" />
+@if (section.type === Type.BIRTHDAY && checkers.isBirthdayField(section)) {
+<app-renderer-birthday [field]="section" [formGroupIn]="formGroupIn" />
 }
 
 <!-- TEXTAREA -->
-@if (field.fieldType === FieldType.TEXTAREA && checkers.isTextareaField(field)) {
-<app-renderer-textarea [field]="field" [formGroupIn]="formGroupIn" />
+@if (section.type === Type.TEXTAREA && checkers.isTextareaField(section)) {
+<app-renderer-textarea [field]="section" [formGroupIn]="formGroupIn" />
 }
 
 <!-- ADDRESS -->
-@if (field.fieldType === FieldType.ADDRESS && checkers.isAddressGroup(field)) {
-<app-renderer-address [group]="field" [formGroupIn]="formGroupIn" />
+@if (section.type === Type.ADDRESS && checkers.isAddressGroup(section)) {
+<app-renderer-address-group [group]="section" [formGroupIn]="formGroupIn" />
 }
 
 <!-- NAME -->
-@if (field.fieldType === FieldType.NAME && checkers.isNameGroup(field)) {
-<app-renderer-name app-renderer-name [group]="field" [formGroupIn]="formGroupIn" />
+@if (section.type === Type.NAME && checkers.isNameGroup(section)) {
+<app-renderer-name-group [group]="section" [formGroupIn]="formGroupIn" />
 }

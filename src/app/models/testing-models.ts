@@ -102,7 +102,7 @@ const phoneTest: PhoneField = new PhoneField();
 
 export const testForm: FormModel = new FormModel();
 testForm.name = 'My First Form';
-testForm.fields = [
+testForm.sections = [
   nameTest,
   birthdayTest,
   genderTest,

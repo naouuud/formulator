@@ -1,4 +1,4 @@
-import { FieldType } from './json-types';
+import { Type } from './json-types';
 
 export type TypeModel = {
   name: string;
@@ -9,42 +9,42 @@ export type TypeModel = {
 };
 
 export const types: TypeModel[] = [
-  { name: 'Full Name', fieldType: FieldType.NAME, img: 'user.png', attribution: 'Bharat Icons' },
+  { name: 'Full Name', fieldType: Type.NAME, img: 'user.png', attribution: 'Bharat Icons' },
   {
     name: 'Date of Birth',
-    fieldType: FieldType.BIRTHDAY,
+    fieldType: Type.BIRTHDAY,
     img: 'date-of-birth.png',
     attribution: 'Freepik',
   },
   {
     name: 'Gender',
-    fieldType: FieldType.RADIO,
+    fieldType: Type.RADIO,
     img: 'gender-fluid.png',
     attribution: 'Aranagraphics',
   },
   {
     name: 'Phone',
     description: '',
-    fieldType: FieldType.TEXT,
+    fieldType: Type.TEXT,
     img: 'smartphone-call.png',
     attribution: 'Freepik',
   },
   {
     name: 'Email',
-    fieldType: FieldType.EMAIL,
+    fieldType: Type.EMAIL,
     img: 'email.png',
     attribution: 'Those Icons',
   },
   {
     name: 'Address',
-    fieldType: FieldType.ADDRESS,
+    fieldType: Type.ADDRESS,
     img: 'house.png',
     attribution: 'KP Arts',
   },
   {
     name: 'Short Text',
     description: 'Maximum length 100 characters.',
-    fieldType: FieldType.TEXT,
+    fieldType: Type.TEXT,
     img: 'font.png',
     attribution: 'Freepik',
   },
@@ -52,46 +52,46 @@ export const types: TypeModel[] = [
     name: 'Long Text',
     description:
       'Ideal for comments, descriptions and essays. Set a word limit to keep answers concise.',
-    fieldType: FieldType.TEXTAREA,
+    fieldType: Type.TEXTAREA,
     img: 'comment.png',
     attribution: 'Freepik',
   },
   {
     name: 'Checkbox',
     description: 'Check all that apply.',
-    fieldType: FieldType.CHECKBOX,
+    fieldType: Type.CHECKBOX,
     img: 'check.png',
     attribution: 'Picons',
   },
   {
     name: 'Radio',
     description: 'Check one option only.',
-    fieldType: FieldType.RADIO,
+    fieldType: Type.RADIO,
     img: 'radio.png',
     attribution: 'Bharat Icons',
   },
   {
     name: 'Dropdown',
-    fieldType: FieldType.SELECT,
+    fieldType: Type.SELECT,
     img: 'dropdown.png',
     attribution: 'Royyan Wijaya',
   },
   {
     name: 'Any Date',
-    fieldType: FieldType.DATE,
+    fieldType: Type.DATE,
     img: 'calendar.png',
     attribution: 'Freepik',
   },
   {
     name: 'Number',
-    fieldType: FieldType.NUMBER,
+    fieldType: Type.NUMBER,
     img: 'pin.png',
     attribution: 'Fathema Khanom',
   },
 
   {
     name: 'Yes/No',
-    fieldType: FieldType.RADIO,
+    fieldType: Type.RADIO,
     img: 'yes.png',
     attribution: 'Freepik',
   },

@@ -5,7 +5,7 @@
 <div class="grid grid-cols-2 gap-4">
   @for (field of group.fields; track $index) {
   <!-- TEXT FIELD FOR STREET AND CITY -->
-  @if (field.fieldType === FieldType.TEXT && isTextField(field)) {
+  @if (field.type === Type.TEXT && isTextField(field)) {
   <div class="col-span-2">
     <label [for]="field.fieldId" class="w-full block text-md font-medium text-gray-500">
       {{ field.label }}
@@ -20,7 +20,7 @@
   </div>
   }
   <!-- SELECT FIELD FOR GOVERNORATE AND DISTRICT -->
-  @if (field.fieldType === FieldType.SELECT && isSelectField(field)) {
+  @if (field.type === Type.SELECT && isSelectField(field)) {
   <div>
     <label class="block text-md font-medium text-gray-500"> {{ field.label }} </label>
     <!-- GOVERNORATE (FIXED OPTIONS) -->

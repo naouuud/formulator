@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { RendererField } from '../renderer-field/renderer-field';
-import { FieldI, FieldType, FormModel, TextField } from '../models/json-types';
+import { Type, Section, Field, FormModel } from '../models/json-types';
 import { checkers } from '../models/typecheck-functions';
 
 @Component({
@@ -19,32 +19,62 @@ import { checkers } from '../models/typecheck-functions';
 })
 export class RendererForm {
   formGroup = new FormGroup({});
-  testForm = testForm;
+  form: FormModel = testForm;
+  formFields: Field[] = [];
 
   constructor() {
+    this._extractFields();
     this._buildFormGroup();
-  }
-
-  private controlName(field: FieldI): string {
-    return `ctrl${field.fieldId}`;
   }
 
   private _buildFormGroup(): void {
     this.formGroup = new FormGroup({});
-    testForm.fields.forEach((field: FieldI) => {
-      switch (field.fieldType) {
-        case FieldType.TEXT:
+    this.formFields.forEach((field: Field) => {
+      const validators: ValidatorFn[] = [];
+      switch (field.type) {
+        case Type.TEXT:
           if (!checkers.isTextField(field)) return;
-          const validators: ValidatorFn[] = [];
           if (field.required) validators.push(Validators.required);
           validators.push(Validators.maxLength(field.maxLength));
-          validators.push(Validators.minLength(field.minLength));
+          if (field.minLength > 0) validators.push(Validators.minLength(field.minLength));
           this.formGroup.addControl(
-            this.controlName(field),
-            new FormControl<string | null>('', validators)
+            field.fieldId,
+            new FormControl<string | null>(null, validators)
+          );
+          break;
+        case Type.EMAIL:
+          if (!checkers.isEmailField(field)) return;
+          if (field.required) validators.push(Validators.required);
+          validators.push(Validators.email);
+          validators.push(Validators.maxLength(field.maxLength));
+          this.formGroup.addControl(
+            field.fieldId,
+            new FormControl<string | null>(null, validators)
+          );
+          break;
+        case Type.SELECT:
+          if (!checkers.isSelectField(field)) return;
+          if (field.required) validators.push(Validators.required);
+          this.formGroup.addControl(
+            field.fieldId,
+            new FormControl<string | null>(null, validators)
           );
           break;
       }
     });
+  }
+
+  private _extractFields(): void {
+    this.form.sections.forEach((section: Section) => {
+      if (this._isField(section)) {
+        this.formFields.push(section);
+      } else {
+        section.fields.forEach((section) => this.formFields.push(section));
+      }
+    });
+  }
+
+  private _isField(section: any): section is Field {
+    return !section.fields;
   }
 }

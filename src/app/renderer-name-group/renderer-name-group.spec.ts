@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RendererName } from './renderer-name';
+import { RendererNameGroup } from './renderer-name-group';
 
 describe('RendererName', () => {
-  let component: RendererName;
-  let fixture: ComponentFixture<RendererName>;
+  let component: RendererNameGroup;
+  let fixture: ComponentFixture<RendererNameGroup>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RendererName]
-    })
-    .compileComponents();
+      imports: [RendererNameGroup],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(RendererName);
+    fixture = TestBed.createComponent(RendererNameGroup);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

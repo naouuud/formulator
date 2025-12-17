@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RendererAddress } from './renderer-address';
+import { RendererAddressGroup } from './renderer-address-group';
 
 describe('RendererAddress', () => {
-  let component: RendererAddress;
-  let fixture: ComponentFixture<RendererAddress>;
+  let component: RendererAddressGroup;
+  let fixture: ComponentFixture<RendererAddressGroup>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RendererAddress]
-    })
-    .compileComponents();
+      imports: [RendererAddressGroup],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(RendererAddress);
+    fixture = TestBed.createComponent(RendererAddressGroup);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
