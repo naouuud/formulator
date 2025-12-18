@@ -49,17 +49,20 @@ export class TextField extends Field {
 
 export class NumberField extends TextField {
   override type: Type = Type.NUMBER;
-  maxValue: number = 100;
-  minValue: number = 0;
+  // MAX and MIN number values, use custom validator
+  maxValue: number = 1000000000; // one billion
+  minValue: number = -1000000000; // negative one billion
   override placeholder: string = 'Enter number...';
+  pattern: RegExp = /^[+-]?\d+(\.\d+)?$/;
 }
 
 export class PhoneField extends TextField {
   override type: Type = Type.PHONE;
-  override maxLength: number = 8;
+  override maxLength: number = 15;
+  override minLength: number = 8;
   override placeholder: string = 'Enter phone number...';
   override label: string = 'Phone Number';
-  pattern: RegExp = /^d(?:s?d){7}$/;
+  pattern: RegExp = /^\d(?:\s?\d){7}$/;
 }
 
 export class TextareaField extends TextField {
@@ -74,7 +77,7 @@ export class RadioField extends Field {
   col: boolean = true;
 }
 
-// custom RadioField, no special rendering
+// type RADIO (no override)
 export class BooleanField extends RadioField {
   private unsureOption: boolean = false;
   override options: OptionI[] = [
@@ -103,7 +106,7 @@ export class BooleanField extends RadioField {
   }
 }
 
-// custom RadioField, no special rendering
+// type RADIO (no override)
 export class GenderField extends RadioField {
   private nonbinaryOption: boolean = false;
   override options: OptionI[] = [
