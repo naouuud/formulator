@@ -1,14 +1,16 @@
 import { Component } from '@angular/core';
 import { testForm } from '../models/testing-models';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { RendererField } from '../renderer-field/renderer-field';
-import { Type, Section, Field, FormModel } from '../models/json-types';
+import { Type, Section, Field, FormModel, NumberField } from '../models/json-types';
 import { checkers } from '../models/typecheck-functions';
 
 @Component({
@@ -30,40 +32,57 @@ export class RendererForm {
   private _buildFormGroup(): void {
     this.formGroup = new FormGroup({});
     this.formFields.forEach((field: Field) => {
-      const validators: ValidatorFn[] = [];
+      const validators: any[] = [];
       switch (field.type) {
         case Type.TEXT:
-          if (!checkers.isTextField(field)) return;
+        case Type.TEXTAREA:
+          if (!checkers.isTextField(field) && !checkers.isTextareaField(field)) return;
           if (field.required) validators.push(Validators.required);
           validators.push(Validators.maxLength(field.maxLength));
-          if (field.minLength > 0) validators.push(Validators.minLength(field.minLength));
-          this.formGroup.addControl(
-            field.fieldId,
-            new FormControl<string | null>(null, validators)
-          );
+          if (field.minLength > 1) validators.push(Validators.minLength(field.minLength));
+
+          break;
+        case Type.NUMBER:
+          if (!checkers.isNumberField(field)) return;
+          if (field.required) validators.push(Validators.required);
+          validators.push(Validators.maxLength(field.maxLength));
+          if (field.minLength > 1) validators.push(Validators.minLength(field.minLength));
+          validators.push(Validators.pattern(field.pattern));
+          validators.push(this._numberValueValidator(field));
           break;
         case Type.EMAIL:
           if (!checkers.isEmailField(field)) return;
           if (field.required) validators.push(Validators.required);
-          validators.push(Validators.email);
           validators.push(Validators.maxLength(field.maxLength));
-          this.formGroup.addControl(
-            field.fieldId,
-            new FormControl<string | null>(null, validators)
-          );
+          validators.push(Validators.email);
+
+          break;
+        case Type.PHONE:
+          if (!checkers.isPhoneField(field)) return;
+          if (field.required) validators.push(Validators.required);
+          validators.push(Validators.maxLength(field.maxLength));
+          if (field.minLength > 1) validators.push(Validators.minLength(field.minLength));
+          validators.push(Validators.pattern(field.pattern));
+
           break;
         case Type.SELECT:
-          if (!checkers.isSelectField(field)) return;
+        case Type.RADIO: // includes Gender & Boolean
+        case Type.CHECKBOX:
+          if (
+            !checkers.isSelectField(field) &&
+            !checkers.isRadioField(field) &&
+            !checkers.isCheckboxField(field)
+          )
+            return;
           if (field.required) validators.push(Validators.required);
-          this.formGroup.addControl(
-            field.fieldId,
-            new FormControl<string | null>(null, validators)
-          );
+
           break;
       }
+      this.formGroup.addControl(field.fieldId, new FormControl<string | null>(null, validators));
     });
   }
 
+  // Section[] to Field[]
   private _extractFields(): void {
     this.form.sections.forEach((section: Section) => {
       if (this._isField(section)) {
@@ -74,7 +93,24 @@ export class RendererForm {
     });
   }
 
+  // Type check function to distinguish Field and Group
   private _isField(section: any): section is Field {
     return !section.fields;
+  }
+
+  // Custom Validator for NumberField (factory returning ValidatorFn)
+  private _numberValueValidator(field: NumberField): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (value == null || value === '') return null; // ignore empty
+      const numberValue = +value;
+      if (Number.isNaN(numberValue)) return null; // validated by RegEx
+      // in case NumberField properties are misconfigured
+      const min = field.minValue ?? Number.NEGATIVE_INFINITY;
+      const max = field.maxValue ?? Number.POSITIVE_INFINITY;
+      if (numberValue < min) return { numberTooSmall: true };
+      if (numberValue > max) return { numberTooLarge: true };
+      return null;
+    };
   }
 }
