@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Section, Type } from '../models/json-types';
 import { RendererDate } from '../renderer-date-field/renderer-date';
 import { CommonModule } from '@angular/common';
@@ -31,5 +31,9 @@ export class RendererField implements OnInit {
 
   ngOnInit() {
     console.log(this.section);
+  }
+
+  getFieldControl(id: string): AbstractControl {
+    return this.formGroupIn.controls[id] ?? null;
   }
 }

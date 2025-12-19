@@ -10,7 +10,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { RendererField } from '../renderer-field/renderer-field';
-import { Type, Section, Field, FormModel, NumberField } from '../models/json-types';
+import { Type, Section, Field, FormModel, NumberField, DateField } from '../models/json-types';
 import { checkers } from '../models/typecheck-functions';
 
 @Component({
@@ -75,8 +75,11 @@ export class RendererForm {
           )
             return;
           if (field.required) validators.push(Validators.required);
-
           break;
+        case Type.BIRTHDAY:
+          if (!checkers.isBirthdayField(field)) return;
+          if (field.required) validators.push(Validators.required);
+          validators.push(this._dateValidator(field));
       }
       this.formGroup.addControl(field.fieldId, new FormControl<string | null>(null, validators));
     });
@@ -110,6 +113,23 @@ export class RendererForm {
       const max = field.maxValue ?? Number.POSITIVE_INFINITY;
       if (numberValue < min) return { numberTooSmall: true };
       if (numberValue > max) return { numberTooLarge: true };
+      return null;
+    };
+  }
+
+  private _dateValidator(field: DateField): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      // ignore empty values (use required validator instead)
+      if (value == null || value === '') return null;
+      // const selectedDate = new Date(value);
+      const [year, month, day] = value.split('-').map(Number);
+      const selectedDate = new Date(year, month - 1, day);
+      console.log(selectedDate);
+      const maxDate = new Date(field.maxDate);
+      const minDate = new Date(field.minDate);
+      if (!isNaN(maxDate.getTime()) && selectedDate > maxDate) return { dateOutsideMaxRange: true };
+      if (!isNaN(minDate.getTime()) && selectedDate < minDate) return { dateOutsideMinRange: true };
       return null;
     };
   }

@@ -40,11 +40,11 @@ export class RendererDate implements OnInit {
   });
 
   ngOnInit(): void {
-    this.selectedYear.set(this.field.maxYear);
+    this.selectedYear.set(this.field.maxYearDisplayed);
     this.years.set(
       Array.from(
-        { length: this.field.maxYear - this.field.minYear + 1 },
-        (_, i) => this.field.maxYear - i
+        { length: this.field.maxYearDisplayed - this.field.minYearDisplayed + 1 },
+        (_, i) => this.field.maxYearDisplayed - i
       )
     );
   }

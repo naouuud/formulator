@@ -1,16 +1,26 @@
-import { Component, computed, Input, OnInit, Signal, signal, WritableSignal } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import {
+  Component,
+  computed,
+  effect,
+  Input,
+  OnInit,
+  Signal,
+  signal,
+  WritableSignal,
+} from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { BirthdayField } from '../models/json-types';
 
 @Component({
   selector: 'app-renderer-birthday',
-  imports: [],
+  imports: [ReactiveFormsModule],
   templateUrl: './renderer-birthday.html',
   styleUrl: './renderer-birthday.css',
 })
-export class RendererBirthday {
+export class RendererBirthday implements OnInit {
   @Input() field!: BirthdayField;
   @Input() formGroupIn!: FormGroup;
+  @Input() formControlIn!: AbstractControl;
 
   months: WritableSignal<any[]> = signal([
     'January',
@@ -58,12 +68,28 @@ export class RendererBirthday {
     return Array.from({ length: maxDays }, (_, i) => i + 1);
   });
   today = signal(new Date().getDate());
+  selectedDay: WritableSignal<number | null> = signal(null);
+
+  constructor() {
+    // Update FormControlIn
+    effect(() => {
+      const selectedDay = this.selectedDay();
+      const selectedMonth = this.selectedMonth();
+      const selectedYear = this.selectedYear();
+      if (selectedYear !== null && selectedMonth !== null && selectedDay !== null) {
+        const paddedMonth = (selectedMonth + 1).toString().padStart(2, '0');
+        const paddedDay = selectedDay.toString().padStart(2, '0');
+        this.formControlIn.setValue(`${selectedYear}-${paddedMonth}-${paddedDay}`);
+      }
+      console.log(this.formControlIn.value);
+    });
+  }
 
   ngOnInit(): void {
     this.years.set(
       Array.from(
-        { length: this.field.maxYear - this.field.minYear + 1 },
-        (_, i) => this.field.maxYear - i
+        { length: this.field.maxYearDisplayed - this.field.minYearDisplayed + 1 },
+        (_, i) => this.field.maxYearDisplayed - i
       )
     );
   }
@@ -80,5 +106,10 @@ export class RendererBirthday {
   selectMonth(event: Event) {
     const month = parseInt((event.target as HTMLSelectElement).value, 10);
     this.selectedMonth.set(month);
+  }
+
+  selectDay(event: Event) {
+    const day = parseInt((event.target as HTMLSelectElement).value, 10);
+    this.selectedDay.set(day);
   }
 }
