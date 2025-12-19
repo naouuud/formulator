@@ -137,7 +137,11 @@
 
 <!-- BIRTHDAY -->
 @if (section.type === Type.BIRTHDAY && checkers.isBirthdayField(section)) {
-<app-renderer-birthday [field]="section" [formGroupIn]="formGroupIn" />
+<app-renderer-birthday
+  [field]="section"
+  [formGroupIn]="formGroupIn"
+  [formControlIn]="getFieldControl(section.fieldId)"
+/>
 }
 
 <!-- TEXTAREA -->

@@ -172,14 +172,16 @@ export class SelectField extends Field {
 
 export class DateField extends Field {
   type: Type = Type.DATE;
-  maxYear: number;
-  minYear: number;
+  maxDate: string = '';
+  minDate: string = '';
+  maxYearDisplayed: number;
+  minYearDisplayed: number;
 
   constructor() {
     super();
     const year = new Date().getFullYear();
-    this.maxYear = year;
-    this.minYear = year - 100;
+    this.maxYearDisplayed = year;
+    this.minYearDisplayed = year - 100;
   }
 }
 
@@ -188,7 +190,8 @@ export class BirthdayField extends DateField {
 
   constructor() {
     super();
-    this.minYear = new Date().getFullYear() - 125;
+    const date = new Date();
+    this.minYearDisplayed = date.getFullYear() - 125;
   }
 }
 
