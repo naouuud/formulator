@@ -9,7 +9,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { BirthdayField } from '../models/json-types';
+import { BirthdayField } from '../../models/json-types';
 
 @Component({
   selector: 'app-renderer-birthday',
@@ -81,7 +81,7 @@ export class RendererBirthday implements OnInit {
         const paddedDay = selectedDay.toString().padStart(2, '0');
         this.formControlIn.setValue(`${selectedYear}-${paddedMonth}-${paddedDay}`);
       }
-      console.log(this.formControlIn.value);
+      // console.log(this.formControlIn.value);
     });
   }
 

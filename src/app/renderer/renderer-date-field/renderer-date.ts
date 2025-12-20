@@ -1,6 +1,6 @@
 import { Component, computed, Input, OnInit, Signal, signal, WritableSignal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { DateField } from '../models/json-types';
+import { DateField } from '../../models/json-types';
 
 @Component({
   selector: 'app-renderer-date',

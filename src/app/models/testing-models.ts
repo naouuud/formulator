@@ -5,7 +5,6 @@ import {
   RadioField,
   TextField,
   BooleanField,
-  SentimentField,
   NumberField,
   EmailField,
   TextareaField,
@@ -75,8 +74,8 @@ const booleanTest: BooleanField = new BooleanField();
 booleanTest.label = 'Do you wish to receive promotional emails?';
 booleanTest.includeUnsure(true);
 
-const sentimentTest: SentimentField = new SentimentField();
-sentimentTest.label = 'My room is very organized';
+// const sentimentTest: SentimentField = new SentimentField();
+// sentimentTest.label = 'My room is very organized';
 
 const numberTest: NumberField = new NumberField();
 numberTest.maxValue = 20;

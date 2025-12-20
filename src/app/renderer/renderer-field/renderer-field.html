@@ -44,7 +44,8 @@
 }
 
 <!-- RADIO FIELD -->
-@if (section.type === Type.RADIO && checkers.isRadioField(section)) {
+@if ((section.type === Type.RADIO || section.type === Type.GENDER || section.type === Type.BOOLEAN)
+&& checkers.isRadioField(section)) {
 <label class="block text-md font-medium text-gray-900 mb-2">
   {{ section.label }}
 </label>

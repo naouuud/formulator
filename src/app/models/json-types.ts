@@ -1,18 +1,20 @@
 import { leb_governorates } from './lebanon';
 
 export enum Type {
-  TEXT = 'text',
-  NUMBER = 'number',
-  EMAIL = 'email',
-  DATE = 'date',
-  CHECKBOX = 'checkbox',
-  RADIO = 'radio',
-  SELECT = 'select',
-  TEXTAREA = 'textarea',
-  ADDRESS = 'address',
   NAME = 'name',
   BIRTHDAY = 'birthday',
+  GENDER = 'gender',
   PHONE = 'phone',
+  EMAIL = 'email',
+  ADDRESS = 'address',
+  TEXT = 'text',
+  TEXTAREA = 'textarea',
+  SELECT = 'select',
+  CHECKBOX = 'checkbox',
+  RADIO = 'radio',
+  DATE = 'date',
+  NUMBER = 'number',
+  BOOLEAN = 'boolean',
 }
 
 // export interface FormSectionI {
@@ -77,8 +79,8 @@ export class RadioField extends Field {
   col: boolean = true;
 }
 
-// type RADIO (no override)
 export class BooleanField extends RadioField {
+  override type: Type = Type.BOOLEAN;
   private unsureOption: boolean = false;
   override options: OptionI[] = [
     {
@@ -106,8 +108,8 @@ export class BooleanField extends RadioField {
   }
 }
 
-// type RADIO (no override)
 export class GenderField extends RadioField {
+  override type: Type = Type.GENDER;
   private nonbinaryOption: boolean = false;
   override options: OptionI[] = [
     { label: 'Female', value: 'f' },
@@ -133,31 +135,31 @@ export class GenderField extends RadioField {
   }
 }
 
-export class SentimentField extends RadioField {
-  override options: OptionI[] = [
-    {
-      label: 'Strongly Agree',
-      value: 'strongly-agree',
-    },
-    {
-      label: 'Agree',
-      value: 'agree',
-    },
-    {
-      label: 'Neutral',
-      value: 'neutral',
-    },
-    {
-      label: 'Disagree',
-      value: 'disagree',
-    },
-    {
-      label: 'Strongly Disagree',
-      value: 'strongly-disagree',
-    },
-  ];
-  override col: boolean = false;
-}
+// export class SentimentField extends RadioField {
+//   override options: OptionI[] = [
+//     {
+//       label: 'Strongly Agree',
+//       value: 'strongly-agree',
+//     },
+//     {
+//       label: 'Agree',
+//       value: 'agree',
+//     },
+//     {
+//       label: 'Neutral',
+//       value: 'neutral',
+//     },
+//     {
+//       label: 'Disagree',
+//       value: 'disagree',
+//     },
+//     {
+//       label: 'Strongly Disagree',
+//       value: 'strongly-disagree',
+//     },
+//   ];
+//   override col: boolean = false;
+// }
 
 export class CheckBoxField extends Field {
   type: Type = Type.CHECKBOX;
@@ -250,6 +252,10 @@ export class AddressGroup extends Group {
 export type Section = Field | Group;
 
 export class FormModel {
+  formId: string = crypto.randomUUID();
   name: string = '';
   sections: Section[] = [];
+  addSection(section: Section): void {
+    this.sections.push(section);
+  }
 }
