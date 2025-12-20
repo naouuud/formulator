@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { testForm } from '../models/testing-models';
+import { testForm } from '../../models/testing-models';
 import {
   AbstractControl,
   FormControl,
@@ -10,8 +10,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { RendererField } from '../renderer-field/renderer-field';
-import { Type, Section, Field, FormModel, NumberField, DateField } from '../models/json-types';
-import { checkers } from '../models/typecheck-functions';
+import { Type, Section, Field, FormModel, NumberField, DateField } from '../../models/json-types';
+import { checkers } from '../../models/typecheck-functions';
 
 @Component({
   selector: 'app-renderer-form',
@@ -125,7 +125,6 @@ export class RendererForm {
       // const selectedDate = new Date(value);
       const [year, month, day] = value.split('-').map(Number);
       const selectedDate = new Date(year, month - 1, day);
-      console.log(selectedDate);
       const maxDate = new Date(field.maxDate);
       const minDate = new Date(field.minDate);
       if (!isNaN(maxDate.getTime()) && selectedDate > maxDate) return { dateOutsideMaxRange: true };

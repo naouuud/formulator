@@ -28,7 +28,9 @@ function isSelectField(section: Section): section is SelectField {
 }
 
 function isRadioField(section: Section): section is RadioField {
-  return section.type === Type.RADIO;
+  return (
+    section.type === Type.RADIO || section.type === Type.GENDER || section.type === Type.BOOLEAN
+  );
 }
 
 function isCheckboxField(section: Section): section is CheckBoxField {

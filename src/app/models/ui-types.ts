@@ -18,14 +18,14 @@ export const types: TypeModel[] = [
   },
   {
     name: 'Gender',
-    fieldType: Type.RADIO,
+    fieldType: Type.GENDER,
     img: 'gender-fluid.png',
     attribution: 'Aranagraphics',
   },
   {
     name: 'Phone',
     description: '',
-    fieldType: Type.TEXT,
+    fieldType: Type.PHONE,
     img: 'smartphone-call.png',
     attribution: 'Freepik',
   },
@@ -57,6 +57,12 @@ export const types: TypeModel[] = [
     attribution: 'Freepik',
   },
   {
+    name: 'Dropdown',
+    fieldType: Type.SELECT,
+    img: 'dropdown.png',
+    attribution: 'Royyan Wijaya',
+  },
+  {
     name: 'Checkbox',
     description: 'Check all that apply.',
     fieldType: Type.CHECKBOX,
@@ -71,12 +77,6 @@ export const types: TypeModel[] = [
     attribution: 'Bharat Icons',
   },
   {
-    name: 'Dropdown',
-    fieldType: Type.SELECT,
-    img: 'dropdown.png',
-    attribution: 'Royyan Wijaya',
-  },
-  {
     name: 'Any Date',
     fieldType: Type.DATE,
     img: 'calendar.png',
@@ -88,10 +88,9 @@ export const types: TypeModel[] = [
     img: 'pin.png',
     attribution: 'Fathema Khanom',
   },
-
   {
     name: 'Yes/No',
-    fieldType: Type.RADIO,
+    fieldType: Type.BOOLEAN,
     img: 'yes.png',
     attribution: 'Freepik',
   },

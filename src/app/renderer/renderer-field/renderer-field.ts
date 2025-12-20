@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Section, Type } from '../models/json-types';
+import { Section, Type } from '../../models/json-types';
 import { RendererDate } from '../renderer-date-field/renderer-date';
 import { CommonModule } from '@angular/common';
 import { RendererTextarea } from '../renderer-textarea/renderer-textarea';
 import { RendererAddressGroup } from '../renderer-address-group/renderer-address-group';
 import { RendererNameGroup } from '../renderer-name-group/renderer-name-group';
 import { RendererBirthday } from '../renderer-birthday/renderer-birthday';
-import { checkers } from '../models/typecheck-functions';
+import { checkers } from '../../models/typecheck-functions';
 
 @Component({
   selector: 'app-renderer-field',

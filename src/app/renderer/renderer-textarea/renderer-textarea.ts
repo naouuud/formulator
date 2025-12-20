@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { TextareaField } from '../models/json-types';
+import { TextareaField } from '../../models/json-types';
 
 @Component({
   selector: 'app-renderer-textarea',

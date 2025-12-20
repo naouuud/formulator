@@ -1,7 +1,7 @@
 import { Component, Input, signal, WritableSignal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { AddressGroup, Type } from '../models/json-types';
-import { checkers } from '../models/typecheck-functions';
+import { AddressGroup, Type } from '../../models/json-types';
+import { checkers } from '../../models/typecheck-functions';
 
 @Component({
   selector: 'app-renderer-address-group',

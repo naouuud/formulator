@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Type, NameGroup } from '../models/json-types';
-import { checkers } from '../models/typecheck-functions';
+import { Type, NameGroup } from '../../models/json-types';
+import { checkers } from '../../models/typecheck-functions';
 
 @Component({
   selector: 'app-renderer-name-group',
