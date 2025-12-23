@@ -1,4 +1,4 @@
-import { GroupType } from './json-types';
+import { GroupType } from './group-types';
 
 export type UiType = {
   groupType: GroupType;

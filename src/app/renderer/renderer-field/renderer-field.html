@@ -1,6 +1,5 @@
 <!-- TEXT INPUT -->
-@if (field.fieldType === FieldType.TEXT || field.fieldType === FieldType.NUMBER || field.fieldType
-=== FieldType.EMAIL || FieldType.PHONE) {
+@if (field.fieldType === FieldType.TEXT) {
 <label [for]="field.fieldId" class="block text-md font-medium text-gray-900 mb-1">
   {{ field.getPropValue(PropType.LABEL) }}
 </label>
@@ -18,12 +17,11 @@
 }
 
 <!-- RADIO INPUT -->
-@if ((field.fieldType === FieldType.RADIO || field.fieldType === FieldType.GENDER || field.fieldType
-=== FieldType.BOOLEAN) && checkers.isRadioField(field)) {
+@if ((field.fieldType === FieldType.RADIO)) {
 <label class="block text-md font-medium text-gray-900 mb-2">
   {{ field.getPropValue(PropType.LABEL) }}
 </label>
-<div class="flex gap-2" [ngClass]="field.col ? 'flex-col' : 'flex-row'">
+<div class="flex gap-2">
   @for (option of field.options; track $index) {
   <label
     class="cursor-pointer select-none flex items-center px-3 py-2 border rounded-full text-gray-700 bg-gray-100 hover:bg-gray-300 transition-all duration-75"
@@ -41,7 +39,7 @@
 }
 
 <!-- CHECKBOX INPUT -->
-@if (field.fieldType === FieldType.CHECKBOX && checkers.isCheckboxField(field)) {
+@if (field.fieldType === FieldType.CHECKBOX) {
 <label class="block text-md font-medium text-gray-900 mb-2">
   {{ field.getPropValue(PropType.LABEL) }}
 </label>
@@ -74,7 +72,7 @@
 }
 
 <!-- SELECT INPUT -->
-@if (field.fieldType === FieldType.SELECT && checkers.isSelectField(field)) {
+@if (field.fieldType === FieldType.SELECT) {
 <label class="block text-md font-medium text-gray-900 mb-2">
   {{ field.getPropValue(PropType.LABEL) }}
 </label>
@@ -82,7 +80,9 @@
   class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"
 >
   <option [value]="null" disabled selected class="text-gray-800">
-    {{ field.placeholder && field.placeholder.length > 0 ? field.placeholder : '---' }}
+    {{
+      field.getPropValue(PropType.PLACEHOLDER) ? field.getPropValue(PropType.PLACEHOLDER) : '---'
+    }}
   </option>
   @for (option of field.options; track $index) {
   <option [value]="option.value" class="text-gray-800">
@@ -93,12 +93,11 @@
 }
 
 <!-- TEXTAREA INPUT -->
-@if (field.fieldType === FieldType.TEXTAREA && checkers.isTextareaField(field)) {
+@if (field.fieldType === FieldType.TEXTAREA) {
 <app-renderer-textarea [field]="field" [formGroupIn]="formGroupIn" />
 }
 
 <!-- DATE INPUT -->
-@if (field.fieldType === FieldType.DATE || field.fieldType === FieldType.BIRTHDAY &&
-checkers.isDateField(field)) {
+@if (field.fieldType === FieldType.DATE) {
 <app-renderer-birthday [field]="field" [formGroupIn]="formGroupIn" />
 }

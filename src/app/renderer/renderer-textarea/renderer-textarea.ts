@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { PropType, TextareaField } from '../../models/json-types';
+import { PropType } from '../../models/prop-types';
+import { TextareaField } from '../../models/field-types';
 
 @Component({
   selector: 'app-renderer-textarea',

@@ -9,16 +9,10 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import {
-  Field,
-  FormModel,
-  NumberField,
-  DateField,
-  Prop,
-  PropType,
-  Group,
-} from '../../models/json-types';
+import { FormModel, Group } from '../../models/group-types';
 import { RendererGroup } from '../renderer-group/renderer-group';
+import { Field } from '../../models/field-types';
+import { Prop, PropType } from '../../models/prop-types';
 
 @Component({
   selector: 'app-renderer-form',

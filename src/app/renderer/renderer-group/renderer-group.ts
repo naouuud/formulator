@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { Group } from '../../models/json-types';
+import { Group } from '../../models/group-types';
 import { RendererField } from '../renderer-field/renderer-field';
 
 @Component({
