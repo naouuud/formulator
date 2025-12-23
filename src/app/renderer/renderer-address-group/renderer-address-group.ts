@@ -1,6 +1,6 @@
 import { Component, Input, signal, WritableSignal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { AddressGroup, Type } from '../../models/json-types';
+import { AddressGroup, FieldType } from '../../models/json-types';
 import { checkers } from '../../models/typecheck-functions';
 
 @Component({
@@ -10,7 +10,7 @@ import { checkers } from '../../models/typecheck-functions';
   styleUrl: './renderer-address-group.css',
 })
 export class RendererAddressGroup {
-  Type = Type;
+  SectionType = FieldType;
   isTextField = checkers.isTextField;
   isSelectField = checkers.isSelectField;
   @Input() group!: AddressGroup;

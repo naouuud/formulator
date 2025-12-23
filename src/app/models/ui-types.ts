@@ -1,96 +1,96 @@
-import { Type } from './json-types';
+import { GroupType } from './json-types';
 
-export type TypeModel = {
-  name: string;
+export type UiType = {
+  groupType: GroupType;
+  label: string;
   description?: string;
-  fieldType: string;
   img: string;
   attribution: string;
 };
 
-export const types: TypeModel[] = [
-  { name: 'Full Name', fieldType: Type.NAME, img: 'user.png', attribution: 'Bharat Icons' },
+export const uiTypes: UiType[] = [
+  { label: 'Full Name', groupType: GroupType.NAME, img: 'user.png', attribution: 'Bharat Icons' },
   {
-    name: 'Date of Birth',
-    fieldType: Type.BIRTHDAY,
+    label: 'Date of Birth',
+    groupType: GroupType.BIRTHDAY,
     img: 'date-of-birth.png',
     attribution: 'Freepik',
   },
   {
-    name: 'Gender',
-    fieldType: Type.GENDER,
+    label: 'Gender',
+    groupType: GroupType.GENDER,
     img: 'gender-fluid.png',
     attribution: 'Aranagraphics',
   },
   {
-    name: 'Phone',
+    label: 'Phone',
     description: '',
-    fieldType: Type.PHONE,
+    groupType: GroupType.PHONE,
     img: 'smartphone-call.png',
     attribution: 'Freepik',
   },
   {
-    name: 'Email',
-    fieldType: Type.EMAIL,
+    label: 'Email',
+    groupType: GroupType.EMAIL,
     img: 'email.png',
     attribution: 'Those Icons',
   },
   {
-    name: 'Address',
-    fieldType: Type.ADDRESS,
+    label: 'Address',
+    groupType: GroupType.ADDRESS,
     img: 'house.png',
     attribution: 'KP Arts',
   },
   {
-    name: 'Short Text',
+    label: 'Short Text',
     description: 'Maximum length 100 characters.',
-    fieldType: Type.TEXT,
+    groupType: GroupType.TEXT,
     img: 'font.png',
     attribution: 'Freepik',
   },
   {
-    name: 'Long Text',
+    label: 'Long Text',
     description:
       'Ideal for comments, descriptions and essays. Set a word limit to keep answers concise.',
-    fieldType: Type.TEXTAREA,
+    groupType: GroupType.TEXTAREA,
     img: 'comment.png',
     attribution: 'Freepik',
   },
   {
-    name: 'Dropdown',
-    fieldType: Type.SELECT,
+    label: 'Dropdown',
+    groupType: GroupType.SELECT,
     img: 'dropdown.png',
     attribution: 'Royyan Wijaya',
   },
   {
-    name: 'Checkbox',
+    label: 'Checkbox',
     description: 'Check all that apply.',
-    fieldType: Type.CHECKBOX,
+    groupType: GroupType.CHECKBOX,
     img: 'check.png',
     attribution: 'Picons',
   },
   {
-    name: 'Radio',
+    label: 'Radio',
     description: 'Check one option only.',
-    fieldType: Type.RADIO,
+    groupType: GroupType.RADIO,
     img: 'radio.png',
     attribution: 'Bharat Icons',
   },
   {
-    name: 'Any Date',
-    fieldType: Type.DATE,
+    label: 'Any Date',
+    groupType: GroupType.DATE,
     img: 'calendar.png',
     attribution: 'Freepik',
   },
   {
-    name: 'Number',
-    fieldType: Type.NUMBER,
+    label: 'Number',
+    groupType: GroupType.NUMBER,
     img: 'pin.png',
     attribution: 'Fathema Khanom',
   },
   {
-    name: 'Yes/No',
-    fieldType: Type.BOOLEAN,
+    label: 'Yes/No',
+    groupType: GroupType.BOOLEAN,
     img: 'yes.png',
     attribution: 'Freepik',
   },

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { TextareaField } from '../../models/json-types';
+import { PropType, TextareaField } from '../../models/json-types';
 
 @Component({
   selector: 'app-renderer-textarea',
@@ -9,6 +9,7 @@ import { TextareaField } from '../../models/json-types';
   styleUrl: './renderer-textarea.css',
 })
 export class RendererTextarea {
+  PropType = PropType;
   @Input() field!: TextareaField;
   @Input() formGroupIn!: FormGroup;
 

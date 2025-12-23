@@ -1,6 +1,6 @@
 import { Component, computed, Input, OnInit, Signal, signal, WritableSignal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { DateField } from '../../models/json-types';
+import { DateField, PropType } from '../../models/json-types';
 
 @Component({
   selector: 'app-renderer-date',
@@ -9,6 +9,7 @@ import { DateField } from '../../models/json-types';
   styleUrl: './renderer-date.css',
 })
 export class RendererDate implements OnInit {
+  PropType = PropType;
   @Input() field!: DateField;
   @Input() formGroupIn!: FormGroup;
 
@@ -40,11 +41,16 @@ export class RendererDate implements OnInit {
   });
 
   ngOnInit(): void {
-    this.selectedYear.set(this.field.maxYearDisplayed);
+    const maxYearDisp = this.field.getPropValue(PropType.MAXYEARDISP);
+    const minYearDisp = this.field.getPropValue(PropType.MINYEARDISP);
+    if (maxYearDisp === null || minYearDisp === null) return;
+    this.selectedYear.set(maxYearDisp);
     this.years.set(
       Array.from(
-        { length: this.field.maxYearDisplayed - this.field.minYearDisplayed + 1 },
-        (_, i) => this.field.maxYearDisplayed - i
+        {
+          length: maxYearDisp - minYearDisp + 1,
+        },
+        (_, i) => maxYearDisp - i
       )
     );
   }

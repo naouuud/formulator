@@ -1,62 +1,36 @@
-<!-- TEXT FIELD -->
-@if (section.type === Type.TEXT && checkers.isTextField(section)) {
-<label [for]="section.fieldId" class="block text-md font-medium text-gray-900 mb-1">
-  {{ section.label }}
+<!-- TEXT INPUT -->
+@if (field.fieldType === FieldType.TEXT || field.fieldType === FieldType.NUMBER || field.fieldType
+=== FieldType.EMAIL || FieldType.PHONE) {
+<label [for]="field.fieldId" class="block text-md font-medium text-gray-900 mb-1">
+  {{ field.getPropValue(PropType.LABEL) }}
 </label>
 <div [formGroup]="formGroupIn">
   <input
-    [id]="section.fieldId"
-    [formControlName]="section.fieldId"
+    [id]="field.fieldId"
+    [formControlName]="field.fieldId"
     type="text"
     class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
-    [placeholder]="section.placeholder"
-    [attr.maxlength]="section.maxLength"
+    [placeholder]="field.getPropValue(PropType.PLACEHOLDER)"
+    [attr.maxlength]="field.getPropValue(PropType.MAXLENGTH)"
+    [pattern]="field.getPropValue(PropType.PATTERN) || ''"
   />
 </div>
 }
 
-<!-- NUMBER -->
-@if (section.type === Type.NUMBER && checkers.isNumberField(section)) {
-<label [for]="section.fieldId" class="block text-md font-medium text-gray-900 mb-1">
-  {{ section.label }}
-</label>
-<input
-  [id]="section.fieldId"
-  type="text"
-  class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
-  [placeholder]="section.placeholder"
-  [attr.maxlength]="section.maxLength"
-/>
-}
-
-<!-- EMAIL -->
-@if (section.type === Type.EMAIL && checkers.isEmailField(section)) {
-<label [for]="section.fieldId" class="block text-md font-medium text-gray-900 mb-1">
-  {{ section.label }}
-</label>
-<input
-  [id]="section.fieldId"
-  type="email"
-  class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
-  [placeholder]="section.placeholder"
-  [attr.maxlength]="section.maxLength"
-/>
-}
-
-<!-- RADIO FIELD -->
-@if ((section.type === Type.RADIO || section.type === Type.GENDER || section.type === Type.BOOLEAN)
-&& checkers.isRadioField(section)) {
+<!-- RADIO INPUT -->
+@if ((field.fieldType === FieldType.RADIO || field.fieldType === FieldType.GENDER || field.fieldType
+=== FieldType.BOOLEAN) && checkers.isRadioField(field)) {
 <label class="block text-md font-medium text-gray-900 mb-2">
-  {{ section.label }}
+  {{ field.getPropValue(PropType.LABEL) }}
 </label>
-<div class="flex gap-2" [ngClass]="section.col ? 'flex-col' : 'flex-row'">
-  @for (option of section.options; track $index) {
+<div class="flex gap-2" [ngClass]="field.col ? 'flex-col' : 'flex-row'">
+  @for (option of field.options; track $index) {
   <label
     class="cursor-pointer select-none flex items-center px-3 py-2 border rounded-full text-gray-700 bg-gray-100 hover:bg-gray-300 transition-all duration-75"
   >
     <input
       type="radio"
-      [name]="section.fieldId"
+      [name]="field.fieldId"
       [value]="option.value"
       class="appearance-none w-5 h-5 rounded-full border border-gray-400 checked:bg-blue-600 checked:border-blue-600 transition duration-75 ease-in-out mr-3 flex-shrink-0"
     />
@@ -66,17 +40,17 @@
 </div>
 }
 
-<!-- CHECKBOX -->
-@if (section.type === Type.CHECKBOX && checkers.isCheckboxField(section)) {
+<!-- CHECKBOX INPUT -->
+@if (field.fieldType === FieldType.CHECKBOX && checkers.isCheckboxField(field)) {
 <label class="block text-md font-medium text-gray-900 mb-2">
-  {{ section.label }}
+  {{ field.getPropValue(PropType.LABEL) }}
 </label>
 <div class="grid grid-cols-2 gap-2">
-  @for (option of section.options; track $index) {
+  @for (option of field.options; track $index) {
   <label
     class="flex items-center gap-3 px-3 p-2 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50 transition select-none"
   >
-    <input type="checkbox" [name]="section.fieldId" [value]="option.value" class="peer hidden" />
+    <input type="checkbox" [name]="field.fieldId" [value]="option.value" class="peer hidden" />
 
     <span
       class="flex items-center justify-center w-4 h-4 mr-2 rounded border border-gray-400 bg-gray-100 peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-all duration-75"
@@ -99,16 +73,18 @@
 </div>
 }
 
-<!-- SELECT -->
-@if (section.type === Type.SELECT && checkers.isSelectField(section)) {
-<label class="block text-md font-medium text-gray-900 mb-2"> {{ section.label }} </label>
+<!-- SELECT INPUT -->
+@if (field.fieldType === FieldType.SELECT && checkers.isSelectField(field)) {
+<label class="block text-md font-medium text-gray-900 mb-2">
+  {{ field.getPropValue(PropType.LABEL) }}
+</label>
 <select
   class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"
 >
   <option [value]="null" disabled selected class="text-gray-800">
-    {{ section.placeholder && section.placeholder.length > 0 ? section.placeholder : '---' }}
+    {{ field.placeholder && field.placeholder.length > 0 ? field.placeholder : '---' }}
   </option>
-  @for (option of section.options; track $index) {
+  @for (option of field.options; track $index) {
   <option [value]="option.value" class="text-gray-800">
     {{ option.label }}
   </option>
@@ -116,46 +92,13 @@
 </select>
 }
 
-<!-- PHONE FIELD -->
-@if (section.type === Type.PHONE && checkers.isPhoneField(section)) {
-<label [for]="section.fieldId" class="block text-md font-medium text-gray-900 mb-1">
-  {{ section.label }}
-</label>
-<input
-  [id]="section.fieldId"
-  type="text"
-  class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
-  [placeholder]="section.placeholder"
-  [attr.maxlength]="section.maxLength"
-  [pattern]="section.pattern"
-/>
+<!-- TEXTAREA INPUT -->
+@if (field.fieldType === FieldType.TEXTAREA && checkers.isTextareaField(field)) {
+<app-renderer-textarea [field]="field" [formGroupIn]="formGroupIn" />
 }
 
-<!-- DATE -->
-@if (section.type === Type.DATE && checkers.isDateField(section)) {
-<app-renderer-date [field]="section" [formGroupIn]="formGroupIn" />
-}
-
-<!-- BIRTHDAY -->
-@if (section.type === Type.BIRTHDAY && checkers.isBirthdayField(section)) {
-<app-renderer-birthday
-  [field]="section"
-  [formGroupIn]="formGroupIn"
-  [formControlIn]="getFieldControl(section.fieldId)"
-/>
-}
-
-<!-- TEXTAREA -->
-@if (section.type === Type.TEXTAREA && checkers.isTextareaField(section)) {
-<app-renderer-textarea [field]="section" [formGroupIn]="formGroupIn" />
-}
-
-<!-- ADDRESS -->
-@if (section.type === Type.ADDRESS && checkers.isAddressGroup(section)) {
-<app-renderer-address-group [group]="section" [formGroupIn]="formGroupIn" />
-}
-
-<!-- NAME -->
-@if (section.type === Type.NAME && checkers.isNameGroup(section)) {
-<app-renderer-name-group [group]="section" [formGroupIn]="formGroupIn" />
+<!-- DATE INPUT -->
+@if (field.fieldType === FieldType.DATE || field.fieldType === FieldType.BIRTHDAY &&
+checkers.isDateField(field)) {
+<app-renderer-birthday [field]="field" [formGroupIn]="formGroupIn" />
 }

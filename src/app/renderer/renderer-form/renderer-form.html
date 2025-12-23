@@ -1,6 +1,6 @@
 <form class="flex flex-col gap-6 w-md max-w-lg">
-  <h1 class="!font-logo text-xl font-[500] text-gray-900">{{ form.name }}</h1>
-  @for (section of form.sections; track $index) {
-  <app-renderer-field [formGroupIn]="formGroup" [section]="section"></app-renderer-field>
+  <h1 class="!font-logo text-xl font-[500] text-gray-900">{{ form.formName }}</h1>
+  @for (group of form.groups; track $index) {
+  <app-renderer-group [group]="group" [formGroupIn]="formGroup" />
   }
 </form>

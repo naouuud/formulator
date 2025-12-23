@@ -1,14 +1,14 @@
 <label [for]="field.fieldId" class="block text-md font-medium text-gray-900 mb-1">
-  {{ field.label }}
+  {{ field.getPropValue(PropType.LABEL) }}
 </label>
 <div class="relative !w-full">
   <textarea
-    [attr.maxlength]="field.maxLength"
+    [attr.maxlength]="field.getPropValue(PropType.MAXLENGTH)"
     (input)="updateCount($event)"
     class="!block !w-full !min-h-[120px] !bg-gray-50 !border !border-gray-300 !rounded-md !px-3 !pt-3 !pb-8 !resize-y !overflow-y-auto !overflow-x-hidden !whitespace-normal !break-words !align-top !leading-normal !text-left !focus:outline-none !focus:ring-2 !focus:ring-blue-500 !focus:border-blue-500 !placeholder-gray-400"
-    [placeholder]="field.placeholder"
+    [placeholder]="field.getPropValue(PropType.PLACEHOLDER)"
   ></textarea>
   <div class="absolute bottom-2 right-3 text-xs text-gray-400 select-none">
-    {{ currentLength }} / {{ field.maxLength }}
+    {{ currentLength }} / {{ field.getPropValue(PropType.MAXLENGTH) }}
   </div>
 </div>
