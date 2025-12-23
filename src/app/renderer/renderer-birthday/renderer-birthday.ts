@@ -8,8 +8,9 @@ import {
   signal,
   WritableSignal,
 } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { BirthdayField, PropType } from '../../models/json-types';
+import { AbstractControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { PropType } from '../../models/prop-types';
+import { DateField } from '../../models/field-types';
 
 @Component({
   selector: 'app-renderer-birthday',
@@ -19,7 +20,7 @@ import { BirthdayField, PropType } from '../../models/json-types';
 })
 export class RendererBirthday implements OnInit {
   PropType = PropType;
-  @Input() field!: BirthdayField;
+  @Input() field!: DateField;
   @Input() formGroupIn!: FormGroup;
   @Input() formControlIn!: AbstractControl;
 

@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { CentralModelS } from '../../services/central-model-s';
-import { FormModel } from '../../models/json-types';
+import { FormModel } from '../../models/group-types';
 import { BuilderField } from '../builder-field/builder-field';
 
 @Component({
   selector: 'app-builder-form',
-  imports: [BuilderField],
+  // imports: [BuilderField],
   templateUrl: './builder-form.html',
   styleUrl: './builder-form.css',
 })
