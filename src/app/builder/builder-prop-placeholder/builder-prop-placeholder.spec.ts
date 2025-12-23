@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Type } from './type';
+import { BuilderPropPlaceholder } from './builder-prop-placeholder';
 
-describe('Type', () => {
-  let component: Type;
-  let fixture: ComponentFixture<Type>;
+describe('BuilderPropPlaceholder', () => {
+  let component: BuilderPropPlaceholder;
+  let fixture: ComponentFixture<BuilderPropPlaceholder>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Type]
+      imports: [BuilderPropPlaceholder]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Type);
+    fixture = TestBed.createComponent(BuilderPropPlaceholder);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

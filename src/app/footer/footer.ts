@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { types } from '../models/ui-types';
+import { uiTypes } from '../models/ui-types';
 
 @Component({
   selector: 'app-footer',
@@ -8,7 +8,7 @@ import { types } from '../models/ui-types';
   styleUrl: './footer.css',
 })
 export class Footer {
-  authors = types
+  authors = uiTypes
     .filter((type) => type.attribution && type.attribution.length > 0)
     .map((type) => type.attribution)
     .filter((value, index, self) => self.indexOf(value) === index)

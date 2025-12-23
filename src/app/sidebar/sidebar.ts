@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { types } from '../models/ui-types';
-import { Type } from '../type/type';
+import { uiTypes } from '../models/ui-types';
+import { UiTypeIcon } from '../ui-type-icon/ui-type-icon';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [Type],
+  imports: [UiTypeIcon],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
-  types = types;
+  uiTypes = uiTypes;
 }

@@ -12,39 +12,42 @@ import {
   NumberField,
   PhoneField,
   RadioField,
-  Section,
   SelectField,
   TextareaField,
   TextField,
-  Type,
+  FieldType,
 } from '../models/json-types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CentralModelS {
-  formModel: FormModel = new FormModel();
-
-  private readonly fieldMap = new Map<Type, () => Section>([
-    [Type.NAME, () => new NameGroup()],
-    [Type.BIRTHDAY, () => new BirthdayField()],
-    [Type.GENDER, () => new GenderField()],
-    [Type.PHONE, () => new PhoneField()],
-    [Type.EMAIL, () => new EmailField()],
-    [Type.ADDRESS, () => new AddressGroup()],
-    [Type.TEXT, () => new TextField()],
-    [Type.TEXTAREA, () => new TextareaField()],
-    [Type.CHECKBOX, () => new CheckBoxField()],
-    [Type.RADIO, () => new RadioField()],
-    [Type.SELECT, () => new SelectField()],
-    [Type.DATE, () => new DateField()],
-    [Type.NUMBER, () => new NumberField()],
-    [Type.BOOLEAN, () => new BooleanField()],
-  ]);
-
-  createSection(type: Type): void {
-    const factory = this.fieldMap.get(type);
-    if (!factory) return;
-    this.formModel.addSection(factory());
-  }
+  // formModel: FormModel = new FormModel();
+  // private readonly fieldMap = new Map<FieldType, () => Section>([
+  //   [FieldType.NAME, () => new NameGroup()],
+  //   [FieldType.BIRTHDAY, () => new BirthdayField()],
+  //   [FieldType.GENDER, () => new GenderField()],
+  //   [FieldType.PHONE, () => new PhoneField()],
+  //   [FieldType.EMAIL, () => new EmailField()],
+  //   [FieldType.ADDRESS, () => new AddressGroup()],
+  //   [FieldType.TEXT, () => new TextField()],
+  //   [FieldType.TEXTAREA, () => new TextareaField()],
+  //   [FieldType.CHECKBOX, () => new CheckBoxField()],
+  //   [FieldType.RADIO, () => new RadioField()],
+  //   [FieldType.SELECT, () => new SelectField()],
+  //   [FieldType.DATE, () => new DateField()],
+  //   [FieldType.NUMBER, () => new NumberField()],
+  //   [FieldType.BOOLEAN, () => new BooleanField()],
+  // ]);
+  // constructor() {
+  //   // TEST FORM (BUILDER)
+  //   for (const type of Object.values(FieldType)) {
+  //     this.createSection(type);
+  //   }
+  // }
+  // createSection(type: FieldType): void {
+  //   const factory = this.fieldMap.get(type);
+  //   if (!factory) return;
+  //   this.formModel.addGroup(factory());
+  // }
 }

@@ -1,68 +1,60 @@
 import {
-  AddressGroup,
+  Field,
   BirthdayField,
   CheckBoxField,
   DateField,
   EmailField,
-  Type,
-  NameGroup,
+  FieldType,
   NumberField,
   PhoneField,
   RadioField,
   SelectField,
   TextareaField,
   TextField,
-  Section,
 } from './json-types';
 
-function isTextField(section: Section): section is TextField {
-  return section.type === Type.TEXT;
+function isTextField(field: Field): field is TextField {
+  return field.fieldType === FieldType.TEXT;
 }
 
-function isNumberField(section: Section): section is NumberField {
-  return section.type === Type.NUMBER;
+function isNumberField(field: Field): field is NumberField {
+  return field.fieldType === FieldType.NUMBER;
 }
 
-function isSelectField(section: Section): section is SelectField {
-  return section.type === Type.SELECT;
+function isSelectField(field: Field): field is SelectField {
+  return field.fieldType === FieldType.SELECT;
 }
 
-function isRadioField(section: Section): section is RadioField {
+function isRadioField(field: Field): field is RadioField {
   return (
-    section.type === Type.RADIO || section.type === Type.GENDER || section.type === Type.BOOLEAN
+    field.fieldType === FieldType.RADIO ||
+    field.fieldType === FieldType.GENDER ||
+    field.fieldType === FieldType.BOOLEAN
   );
 }
 
-function isCheckboxField(section: Section): section is CheckBoxField {
-  return section.type === Type.CHECKBOX;
+function isCheckboxField(field: Field): field is CheckBoxField {
+  return field.fieldType === FieldType.CHECKBOX;
 }
 
-function isEmailField(section: Section): section is EmailField {
-  return section.type === Type.EMAIL;
+function isEmailField(field: Field): field is EmailField {
+  return field.fieldType === FieldType.EMAIL;
 }
 
-function isDateField(section: Section): section is DateField {
-  return section.type === Type.DATE;
+function isDateField(field: Field): field is DateField {
+  return field.fieldType === FieldType.DATE;
 }
 
-function isBirthdayField(section: Section): section is BirthdayField {
-  return section.type === Type.BIRTHDAY;
+function isBirthdayField(field: Field): field is BirthdayField {
+  return field.fieldType === FieldType.BIRTHDAY;
 }
 
-function isTextareaField(section: Section): section is TextareaField {
-  return section.type === Type.TEXTAREA;
+function isTextareaField(field: Field): field is TextareaField {
+  return field.fieldType === FieldType.TEXTAREA;
 }
 
-function isNameGroup(group: Section): group is NameGroup {
-  return group.type === Type.NAME;
-}
-
-function isAddressGroup(group: Section): group is AddressGroup {
-  return group.type === Type.ADDRESS;
-}
-
-function isPhoneField(section: Section): section is PhoneField {
-  return section.type === Type.PHONE;
+function isPhoneField(field: Field): field is PhoneField {
+  return field.fieldType === FieldType.PHONE;
 }
 
 export const checkers = {
@@ -76,6 +68,4 @@ export const checkers = {
   isBirthdayField,
   isTextareaField,
   isPhoneField,
-  isNameGroup,
-  isAddressGroup,
 };
