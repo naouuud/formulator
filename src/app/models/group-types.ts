@@ -11,15 +11,6 @@ import {
 } from './field-types';
 import { PropType } from './prop-types';
 
-export class FormModel {
-  formId: string = crypto.randomUUID();
-  formName: string = '';
-  groups: Group[] = [];
-  addGroup(...group: Group[]): void {
-    this.groups.push(...group);
-  }
-}
-
 export enum GroupType {
   BIRTHDAY = 'birthday',
   GENDER = 'gender',
@@ -36,6 +27,23 @@ export enum GroupType {
   NAME = 'name',
   ADDRESS = 'address',
 }
+
+export const groupMap = new Map<GroupType, () => Group>([
+  [GroupType.TEXT, () => new TextGroup()],
+  [GroupType.TEXTAREA, () => new TextareaGroup()],
+  [GroupType.SELECT, () => new SelectGroup()],
+  [GroupType.CHECKBOX, () => new CheckboxGroup()],
+  [GroupType.RADIO, () => new RadioGroup()],
+  [GroupType.DATE, () => new DateGroup()],
+  [GroupType.NUMBER, () => new NumberGroup()],
+  [GroupType.BOOLEAN, () => new BooleanGroup()],
+  [GroupType.NAME, () => new NameGroup()],
+  [GroupType.ADDRESS, () => new AddressGroup()],
+  [GroupType.BIRTHDAY, () => new BirthdayGroup()],
+  [GroupType.GENDER, () => new GenderGroup()],
+  [GroupType.PHONE, () => new PhoneGroup()],
+  [GroupType.EMAIL, () => new EmailGroup()],
+]);
 
 export abstract class Group {
   abstract groupType: GroupType;

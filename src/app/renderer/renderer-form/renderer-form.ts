@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { testForm } from '../../models/testing-models';
+import { rendererTestForm } from '../../models/renderer-test';
 import {
   AbstractControl,
   FormControl,
@@ -9,10 +9,11 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { FormModel, Group } from '../../models/group-types';
+import { Group } from '../../models/group-types';
 import { RendererGroup } from '../renderer-group/renderer-group';
 import { Field } from '../../models/field-types';
 import { Prop, PropType } from '../../models/prop-types';
+import { FormModel } from '../../models/form-model';
 
 @Component({
   selector: 'app-renderer-form',
@@ -22,7 +23,7 @@ import { Prop, PropType } from '../../models/prop-types';
 })
 export class RendererForm {
   formGroup: FormGroup; // move to service?
-  form: FormModel = testForm;
+  form: FormModel = rendererTestForm;
 
   constructor() {
     this.formGroup = new FormGroup({});

@@ -31,7 +31,7 @@ export abstract class Field {
   abstract fieldType: FieldType;
   fieldId = crypto.randomUUID();
   props: Prop[] = [];
-  options: OptionI[] = [];
+  options: Option[] = [];
 
   constructor() {
     this.setProp(PropType.LABEL, '');
@@ -91,10 +91,10 @@ export class TextareaField extends TextField {
   }
 }
 
-interface OptionI {
+type Option = {
   label: string;
   value: string;
-}
+};
 
 export class SelectField extends Field {
   fieldType: FieldType = FieldType.SELECT;
