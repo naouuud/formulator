@@ -1,6 +1,5 @@
 import {
   AddressGroup,
-  FormModel,
   NameGroup,
   CheckboxGroup,
   EmailGroup,
@@ -11,6 +10,7 @@ import {
 } from './group-types';
 import { CheckBoxField } from './field-types';
 import { PropType } from './prop-types';
+import { FormModel } from './form-model';
 
 const nameTest: NameGroup = new NameGroup();
 const checkTest: CheckboxGroup = new CheckboxGroup();
@@ -37,9 +37,9 @@ const genderTest: GenderGroup = new GenderGroup();
 const birthdayTest: BirthdayGroup = new BirthdayGroup();
 const phoneTest: PhoneGroup = new PhoneGroup();
 
-export const testForm: FormModel = new FormModel();
-testForm.formName = 'My First Form';
-testForm.addGroup(
+export const rendererTestForm: FormModel = new FormModel();
+rendererTestForm.formName = 'My First Form';
+rendererTestForm.addGroup(
   nameTest,
   birthdayTest,
   genderTest,

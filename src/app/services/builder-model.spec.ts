@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CentralModelS } from './central-model-s';
+import { BuilderModel } from './builder-model';
 
-describe('CentralModelS', () => {
-  let service: CentralModelS;
+describe('BuilderModel', () => {
+  let service: BuilderModel;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CentralModelS);
+    service = TestBed.inject(BuilderModel);
   });
 
   it('should be created', () => {

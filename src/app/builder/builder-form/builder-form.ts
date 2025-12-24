@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { CentralModelS } from '../../services/central-model-s';
-import { FormModel } from '../../models/group-types';
 import { BuilderField } from '../builder-field/builder-field';
+import { BuilderModel } from '../../services/builder-model';
 
 @Component({
   selector: 'app-builder-form',
@@ -12,7 +11,7 @@ import { BuilderField } from '../builder-field/builder-field';
 export class BuilderForm {
   // formModel: FormModel;
 
-  constructor(private centralModelS: CentralModelS) {
+  constructor(private builderModel: BuilderModel) {
     // this.formModel = this.centralModelS.formModel;
   }
 }
