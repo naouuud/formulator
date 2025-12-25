@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-builder-field',
@@ -6,6 +6,4 @@ import { Component, Input } from '@angular/core';
   templateUrl: './builder-field.html',
   styleUrl: './builder-field.css',
 })
-export class BuilderField {
-  // @Input() section!: Section;
-}
+export class BuilderField {}

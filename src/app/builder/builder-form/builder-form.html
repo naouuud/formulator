@@ -1,4 +1,5 @@
-<!-- @for (section of formModel.sections; track $index) {
-<p>{{ section.sectionType }} section</p>
-<app-builder-field [section]="section" />
-} -->
+<div cdkDropList [cdkDropListData]="formModel.groups" (cdkDropListDropped)="drop($event)">
+  @for (group of formModel.groups; track $index) {
+  <app-builder-group [group]="group" />
+  }
+</div>

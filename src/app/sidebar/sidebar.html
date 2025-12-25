@@ -1,4 +1,9 @@
-<aside class="text-white flex flex-col gap-4">
+<aside
+  cdkDropList
+  [cdkDropListSortingDisabled]="true"
+  class="text-white flex flex-col gap-4"
+  id="sidebar"
+>
   @for (uiType of uiTypes; track $index) {
   <app-ui-type-icon [uiType]="uiType" />
   }
