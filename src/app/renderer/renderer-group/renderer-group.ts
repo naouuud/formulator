@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Group } from '../../models/group-types';
 import { RendererField } from '../renderer-field/renderer-field';
@@ -9,7 +9,11 @@ import { RendererField } from '../renderer-field/renderer-field';
   templateUrl: './renderer-group.html',
   styleUrl: './renderer-group.css',
 })
-export class RendererGroup {
+export class RendererGroup implements OnInit {
   @Input() formGroupIn!: FormGroup;
   @Input() group!: Group;
+
+  ngOnInit(): void {
+    console.log(this.group);
+  }
 }
