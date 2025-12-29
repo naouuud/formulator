@@ -15,10 +15,10 @@ import { DateField } from '../../models/field-types';
 @Component({
   selector: 'app-renderer-birthday',
   imports: [ReactiveFormsModule],
-  templateUrl: './renderer-birthday.html',
-  styleUrl: './renderer-birthday.css',
+  templateUrl: './renderer-date.html',
+  styleUrl: './renderer-date.css',
 })
-export class RendererBirthday implements OnInit {
+export class RendererDate implements OnInit {
   PropType = PropType;
   @Input() field!: DateField;
   @Input() formGroupIn!: FormGroup;

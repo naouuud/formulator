@@ -96,7 +96,7 @@ export class PhoneGroup extends TextGroup {
     field.setProp(PropType.MAXLENGTH, 15);
     field.setProp(PropType.MINLENGTH, 8);
     field.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
-    field.setProp(PropType.LABEL, 'Phone Number');
+    field.setProp(PropType.LABEL, 'Phone');
     field.setProp(PropType.PATTERN, /^\d(?:\s?\d){7}$/);
   }
 }

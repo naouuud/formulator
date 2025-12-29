@@ -1,6 +1,10 @@
 <!-- TEXT INPUT -->
 @if (field.fieldType === FieldType.TEXT) {
-<label [for]="field.fieldId" class="block text-md font-medium text-gray-900 mb-1">
+<label
+  [for]="field.fieldId"
+  class="block text-md font-medium mb-2"
+  [ngClass]="{ 'text-gray-900': topLevel, 'text-gray-500': !topLevel }"
+>
   {{ field.getPropValue(PropType.LABEL) }}
 </label>
 <div [formGroup]="formGroupIn">
@@ -8,7 +12,7 @@
     [id]="field.fieldId"
     [formControlName]="field.fieldId"
     type="text"
-    class="mt-1 block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
+    class="block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
     [placeholder]="field.getPropValue(PropType.PLACEHOLDER)"
     [attr.maxlength]="field.getPropValue(PropType.MAXLENGTH)"
     [pattern]="field.getPropValue(PropType.PATTERN) || ''"
@@ -18,7 +22,10 @@
 
 <!-- RADIO INPUT -->
 @if ((field.fieldType === FieldType.RADIO)) {
-<label class="block text-md font-medium text-gray-900 mb-2">
+<label
+  class="block text-md font-medium"
+  [ngClass]="{ 'text-gray-900': topLevel, 'text-gray-500': !topLevel }"
+>
   {{ field.getPropValue(PropType.LABEL) }}
 </label>
 <div class="flex gap-2">
@@ -40,7 +47,10 @@
 
 <!-- CHECKBOX INPUT -->
 @if (field.fieldType === FieldType.CHECKBOX) {
-<label class="block text-md font-medium text-gray-900 mb-2">
+<label
+  class="block text-md font-medium"
+  [ngClass]="{ 'text-gray-900': topLevel, 'text-gray-500': !topLevel }"
+>
   {{ field.getPropValue(PropType.LABEL) }}
 </label>
 <div class="grid grid-cols-2 gap-2">
@@ -73,11 +83,14 @@
 
 <!-- SELECT INPUT -->
 @if (field.fieldType === FieldType.SELECT) {
-<label class="block text-md font-medium text-gray-900 mb-2">
+<label
+  class="block text-md font-medium mb-2"
+  [ngClass]="{ 'text-gray-900': topLevel, 'text-gray-500': !topLevel }"
+>
   {{ field.getPropValue(PropType.LABEL) }}
 </label>
 <select
-  class="mt-1 block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"
+  class="block w-full bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"
 >
   <option [value]="null" disabled selected class="text-gray-800">
     {{
