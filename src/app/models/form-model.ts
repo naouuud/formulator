@@ -1,4 +1,4 @@
-import { Group, groupMap, GroupType } from './group-types';
+import { Group } from './group-types';
 
 export class FormModel {
   formId: string = crypto.randomUUID();
@@ -11,14 +11,6 @@ export class FormModel {
 
   addGroup(...group: Group[]): void {
     this.groups.push(...group);
-  }
-
-  createGroup(groupType: GroupType): Group | undefined {
-    const factory = groupMap.get(groupType);
-    if (!factory) return;
-    const group = factory();
-    this.groups.push(group);
-    return group;
   }
 
   reorderGroups(fromIndex: number, toIndex: number): void {
