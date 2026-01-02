@@ -1,9 +1,10 @@
-<div 
-  cdkDropList 
-  id="form-drop" 
-  [cdkDropListConnectedTo]="['palette']" 
-  (cdkDropListDropped)="onDrop($event)">
+<div
+  cdkDropList
+  id="form-drop"
+  [cdkDropListConnectedTo]="['palette']"
+  (cdkDropListDropped)="onDrop($event)"
+>
   @for (group of formModel.groups; track group) {
-    <app-builder-group [group]="group" />
-    }
+  <app-builder-group [group]="group"> </app-builder-group>
+  }
 </div>

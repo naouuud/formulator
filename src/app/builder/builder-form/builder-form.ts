@@ -19,8 +19,7 @@ export class BuilderForm {
   }
 
   onDrop(event: CdkDragDrop<any>) {
-    if (event.previousContainer === event.container) 
-      this._reorder(event);
+    if (event.previousContainer === event.container) this._reorder(event);
     else this._createGroup(event);
   }
 
@@ -33,6 +32,9 @@ export class BuilderForm {
     // console.log("create", event)
     const groupType: GroupType = event.item.data;
     this.builderService.createGroup(groupType);
-    this.builderService.formModel.reorderGroups(this.builderService.formModel.groups.length - 1, event.currentIndex)
+    this.builderService.formModel.reorderGroups(
+      this.builderService.formModel.groups.length - 1,
+      event.currentIndex
+    );
   }
 }
