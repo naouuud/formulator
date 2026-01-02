@@ -1,16 +1,13 @@
 <aside
   cdkDropList
   id="palette"
-  [cdkDropListConnectedTo]="['form-drop']" 
+  [cdkDropListConnectedTo]="['form-drop']"
   cdkDropListSortingDisabled
   cdkDropListHasAnchor
   class="text-white flex flex-col gap-4"
 >
   @for (uiType of uiTypes; track uiType) {
-  <app-ui-type-icon 
-    [uiType]="uiType" 
-    cdkDrag
-    [cdkDragData]="uiType.groupType">
+  <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.groupType">
     <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
   </app-ui-type-icon>
   }
