@@ -47,6 +47,7 @@ export const groupMap = new Map<GroupType, () => Group>([
 
 export abstract class Group {
   abstract groupType: GroupType;
+  groupId = crypto.randomUUID();
   groupLabel: string | null = null;
   groupRequired: boolean = false;
   fields: Field[] = [];
