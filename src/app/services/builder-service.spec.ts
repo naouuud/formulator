@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { BuilderModel } from './builder-model';
+import { BuilderService } from './builder-service';
 
-describe('BuilderModel', () => {
-  let service: BuilderModel;
+describe('BuilderService', () => {
+  let service: BuilderService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(BuilderModel);
+    service = TestBed.inject(BuilderService);
   });
 
   it('should be created', () => {
