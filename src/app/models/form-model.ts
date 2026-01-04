@@ -1,3 +1,4 @@
+import { getTextOfJSDocComment } from 'typescript';
 import { Group } from './group-types';
 
 export class FormModel {
@@ -27,5 +28,11 @@ export class FormModel {
     }
     const deleteIdx = this.groups.indexOf(deleteGroup);
     this.groups.splice(deleteIdx, 1);
+  }
+
+  updateFromSavedModel(savedModel: any): void {
+    this.formId = savedModel.formId;
+    this.formName = savedModel.formName;
+    this.groups = savedModel.groups;
   }
 }

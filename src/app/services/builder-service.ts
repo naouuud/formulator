@@ -10,8 +10,9 @@ export class BuilderService {
   formModel: FormModel;
 
   constructor(private localStorage: LocalStorageService) {
-    const formModel = this._loadFormModelFromLocalStorage() ?? this._createNewFormModel();
-    this.formModel = formModel;
+    this.formModel = this.localStorage.has('formModel')
+      ? this._returnFormModelFromLocalStorage()
+      : this._returnNewFormModel();
   }
 
   addGroupFromService(groupType: GroupType): Group | undefined {
@@ -36,14 +37,17 @@ export class BuilderService {
     return error;
   }
 
-  private _createNewFormModel(): FormModel {
+  private _returnNewFormModel(): FormModel {
     const formModel = new FormModel();
-    formModel.setFormName('Example Form');
+    this.formModel.setFormName('Untitled Form');
     return formModel;
   }
 
-  private _loadFormModelFromLocalStorage(): FormModel | null {
-    return this.localStorage.get<FormModel>('formModel');
+  private _returnFormModelFromLocalStorage(): FormModel {
+    const formModel = new FormModel();
+    const savedModel = this.localStorage.get<FormModel>('formModel');
+    formModel.updateFromSavedModel(savedModel);
+    return formModel;
   }
 
   private _saveFormModelToLocalStorage(): void {
