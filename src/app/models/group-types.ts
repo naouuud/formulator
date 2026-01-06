@@ -11,6 +11,8 @@ import {
 } from './field-types';
 import { PropType } from './prop-types';
 
+export type GroupFactory = () => Group;
+
 export enum GroupType {
   BIRTHDAY = 'birthday',
   GENDER = 'gender',
@@ -28,7 +30,7 @@ export enum GroupType {
   ADDRESS = 'address',
 }
 
-export const groupMap = new Map<GroupType, () => Group>([
+export const groupMap = new Map<GroupType, GroupFactory>([
   [GroupType.TEXT, () => new TextGroup()],
   [GroupType.TEXTAREA, () => new TextareaGroup()],
   [GroupType.SELECT, () => new SelectGroup()],
@@ -54,6 +56,31 @@ export abstract class Group {
 
   addField(...field: Field[]) {
     this.fields.push(...field);
+  }
+
+  static getFactory(groupType: GroupType): GroupFactory {
+    const groupFactory = groupMap.get(groupType);
+    if (!groupFactory) {
+      throw new Error(
+        `Internal Error: No factory registered for groupType '${groupType}'. Did you forget to add it to groupMap?`
+      );
+    }
+    return groupFactory;
+  }
+
+  static fromJSON(json: any): Group {
+    if (json.groupType == null) {
+      // === undefined || === null
+      throw new Error(`No groupType available on saved model, unable to initialize group`);
+    }
+    if (!Object.values(GroupType).includes(json.groupType)) {
+      throw new Error(`Invalid groupType '${json.groupType}'`);
+    }
+    const factory = Group.getFactory(json.groupType);
+    const group = factory(); // create new group
+    Object.assign(group, json); // copy properties
+    group.fields = (json.fields ?? []).map((f: any) => Field.fromJSON(f)); // initialize new fields
+    return group;
   }
 }
 
