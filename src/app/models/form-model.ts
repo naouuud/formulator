@@ -1,4 +1,3 @@
-import { getTextOfJSDocComment } from 'typescript';
 import { Group } from './group-types';
 
 export class FormModel {
@@ -21,18 +20,19 @@ export class FormModel {
     this.groups = newArray;
   }
 
-  deleteGroup(groupId: string): Error | void {
+  deleteGroup(groupId: string): void {
     const deleteGroup = this.groups.find((g) => g.groupId === groupId);
     if (deleteGroup === undefined) {
-      return new Error(`No group with groupId "${groupId}" found to delete`);
+      throw Error(`No group with groupId '${groupId}' found to delete`);
     }
     const deleteIdx = this.groups.indexOf(deleteGroup);
     this.groups.splice(deleteIdx, 1);
   }
 
-  updateFromSavedModel(savedModel: any): void {
-    this.formId = savedModel.formId;
-    this.formName = savedModel.formName;
-    this.groups = savedModel.groups;
+  static fromJSON(json: any): FormModel {
+    const formModel = new FormModel(); // create new
+    Object.assign(formModel, json); // copy properties
+    formModel.groups = (json.groups ?? []).map((g: Group) => Group.fromJSON(g)); // initialize new groups
+    return formModel;
   }
 }

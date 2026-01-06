@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormModel } from '../models/form-model';
-import { Group, groupMap, GroupType } from '../models/group-types';
+import { Group, GroupType } from '../models/group-types';
 import { LocalStorageService } from './local-storage';
 
 @Injectable({
@@ -11,14 +11,13 @@ export class BuilderService {
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel = this.localStorage.has('formModel')
-      ? this._returnFormModelFromLocalStorage()
+      ? this._returnFormModelFromLocalStorage(this.localStorage.get('formModel'))
       : this._returnNewFormModel();
   }
 
-  addGroupFromService(groupType: GroupType): Group | undefined {
-    const factory = groupMap.get(groupType);
-    if (!factory) return;
-    const group = factory();
+  addGroupFromService(groupType: GroupType): Group {
+    const groupFactory = Group.getFactory(groupType);
+    const group = groupFactory();
     this.formModel.addGroup(group);
     this._saveFormModelToLocalStorage();
     return group;
@@ -26,27 +25,22 @@ export class BuilderService {
 
   reorderGroupFromService(fromIndex: number, toIndex: number): void {
     this.formModel.reorderGroup(fromIndex, toIndex);
+    this._saveFormModelToLocalStorage();
   }
 
-  deleteGroupFromService(groupId: string): Error | void {
-    const error = this.formModel.deleteGroup(groupId);
-    if (!error) {
-      this._saveFormModelToLocalStorage();
-      return;
-    }
-    return error;
+  deleteGroupFromService(groupId: string): void {
+    this.formModel.deleteGroup(groupId);
+    this._saveFormModelToLocalStorage();
   }
 
   private _returnNewFormModel(): FormModel {
     const formModel = new FormModel();
-    this.formModel.setFormName('Untitled Form');
+    formModel.setFormName('Untitled Form');
     return formModel;
   }
 
-  private _returnFormModelFromLocalStorage(): FormModel {
-    const formModel = new FormModel();
-    const savedModel = this.localStorage.get<FormModel>('formModel');
-    formModel.updateFromSavedModel(savedModel);
+  private _returnFormModelFromLocalStorage(json: any): FormModel {
+    const formModel = FormModel.fromJSON(json);
     return formModel;
   }
 

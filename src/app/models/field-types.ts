@@ -1,5 +1,7 @@
 import { Prop, PropType, PropValueMap } from './prop-types';
 
+export type FieldFactory = () => Field;
+
 export enum FieldType {
   TEXT = 'text',
   TEXTAREA = 'textarea',
@@ -9,23 +11,14 @@ export enum FieldType {
   DATE = 'date',
 }
 
-// export type FieldTypeMap = {
-//   [FieldType.TEXT]: TextField;
-//   [FieldType.TEXTAREA]: TextareaField;
-//   [FieldType.SELECT]: SelectField;
-//   [FieldType.CHECKBOX]: CheckBoxField;
-//   [FieldType.RADIO]: RadioField;
-//   [FieldType.DATE]: DateField;
-// };
-
-// export const fieldMap = new Map<FieldType, () => Field>([
-//   [FieldType.TEXT, () => new TextField()],
-//   [FieldType.TEXTAREA, () => new TextareaField()],
-//   [FieldType.CHECKBOX, () => new CheckBoxField()],
-//   [FieldType.RADIO, () => new RadioField()],
-//   [FieldType.SELECT, () => new SelectField()],
-//   [FieldType.DATE, () => new DateField()],
-// ]);
+export const fieldMap = new Map<FieldType, FieldFactory>([
+  [FieldType.TEXT, () => new TextField()],
+  [FieldType.TEXTAREA, () => new TextareaField()],
+  [FieldType.SELECT, () => new SelectField()],
+  [FieldType.CHECKBOX, () => new CheckBoxField()],
+  [FieldType.RADIO, () => new RadioField()],
+  [FieldType.DATE, () => new DateField()],
+]);
 
 export abstract class Field {
   abstract fieldType: FieldType;
@@ -67,6 +60,18 @@ export abstract class Field {
       return;
     }
     this.props.push(this._createProp(propTypeIn, valueIn));
+  }
+
+  static getFactory(fieldType: FieldType): FieldFactory | undefined {
+    return fieldMap.get(fieldType);
+  }
+
+  static fromJSON(json: any): Field | undefined {
+    const fieldFactory = Field.getFactory(json.fieldType);
+    if (!fieldFactory) return;
+    const field = fieldFactory();
+    Object.assign(field, json);
+    return field;
   }
 }
 
