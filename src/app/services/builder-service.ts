@@ -15,32 +15,29 @@ export class BuilderService {
       : this._returnNewFormModel();
   }
 
-  setFormName(value: string): void {
+  setFormName_S(value: string): void {
     this.formModel.setFormName(value);
     this._saveFormModelToLocalStorage();
   }
 
-  addGroupFromService(groupType: GroupType): Group {
-    const groupFactory = Group.getFactory(groupType);
-    const group = groupFactory();
-    this.formModel.addGroup(group);
+  addGroup_S(groupType: GroupType): void {
+    this.formModel.addGroup(groupType);
     this._saveFormModelToLocalStorage();
-    return group;
   }
 
-  reorderGroupFromService(fromIndex: number, toIndex: number): void {
+  reorderGroup_S(fromIndex: number, toIndex: number): void {
     this.formModel.reorderGroup(fromIndex, toIndex);
     this._saveFormModelToLocalStorage();
   }
 
-  deleteGroupFromService(groupId: string): void {
+  deleteGroup_S(groupId: string): void {
     this.formModel.deleteGroup(groupId);
     this._saveFormModelToLocalStorage();
   }
 
   private _returnNewFormModel(): FormModel {
     const formModel = new FormModel();
-    formModel.setFormName('Untitled Form');
+    // formModel.addGroup(GroupType.NAME);
     return formModel;
   }
 

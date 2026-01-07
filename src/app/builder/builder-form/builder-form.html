@@ -1,11 +1,24 @@
-<div
-  cdkDropList
-  id="form-drop"
-  [cdkDropListConnectedTo]="['palette']"
-  (cdkDropListDropped)="onDrop($event)"
->
-  <app-builder-form-title [formName]="formModel.formName" />
-  @for (group of formModel.groups; track group) {
-  <app-builder-group [formModel]="formModel" [group]="group"> </app-builder-group>
-  }
+<div class="max-w-2xl">
+  <div
+    cdkDropList
+    id="form-drop"
+    [cdkDropListConnectedTo]="['palette']"
+    (cdkDropListDropped)="onDrop($event)"
+  >
+    <app-builder-form-title [formName]="formModel.formName" />
+
+    <div class="flex flex-col gap-4">
+      @for (group of formModel.groups; track group) {
+      <app-builder-group [group]="group"> </app-builder-group>
+      }
+    </div>
+
+    @if (formModel.groups.length === 0) {
+    <div
+      class="flex justify-center min-h-[300px] w-full text-xl font-[500] text-gray-400 mb-4 p-2 border-2 border-gray-300 rounded-md border-dashed"
+    >
+      <span>Drag icons here to begin creating a form</span>
+    </div>
+    }
+  </div>
 </div>

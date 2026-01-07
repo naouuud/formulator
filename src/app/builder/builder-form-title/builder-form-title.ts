@@ -25,6 +25,6 @@ export class BuilderFormTitle implements OnInit {
   }
 
   setFormName(value: string) {
-    this.builderService.setFormName(value);
+    this.builderService.setFormName_S(value);
   }
 }

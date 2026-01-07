@@ -39,13 +39,13 @@ const phoneTest: PhoneGroup = new PhoneGroup();
 
 export const rendererTestForm: FormModel = new FormModel();
 rendererTestForm.formName = 'My First Form';
-rendererTestForm.addGroup(
-  nameTest,
-  birthdayTest,
-  genderTest,
-  phoneTest,
-  emailTest,
-  addressTest,
-  checkTest,
-  textareaTest
-);
+// rendererTestForm.addGroup(
+//   nameTest,
+//   birthdayTest,
+//   genderTest,
+//   phoneTest,
+//   emailTest,
+//   addressTest,
+//   checkTest,
+//   textareaTest
+// );

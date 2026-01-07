@@ -1,10 +1,15 @@
 <div
-  class="flex flex-col gap-6 p-6 border border-1 border-gray-500"
+  class="flex flex-col gap-4 p-4 border-2 border-gray-300 rounded-md bg-gray-200"
   cdkDrag
   cdkDragBoundary=".main-component"
 >
-  Group: {{ group.groupType }}
-  <button (click)="deleteGroupFromComponent(group.groupId)" class="text-left" type="button">
-    DELETE
-  </button>
+  <div class="flex justify-between items-center">
+    <div class="text-gray-300 hover:cursor-pointer">Drag to move</div>
+    <button type="button" class="flex" (click)="deleteGroup_C(group.groupId)">
+      <app-builder-group-delete />
+    </button>
+  </div>
+  @for (field of group.fields; track $index) {
+  <app-builder-field [field]="field" />
+  }
 </div>
