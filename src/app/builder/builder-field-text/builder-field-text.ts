@@ -14,6 +14,7 @@ export class BuilderFieldText implements OnInit {
   @Input() field!: Field;
   formGroup: FormGroup = new FormGroup({});
   array = Array.from({ length: 101 }, (_, i) => i);
+  isValidationOpen = true;
 
   ngOnInit(): void {
     this.formGroup = new FormGroup({

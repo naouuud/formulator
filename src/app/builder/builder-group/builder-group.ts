@@ -1,9 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output } from '@angular/core';
 import { Group } from '../../models/group-types';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { BuilderService } from '../../services/builder-service';
 import { BuilderField } from '../builder-field/builder-field';
 import { BuilderGroupDelete } from '../builder-group-delete/builder-group-delete';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-builder-group',
@@ -14,6 +15,7 @@ import { BuilderGroupDelete } from '../builder-group-delete/builder-group-delete
 export class BuilderGroup implements OnInit {
   // @Input() formModel!: FormModel;
   @Input() group!: Group;
+  @Output() groupDeleted = new Subject<void>();
 
   constructor(private builderService: BuilderService) {}
   ngOnInit(): void {
@@ -21,6 +23,7 @@ export class BuilderGroup implements OnInit {
   }
 
   deleteGroup_C(groupId: string): void {
-    const error = this.builderService.deleteGroup_S(groupId);
+    this.builderService.deleteGroup_S(groupId);
+    this.groupDeleted.next();
   }
 }

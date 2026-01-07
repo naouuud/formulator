@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { BuilderService } from '../../services/builder-service';
 import { FormModel } from '../../models/form-model';
 import { BuilderGroup } from '../builder-group/builder-group';
-import { CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragEnter, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 import { GroupType } from '../../models/group-types';
 import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
 
@@ -14,7 +14,7 @@ import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
 })
 export class BuilderForm {
   formModel: FormModel;
-  // isDragging = false;
+  hideMessage = false;
 
   constructor(private builderService: BuilderService) {
     this.formModel = this.builderService.formModel;
