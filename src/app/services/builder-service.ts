@@ -15,6 +15,11 @@ export class BuilderService {
       : this._returnNewFormModel();
   }
 
+  setFormName(value: string): void {
+    this.formModel.setFormName(value);
+    this._saveFormModelToLocalStorage();
+  }
+
   addGroupFromService(groupType: GroupType): Group {
     const groupFactory = Group.getFactory(groupType);
     const group = groupFactory();
@@ -46,5 +51,6 @@ export class BuilderService {
 
   private _saveFormModelToLocalStorage(): void {
     this.localStorage.set<FormModel>('formModel', this.formModel);
+    // console.log('Saving to LS');
   }
 }

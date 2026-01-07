@@ -4,7 +4,7 @@
   [cdkDropListConnectedTo]="['palette']"
   (cdkDropListDropped)="onDrop($event)"
 >
-  <app-builder-form-title [formModel]="formModel" />
+  <app-builder-form-title [formName]="formModel.formName" />
   @for (group of formModel.groups; track group) {
   <app-builder-group [formModel]="formModel" [group]="group"> </app-builder-group>
   }

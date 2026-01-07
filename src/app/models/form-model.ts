@@ -6,7 +6,7 @@ export class FormModel {
   groups: Group[] = [];
 
   setFormName(value: string): void {
-    this.formName = value;
+    this.formName = value.trim();
   }
 
   addGroup(...group: Group[]): void {
