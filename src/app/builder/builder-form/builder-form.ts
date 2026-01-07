@@ -14,24 +14,25 @@ import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
 })
 export class BuilderForm {
   formModel: FormModel;
+  // isDragging = false;
 
   constructor(private builderService: BuilderService) {
     this.formModel = this.builderService.formModel;
   }
 
   onDrop(event: CdkDragDrop<any>) {
-    if (event.previousContainer === event.container) this._reorderGroupFromComponent(event);
-    else this._addGroupFromComponent(event);
+    if (event.previousContainer === event.container) this._reorderGroup_C(event);
+    else this._addGroup_C(event);
   }
 
-  private _reorderGroupFromComponent(event: CdkDragDrop<undefined>) {
-    this.builderService.reorderGroupFromService(event.previousIndex, event.currentIndex);
+  private _reorderGroup_C(event: CdkDragDrop<undefined>) {
+    this.builderService.reorderGroup_S(event.previousIndex, event.currentIndex);
   }
 
-  private _addGroupFromComponent(event: CdkDragDrop<GroupType>) {
+  private _addGroup_C(event: CdkDragDrop<GroupType>) {
     const groupType: GroupType = event.item.data;
-    this.builderService.addGroupFromService(groupType);
-    this.builderService.reorderGroupFromService(
+    this.builderService.addGroup_S(groupType);
+    this.builderService.reorderGroup_S(
       this.builderService.formModel.groups.length - 1,
       event.currentIndex
     );

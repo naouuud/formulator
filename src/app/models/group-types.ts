@@ -51,10 +51,16 @@ export abstract class Group {
   abstract groupType: GroupType;
   groupId = crypto.randomUUID();
   groupLabel: string | null = null;
-  groupRequired: boolean = false;
+  // groupRequired: boolean = false;
   fields: Field[] = [];
 
-  addField(...field: Field[]) {
+  addField(fieldType: FieldType) {
+    const factory = Field.getFactory(fieldType);
+    const field = factory();
+    this.fields.push(field);
+  }
+
+  pushFields(...field: Field[]) {
     this.fields.push(...field);
   }
 
@@ -88,7 +94,7 @@ export class TextGroup extends Group {
   override groupType: GroupType = GroupType.TEXT;
   constructor() {
     super();
-    this.addField(new TextField());
+    this.pushFields(new TextField());
   }
 }
 
@@ -133,7 +139,7 @@ export class TextareaGroup extends Group {
   override groupType: GroupType = GroupType.TEXTAREA;
   constructor() {
     super();
-    this.addField(new TextareaField());
+    this.pushFields(new TextareaField());
   }
 }
 
@@ -141,7 +147,7 @@ export class RadioGroup extends Group {
   override groupType: GroupType = GroupType.RADIO;
   constructor() {
     super();
-    this.addField(new RadioField());
+    this.pushFields(new RadioField());
   }
 }
 
@@ -187,7 +193,7 @@ export class CheckboxGroup extends Group {
   override groupType: GroupType = GroupType.CHECKBOX;
   constructor() {
     super();
-    this.addField(new CheckBoxField());
+    this.pushFields(new CheckBoxField());
   }
 }
 
@@ -195,7 +201,7 @@ export class SelectGroup extends Group {
   override groupType: GroupType = GroupType.SELECT;
   constructor() {
     super();
-    this.addField(new SelectField());
+    this.pushFields(new SelectField());
   }
 }
 
@@ -203,7 +209,7 @@ export class DateGroup extends Group {
   override groupType: GroupType = GroupType.DATE;
   constructor() {
     super();
-    this.addField(new DateField());
+    this.pushFields(new DateField());
   }
 }
 
@@ -227,10 +233,12 @@ export class NameGroup extends Group {
     const firstNameField = new TextField();
     firstNameField.setProp(PropType.LABEL, 'First Name');
     firstNameField.setProp(PropType.PLACEHOLDER, 'Enter first name...');
+    firstNameField.setProp(PropType.REQUIRED, true);
     const lastNameField = new TextField();
     lastNameField.setProp(PropType.LABEL, 'Last Name');
-    lastNameField.setProp(PropType.PLACEHOLDER, 'Add last name...');
-    this.addField(firstNameField, lastNameField);
+    lastNameField.setProp(PropType.PLACEHOLDER, 'Enter last name...');
+    lastNameField.setProp(PropType.REQUIRED, true);
+    this.pushFields(firstNameField, lastNameField);
   }
 }
 
@@ -257,6 +265,6 @@ export class AddressGroup extends Group {
     const cityField = new TextField();
     cityField.setProp(PropType.LABEL, 'City');
     cityField.setProp(PropType.PLACEHOLDER, 'Enter city...');
-    this.addField(governorateField, districtField, streetField, cityField);
+    this.pushFields(governorateField, districtField, streetField, cityField);
   }
 }

@@ -62,8 +62,14 @@ export abstract class Field {
     this.props.push(this._createProp(propTypeIn, valueIn));
   }
 
-  static getFactory(fieldType: FieldType): FieldFactory | undefined {
-    return fieldMap.get(fieldType);
+  static getFactory(fieldType: FieldType): FieldFactory {
+    const fieldFactory = fieldMap.get(fieldType);
+    if (!fieldFactory) {
+      throw new Error(
+        `Internal Error: No factory registered for fieldType '${fieldType}'. Did you forget to add it to groupMap?`
+      );
+    }
+    return fieldFactory;
   }
 
   static fromJSON(json: any): Field | undefined {
