@@ -4,18 +4,33 @@
     id="form-drop"
     [cdkDropListConnectedTo]="['palette']"
     (cdkDropListDropped)="onDrop($event)"
+    (cdkDropListEntered)="this.hideMessage = true"
+    (cdkDropListExited)="this.hideMessage = false"
+    [cdkDropListAutoScrollDisabled]="true"
   >
+    <!-- Form title -->
     <app-builder-form-title [formName]="formModel.formName" />
-
+    <!-- Form groups -->
     <div class="flex flex-col gap-4">
       @for (group of formModel.groups; track group) {
-      <app-builder-group [group]="group"> </app-builder-group>
+      <div
+        class="animation-container"
+        animate.enter="group-enter-animation"
+        animate.leave="group-leave-animation"
+      >
+        <app-builder-group
+          [group]="group"
+          (groupDeleted)="hideMessage = formModel.groups.length > 0"
+        >
+        </app-builder-group>
+      </div>
       }
     </div>
-
-    @if (formModel.groups.length === 0) {
+    <!-- Empty form message -->
+    @if (formModel.groups.length === 0 && !hideMessage) {
     <div
-      class="flex justify-center min-h-[300px] w-full text-xl font-[500] text-gray-400 mb-4 p-2 border-2 border-gray-300 rounded-md border-dashed"
+      class="flex justify-center items-center min-h-[300px] w-full text-xl font-[500] text-gray-400 mb-4 p-2 border-2 border-gray-300 rounded-md border-dashed"
+      animate.enter="message-enter-animation"
     >
       <span>Drag icons here to begin creating a form</span>
     </div>

@@ -4,11 +4,11 @@ import { Navbar } from './navbar/navbar';
 import { Sidebar } from './sidebar/sidebar';
 import { Main } from './main/main';
 import { Footer } from './footer/footer';
-import { CommonModule } from '@angular/common';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterModule, Navbar, Sidebar, Main, Footer],
+  imports: [RouterModule, Navbar, Sidebar, Main, Footer, CdkScrollable],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

@@ -28,7 +28,7 @@ export abstract class Field {
 
   constructor() {
     this.setProp(PropType.LABEL, '');
-    this.setProp(PropType.REQUIRED, false);
+    this.setProp(PropType.REQUIRED, true);
   }
 
   // 'squeeze' function to enforce type correctness during construction
@@ -118,6 +118,11 @@ export class RadioField extends Field {
 
 export class CheckBoxField extends Field {
   fieldType: FieldType = FieldType.CHECKBOX;
+
+  constructor() {
+    super();
+    this.setProp(PropType.REQUIRED, false);
+  }
 }
 
 export class DateField extends Field {

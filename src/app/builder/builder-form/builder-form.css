@@ -1,0 +1,61 @@
+.group-enter-animation {
+  position: relative; /* for sheen overlay */
+  overflow: hidden; /* clip the sheen */
+  animation: slide-fade 0.8s ease forwards;
+}
+
+/* Slide-up + fade */
+@keyframes slide-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px); /* start below */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0); /* end in place */
+  }
+}
+
+.message-enter-animation {
+  position: relative; /* for sheen overlay */
+  overflow: hidden; /* clip the sheen */
+  animation: slide-fade 1.8s ease forwards;
+}
+
+/* Slide-up + fade */
+@keyframes slide-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px); /* start below */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0); /* end in place */
+  }
+}
+
+.group-leave-animation {
+  animation: fade-out 0.3s ease forwards;
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.message-leave-animation {
+  animation: fade-out 0.1s ease forwards;
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
