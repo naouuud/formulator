@@ -52,3 +52,8 @@ export type Prop = {
 //   | { propType: PropType.MAXYEARDISP; value: number }
 //   | { propType: PropType.MINYEARDISP; value: number }
 //   | { propType: PropType.EMAIL; value: boolean };
+
+export interface PropChangeEvent {
+  propType: PropType;
+  value: unknown;
+}
