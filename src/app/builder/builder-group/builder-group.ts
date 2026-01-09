@@ -20,7 +20,7 @@ export class BuilderGroup implements OnInit {
 
   constructor(private builderService: BuilderService) {}
   ngOnInit(): void {
-    console.log(this.group);
+    // console.log(this.group);
   }
 
   deleteGroup_C(groupId: string): void {

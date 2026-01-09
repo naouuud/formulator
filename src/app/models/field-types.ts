@@ -102,7 +102,7 @@ export class TextareaField extends TextField {
   }
 }
 
-type Option = {
+export type Option = {
   label: string;
   value: string;
 };

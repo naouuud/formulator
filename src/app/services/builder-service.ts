@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { FormModel } from '../models/form-model';
 import { GroupType } from '../models/group-types';
 import { LocalStorageService } from './local-storage';
-import { Field } from '../models/field-types';
-import { PropType, PropValueMap } from '../models/prop-types';
+import { Field, FieldType, Option } from '../models/field-types';
+import { Prop, PropType, PropValueMap } from '../models/prop-types';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -11,16 +13,46 @@ type PropSchemaType = {
   };
 };
 
+type FieldDto = {
+  fieldType: FieldType;
+  fieldId: ReturnType<typeof crypto.randomUUID>;
+  props: Prop[];
+  options: Option[];
+};
+
+type GroupDto = {
+  groupType: GroupType;
+  groupId: ReturnType<typeof crypto.randomUUID>;
+  fields: FieldDto[];
+};
+
+type FormDto = {
+  formId: ReturnType<typeof crypto.randomUUID>;
+  formName: string;
+  groups: GroupDto[];
+};
+
 @Injectable({
   providedIn: 'root',
 })
 export class BuilderService {
   formModel: FormModel;
+  private readonly _formModel$: WritableSignal<FormDto> = signal({ ...new FormModel() }); // DTO type
+  readonly formModel$ = this._formModel$.asReadonly();
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel = this.localStorage.has('formModel')
       ? this._returnFormModelFromLocalStorage(this.localStorage.get('formModel'))
       : this._returnNewFormModel();
+    this._formModel$.set({ ...this.formModel });
+    toObservable(this.formModel$)
+      .pipe(debounceTime(1000))
+      .subscribe({
+        next: (val) => this._saveToLocalStorage(val),
+      });
+    // effect(() => {
+    //   this._saveToLocalStorage(this.formModel$());
+    // });
   }
 
   setProp_S(field: Field, propType: PropType, value: unknown) {
@@ -32,27 +64,27 @@ export class BuilderService {
       );
     }
     field.setProp(propType, value);
-    this._saveFormModelToLocalStorage();
+    this._formModel$.set({ ...this.formModel });
   }
 
   setFormName_S(value: string): void {
     this.formModel.setFormName(value);
-    this._saveFormModelToLocalStorage();
+    this._formModel$.set({ ...this.formModel });
   }
 
   addGroup_S(groupType: GroupType): void {
     this.formModel.addGroup(groupType);
-    this._saveFormModelToLocalStorage();
+    this._formModel$.set({ ...this.formModel });
   }
 
   reorderGroup_S(fromIndex: number, toIndex: number): void {
     this.formModel.reorderGroup(fromIndex, toIndex);
-    this._saveFormModelToLocalStorage();
+    this._formModel$.set({ ...this.formModel });
   }
 
   deleteGroup_S(groupId: string): void {
     this.formModel.deleteGroup(groupId);
-    this._saveFormModelToLocalStorage();
+    this._formModel$.set({ ...this.formModel });
   }
 
   private _returnNewFormModel(): FormModel {
@@ -66,9 +98,14 @@ export class BuilderService {
     return formModel;
   }
 
-  private _saveFormModelToLocalStorage(): void {
-    this.localStorage.set<FormModel>('formModel', this.formModel);
-    console.log('Saving');
+  // private _saveFormModelToLocalStorage(): void {
+  //   this.localStorage.set<FormModel>('formModel', this.formModel);
+  //   console.log('Saving');
+  // }
+
+  private _saveToLocalStorage(formDto: FormDto): void {
+    this.localStorage.set<FormDto>('formModel', formDto);
+    console.log('Saved');
   }
 
   // runtime validation for props

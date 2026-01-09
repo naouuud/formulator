@@ -32,7 +32,7 @@ export class BuilderPropLabel implements OnInit {
     if (!this.isEditable) control?.disable();
     control?.valueChanges
       .pipe(
-        throttleTime(1000, undefined, { leading: true, trailing: true }),
+        // throttleTime(1000, undefined, { leading: true, trailing: true }),
         map((value: unknown) => ({ propType: PropType.LABEL, value } as PropChangeEvent))
       )
       .subscribe(this.propValueChange);

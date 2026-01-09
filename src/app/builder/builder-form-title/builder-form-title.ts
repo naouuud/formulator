@@ -18,8 +18,8 @@ export class BuilderFormTitle implements OnInit {
     this.formControl.setValue(this.formName);
     this.formControl.valueChanges
       .pipe(
-        filter((value) => value != null),
-        throttleTime(1000, undefined, { leading: true, trailing: true })
+        filter((value) => value != null)
+        // throttleTime(1000, undefined, { leading: true, trailing: true })
       )
       .subscribe((value) => this.setFormName(value));
   }
