@@ -67,8 +67,6 @@ export const groupMap = new Map<GroupType, GroupFactory>([
 export abstract class Group {
   abstract groupType: GroupType;
   groupId = crypto.randomUUID();
-  groupLabel: string | null = null;
-  // groupRequired: boolean = false;
   fields: Field[] = [];
 
   addField(fieldType: FieldType) {
@@ -191,8 +189,6 @@ export class BooleanGroup extends RadioGroup {
 
 export class GenderGroup extends RadioGroup {
   override groupType: GroupType = GroupType.GENDER;
-  override groupLabel: string | null = 'Gender';
-
   constructor() {
     super();
     const field = this.fields[0];
@@ -232,7 +228,6 @@ export class DateGroup extends Group {
 
 export class BirthdayGroup extends DateGroup {
   override groupType: GroupType = GroupType.BIRTHDAY;
-  override groupLabel: string | null = 'Date of Birth';
   constructor() {
     super();
     const date = new Date();
@@ -261,7 +256,6 @@ export class NameGroup extends Group {
 
 export class AddressGroup extends Group {
   override groupType: GroupType = GroupType.ADDRESS;
-  override groupLabel: string = 'Address';
   geoData = leb_governorates;
 
   constructor() {

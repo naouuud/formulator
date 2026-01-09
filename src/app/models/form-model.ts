@@ -1,7 +1,7 @@
 import { Group, GroupType } from './group-types';
 
 export class FormModel {
-  formId: string = crypto.randomUUID();
+  formId = crypto.randomUUID();
   formName: string = '';
   groups: Group[] = [];
 

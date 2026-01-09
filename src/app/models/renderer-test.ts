@@ -14,7 +14,7 @@ import { FormModel } from './form-model';
 
 const nameTest: NameGroup = new NameGroup();
 const checkTest: CheckboxGroup = new CheckboxGroup();
-checkTest.groupLabel = 'Preferred contact methods';
+// checkTest.groupLabel = 'Preferred contact methods';
 (checkTest.fields[0] as CheckBoxField).options = [
   {
     label: 'Email',
