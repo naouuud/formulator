@@ -23,7 +23,7 @@ export class BuilderService {
       : this._returnNewFormModel();
   }
 
-  setProp_S<K extends PropType>(field: Field, propType: K, value: unknown) {
+  setProp_S(field: Field, propType: PropType, value: unknown) {
     if (!this._isValidPropValue(propType, value)) {
       throw new Error(
         `Invalid value for propType '${propType}'. ` +

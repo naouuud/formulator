@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { uiTypes } from '../models/ui-types';
+import { uiTypesBasic, uiTypesCustom } from '../models/ui-types';
 import { UiTypeIcon } from '../ui-type-icon/ui-type-icon';
 import { CdkDrag, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
@@ -11,5 +11,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
-  uiTypes = uiTypes;
+  uiTypesBasic = uiTypesBasic;
+  uiTypesCustom = uiTypesCustom;
 }

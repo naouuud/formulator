@@ -5,8 +5,8 @@ import {
   FormGroupDirective,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { map, Subject, throttleTime } from 'rxjs';
-import { Prop, PropChangeEvent, PropType, PropValueMap } from '../../models/prop-types';
+import { map, throttleTime } from 'rxjs';
+import { PropChangeEvent, PropType } from '../../models/prop-types';
 import { BuilderService } from '../../services/builder-service';
 
 @Component({
@@ -17,6 +17,8 @@ import { BuilderService } from '../../services/builder-service';
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class BuilderPropLabel implements OnInit {
+  @Input() labelMessage!: string;
+  @Input() isEditable!: boolean;
   @Output() propValueChange = new EventEmitter<PropChangeEvent>();
 
   constructor(public controlContainer: ControlContainer, private builderService: BuilderService) {}
@@ -26,9 +28,10 @@ export class BuilderPropLabel implements OnInit {
   }
 
   ngOnInit(): void {
-    this.form
-      .get('label')
-      ?.valueChanges.pipe(
+    const control = this.form.get('label');
+    if (!this.isEditable) control?.disable();
+    control?.valueChanges
+      .pipe(
         throttleTime(1000, undefined, { leading: true, trailing: true }),
         map((value: unknown) => ({ propType: PropType.LABEL, value } as PropChangeEvent))
       )
