@@ -7,9 +7,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { Field } from '../../models/field-types';
-import { Prop, PropChangeEvent, PropType, PropValueMap } from '../../models/prop-types';
+import { Prop, PropChangeEvent, PropType } from '../../models/prop-types';
 import { BuilderService } from '../../services/builder-service';
-import { throttleTime } from 'rxjs';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 
 @Component({
@@ -28,23 +27,6 @@ export class BuilderFieldText implements OnInit {
   constructor(private builderService: BuilderService) {}
 
   ngOnInit(): void {
-    // this.formGroup = new FormGroup({
-    //   label: new FormControl(this.field.getPropValue(PropType.LABEL) ?? '', {
-    //     nonNullable: true,
-    //     validators: [Validators.maxLength(100)],
-    //   }),
-    //   placeholder: new FormControl(this.field.getPropValue(PropType.PLACEHOLDER) ?? '', {
-    //     nonNullable: true,
-    //     validators: [Validators.maxLength(100)],
-    //   }),
-    //   required: new FormControl(this.field.getPropValue(PropType.REQUIRED), { nonNullable: true }),
-    //   maxlength: new FormControl(this.field.getPropValue(PropType.MAXLENGTH), {
-    //     nonNullable: true,
-    //   }),
-    //   minlength: new FormControl(this.field.getPropValue(PropType.MINLENGTH), {
-    //     nonNullable: true,
-    //   }),
-    // });
     this._buildFormGroup();
   }
 
@@ -65,3 +47,21 @@ export class BuilderFieldText implements OnInit {
     });
   }
 }
+
+// this.formGroup = new FormGroup({
+//   label: new FormControl(this.field.getPropValue(PropType.LABEL) ?? '', {
+//     nonNullable: true,
+//     validators: [Validators.maxLength(100)],
+//   }),
+//   placeholder: new FormControl(this.field.getPropValue(PropType.PLACEHOLDER) ?? '', {
+//     nonNullable: true,
+//     validators: [Validators.maxLength(100)],
+//   }),
+//   required: new FormControl(this.field.getPropValue(PropType.REQUIRED), { nonNullable: true }),
+//   maxlength: new FormControl(this.field.getPropValue(PropType.MAXLENGTH), {
+//     nonNullable: true,
+//   }),
+//   minlength: new FormControl(this.field.getPropValue(PropType.MINLENGTH), {
+//     nonNullable: true,
+//   }),
+// });

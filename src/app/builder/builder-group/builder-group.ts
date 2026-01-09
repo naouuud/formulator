@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, Output } from '@angular/core';
-import { Group } from '../../models/group-types';
+import { Group, GroupLabels } from '../../models/group-types';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { BuilderService } from '../../services/builder-service';
 import { BuilderField } from '../builder-field/builder-field';
@@ -14,6 +14,7 @@ import { Subject } from 'rxjs';
 })
 export class BuilderGroup implements OnInit {
   // @Input() formModel!: FormModel;
+  GroupLabels = GroupLabels;
   @Input() group!: Group;
   @Output() groupDeleted = new Subject<void>();
 

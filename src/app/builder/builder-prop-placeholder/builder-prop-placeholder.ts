@@ -6,6 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './builder-prop-placeholder.html',
   styleUrl: './builder-prop-placeholder.css',
 })
-export class BuilderPropPlaceholder {
-
-}
+export class BuilderPropPlaceholder {}

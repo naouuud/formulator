@@ -30,6 +30,23 @@ export enum GroupType {
   ADDRESS = 'address',
 }
 
+export const GroupLabels = {
+  [GroupType.BIRTHDAY]: 'Date of Birth',
+  [GroupType.GENDER]: 'Gender',
+  [GroupType.PHONE]: 'Phone',
+  [GroupType.EMAIL]: 'Email',
+  [GroupType.TEXT]: 'Short Text',
+  [GroupType.TEXTAREA]: 'Long Text',
+  [GroupType.SELECT]: 'Dropdown',
+  [GroupType.CHECKBOX]: 'Checkbox (check all that apply)',
+  [GroupType.RADIO]: 'Radio (check one only)',
+  [GroupType.DATE]: 'Any Date',
+  [GroupType.NUMBER]: 'Number',
+  [GroupType.BOOLEAN]: 'Yes/No',
+  [GroupType.NAME]: 'Full Name',
+  [GroupType.ADDRESS]: 'Address',
+};
+
 export const groupMap = new Map<GroupType, GroupFactory>([
   [GroupType.TEXT, () => new TextGroup()],
   [GroupType.TEXTAREA, () => new TextareaGroup()],
