@@ -5,13 +5,13 @@ import { BuilderFieldText } from '../builder-field-text/builder-field-text';
 import { BuilderFieldRadio } from '../builder-field-radio/builder-field-radio';
 import { BuilderFieldDate } from '../builder-field-date/builder-field-date';
 import { BuilderFieldSelect } from '../builder-field-select/builder-field-select';
-import { BuilderFieldTextarea } from '../builder-field-textarea/builder-field-textarea';
+// import { BuilderFieldTextarea } from '../builder-field-textarea/builder-field-textarea';
 
 @Component({
   selector: 'app-builder-field',
   imports: [
     BuilderFieldText,
-    BuilderFieldTextarea,
+    // BuilderFieldTextarea,
     BuilderFieldCheckbox,
     BuilderFieldRadio,
     BuilderFieldDate,

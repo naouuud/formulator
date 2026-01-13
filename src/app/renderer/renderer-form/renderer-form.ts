@@ -1,18 +1,16 @@
 import { Component } from '@angular/core';
 import { rendererTestForm } from '../../models/renderer-test';
 import {
-  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
   ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { Group } from '../../models/group-types';
 import { RendererGroup } from '../renderer-group/renderer-group';
 import { Field } from '../../models/field-types';
-import { Prop, PropType } from '../../models/prop-types';
+import { Prop, PropType, phonePattern, numberPattern } from '../../models/prop-types';
 import { FormModel } from '../../models/form-model';
 
 @Component({
@@ -39,14 +37,17 @@ export class RendererForm {
             case PropType.REQUIRED:
               if (prop.value) validators.push(Validators.required);
               break;
-            case PropType.MAXLENGTH:
+            case PropType.MAXLENGTHCHAR:
               validators.push(Validators.maxLength(prop.value));
               break;
-            case PropType.MINLENGTH:
+            case PropType.MINLENGTHCHAR:
               if (prop.value > 1) validators.push(Validators.minLength(prop.value));
               break;
-            case PropType.PATTERN:
-              validators.push(Validators.pattern(prop.value));
+            case PropType.PATTERNPHONE:
+              validators.push(Validators.pattern(phonePattern));
+              break;
+            case PropType.PATTERNNUMBER:
+              validators.push(Validators.pattern(numberPattern));
               break;
             case PropType.EMAIL:
               if (prop.value) validators.push(Validators.email);
