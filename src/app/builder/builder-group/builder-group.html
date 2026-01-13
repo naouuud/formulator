@@ -5,7 +5,7 @@
 >
   <div class="flex justify-between items-center">
     <!-- <div class="text-gray-400 hover:cursor-pointer pl-1">Drag to move</div> -->
-    <div class="text-gray-400">{{ GroupLabels[group.groupType] }}</div>
+    <div class="text-gray-400 hover:cursor-pointer">{{ GroupLabels[group.groupType] }}</div>
     <button type="button" class="flex" (click)="deleteGroup_C(group.groupId)">
       <app-builder-group-delete />
     </button>

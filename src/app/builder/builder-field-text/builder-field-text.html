@@ -1,11 +1,12 @@
 <div [formGroup]="formGroup" class="flex flex-col">
   <!-- Label -->
-  <app-builder-prop-label [labelMessage]="'No presets, ask your responder any question...'" />
+  <app-builder-prop-label [labelMessage]="'Ask your responder a question...'" />
   <!-- Result Display -->
   <input
     type="text"
     class="block w-full bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400 text-gray-400"
-    placeholder="Responder will type their answer here"
+    [ngClass]="{ 'h-28 pb-20': field.fieldType === FieldType.TEXTAREA }"
+    placeholder="Responder will type their answer here..."
     disabled
   />
   <!-- Validation -->
