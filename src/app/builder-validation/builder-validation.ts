@@ -18,8 +18,10 @@ import {
 export class BuilderValidation {
   @Input() field!: Field;
   PropType = PropType;
-  arrayChar = this._arrayRange(0, 100, 1);
-  arrayWord = this._arrayRange(0, 1000, 50);
+  charMax = this._arrayRange(1, 100, 1);
+  charMin = this._arrayRange(0, 100, 1);
+  wordMax = this._arrayRange(100, 1000, 100);
+  wordMin = this._arrayRange(0, 1000, 100);
   isValidationOpen = true;
 
   constructor(public controlContainer: ControlContainer) {}

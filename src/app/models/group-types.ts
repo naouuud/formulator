@@ -30,23 +30,6 @@ export enum GroupType {
   ADDRESS = 'address',
 }
 
-export const GroupLabels = {
-  [GroupType.BIRTHDAY]: 'Date of Birth',
-  [GroupType.GENDER]: 'Gender',
-  [GroupType.PHONE]: 'Phone',
-  [GroupType.EMAIL]: 'Email',
-  [GroupType.TEXT]: 'Short Text',
-  [GroupType.TEXTAREA]: 'Long Text',
-  [GroupType.SELECT]: 'Dropdown',
-  [GroupType.CHECKBOX]: 'Checkbox (check all that apply)',
-  [GroupType.RADIO]: 'Radio (check one only)',
-  [GroupType.DATE]: 'Any Date',
-  [GroupType.NUMBER]: 'Number',
-  [GroupType.BOOLEAN]: 'Yes/No',
-  [GroupType.NAME]: 'Full Name',
-  [GroupType.ADDRESS]: 'Address',
-};
-
 export const groupMap = new Map<GroupType, GroupFactory>([
   [GroupType.TEXT, () => new TextGroup()],
   [GroupType.TEXTAREA, () => new TextareaGroup()],
@@ -246,13 +229,17 @@ export class NameGroup extends Group {
   constructor() {
     super();
     const firstNameField = new TextField();
-    firstNameField.setProp(PropType.LABEL, 'First Name');
+    firstNameField.setProp(PropType.LABEL, 'First Name', false);
     firstNameField.setProp(PropType.PLACEHOLDER, 'Enter first name...');
     firstNameField.setProp(PropType.REQUIRED, true);
+    firstNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    firstNameField.setProp(PropType.MINLENGTHCHAR, 0, false);
     const lastNameField = new TextField();
-    lastNameField.setProp(PropType.LABEL, 'Last Name');
+    lastNameField.setProp(PropType.LABEL, 'Last Name', false);
     lastNameField.setProp(PropType.PLACEHOLDER, 'Enter last name...');
     lastNameField.setProp(PropType.REQUIRED, true);
+    lastNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    lastNameField.setProp(PropType.MINLENGTHCHAR, 0, false);
     this.pushFields(firstNameField, lastNameField);
   }
 }
@@ -274,7 +261,7 @@ export class AddressGroup extends Group {
     districtField.setProp(PropType.LABEL, 'District');
     districtField.setProp(PropType.PLACEHOLDER, 'Select district');
     const streetField = new TextField();
-    streetField.setProp(PropType.LABEL, 'Street and Building', false);
+    streetField.setProp(PropType.LABEL, 'Street and building', false);
     streetField.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
     streetField.setProp(PropType.MAXLENGTHCHAR, 100, false);
     streetField.setProp(PropType.MINLENGTHCHAR, 0, false);
