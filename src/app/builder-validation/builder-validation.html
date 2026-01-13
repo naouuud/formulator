@@ -46,7 +46,7 @@
             formControlName="maxlengthchar"
             class="w-20 bg-white border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
           >
-            @for (n of arrayChar; track $index) {
+            @for (n of charMax; track $index) {
             <option [value]="n">{{ n }}</option>
             }
           </select>
@@ -63,7 +63,7 @@
             formControlName="minlengthchar"
             class="w-20 bg-white border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
           >
-            @for (n of arrayChar; track $index) {
+            @for (n of charMin; track $index) {
             <option [value]="n">{{ n }}</option>
             }
           </select>
@@ -80,7 +80,7 @@
             formControlName="maxlengthword"
             class="w-20 bg-white border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
           >
-            @for (n of arrayWord; track $index) {
+            @for (n of wordMax; track $index) {
             <option [value]="n">{{ n }}</option>
             }
           </select>
@@ -97,7 +97,7 @@
             formControlName="minlengthword"
             class="w-20 bg-white border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
           >
-            @for (n of arrayWord; track $index) {
+            @for (n of wordMin; track $index) {
             <option [value]="n">{{ n }}</option>
             }
           </select>
@@ -109,19 +109,19 @@
       @if (prop.propType === PropType.EMAIL) {<label
         class="flex items-center justify-between text-sm text-gray-600 cursor-pointer"
       >
-        <span class="text-green-600">This field will check for a valid email pattern.</span> </label
+        <span class="text-green-600">This field only accepts emails.</span> </label
       >}
       <!-- Phone Pattern -->
       @if (prop.propType === PropType.PATTERNPHONE) {<label
         class="flex items-center justify-between text-sm text-gray-600 cursor-pointer"
       >
-        <span class="text-green-600">This field will check for a valid phone pattern.</span> </label
+        <span class="text-green-600">This field only accepts phone numbers.</span> </label
       >}
       <!-- Number Pattern -->
       @if (prop.propType === PropType.PATTERNNUMBER) {<label
         class="flex items-center justify-between text-sm text-gray-600 cursor-pointer"
       >
-        <span class="text-green-600">This field will accept number input only.</span> </label
+        <span class="text-green-600">This field only accepts numerical values.</span> </label
       >}}
     </div>
   </div>

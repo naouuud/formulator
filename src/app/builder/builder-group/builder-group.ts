@@ -1,10 +1,27 @@
 import { Component, Input, OnInit, Output } from '@angular/core';
-import { Group, GroupLabels } from '../../models/group-types';
+import { Group, GroupType } from '../../models/group-types';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { BuilderService } from '../../services/builder-service';
 import { BuilderField } from '../builder-field/builder-field';
 import { BuilderGroupDelete } from '../builder-group-delete/builder-group-delete';
 import { Subject } from 'rxjs';
+
+const GroupLabels = {
+  [GroupType.BIRTHDAY]: 'Date of birth',
+  [GroupType.GENDER]: 'Gender',
+  [GroupType.PHONE]: 'Phone',
+  [GroupType.EMAIL]: 'Email',
+  [GroupType.TEXT]: 'Short text',
+  [GroupType.TEXTAREA]: 'Long text (e.g. comment, essay)',
+  [GroupType.SELECT]: 'Dropdown',
+  [GroupType.CHECKBOX]: 'Checkbox (check all that apply)',
+  [GroupType.RADIO]: 'Radio (check one only)',
+  [GroupType.DATE]: 'Date',
+  [GroupType.NUMBER]: 'Number',
+  [GroupType.BOOLEAN]: 'Yes/No',
+  [GroupType.NAME]: 'Name',
+  [GroupType.ADDRESS]: 'Address',
+};
 
 @Component({
   selector: 'app-builder-group',
@@ -13,7 +30,6 @@ import { Subject } from 'rxjs';
   styleUrl: './builder-group.css',
 })
 export class BuilderGroup implements OnInit {
-  // @Input() formModel!: FormModel;
   GroupLabels = GroupLabels;
   @Input() group!: Group;
   @Output() groupDeleted = new Subject<void>();
