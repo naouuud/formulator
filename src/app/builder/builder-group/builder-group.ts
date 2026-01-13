@@ -19,7 +19,7 @@ const GroupLabels = {
   [GroupType.DATE]: 'Date',
   [GroupType.NUMBER]: 'Number',
   [GroupType.BOOLEAN]: 'Yes/No',
-  [GroupType.NAME]: 'Name',
+  [GroupType.NAME]: 'Full name',
   [GroupType.ADDRESS]: 'Address',
 };
 
