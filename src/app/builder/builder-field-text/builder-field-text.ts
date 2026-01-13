@@ -10,10 +10,11 @@ import { Field } from '../../models/field-types';
 import { Prop, PropChangeEvent, PropType } from '../../models/prop-types';
 import { BuilderService } from '../../services/builder-service';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
+import { BuilderValidation } from '../../builder-validation/builder-validation';
 
 @Component({
   selector: 'app-builder-field-text',
-  imports: [ReactiveFormsModule, BuilderPropLabel],
+  imports: [BuilderPropLabel, BuilderValidation, ReactiveFormsModule],
   templateUrl: './builder-field-text.html',
   styleUrl: './builder-field-text.css',
 })
@@ -21,17 +22,33 @@ export class BuilderFieldText implements OnInit {
   PropType = PropType;
   @Input() field!: Field;
   formGroup: FormGroup = new FormGroup({});
-  array = Array.from({ length: 101 }, (_, i) => i);
-  isValidationOpen = true;
 
   constructor(private builderService: BuilderService) {}
 
   ngOnInit(): void {
     this._buildFormGroup();
+    this.formGroup.get('label')?.valueChanges.subscribe((value) => {
+      this.setProp_C({ propType: PropType.LABEL, value });
+    });
+    this.formGroup.get('required')?.valueChanges.subscribe((value) => {
+      this.setProp_C({ propType: PropType.REQUIRED, value });
+    });
+    this.formGroup.get('minlengthchar')?.valueChanges.subscribe((value) => {
+      this.setProp_C({ propType: PropType.MINLENGTHCHAR, value: Number(value) });
+    });
+    this.formGroup.get('maxlengthchar')?.valueChanges.subscribe((value) => {
+      this.setProp_C({ propType: PropType.MAXLENGTHCHAR, value: Number(value) });
+    });
+    this.formGroup.get('minlengthword')?.valueChanges.subscribe((value) => {
+      this.setProp_C({ propType: PropType.MINLENGTHWORD, value: Number(value) });
+    });
+    this.formGroup.get('maxlengthword')?.valueChanges.subscribe((value) => {
+      this.setProp_C({ propType: PropType.MAXLENGTHWORD, value: Number(value) });
+    });
   }
 
-  setProp_C(valueIn: PropChangeEvent) {
-    const { propType, value } = valueIn;
+  setProp_C(propChangeEvent: PropChangeEvent) {
+    const { propType, value } = propChangeEvent;
     this.builderService.setProp_S(this.field, propType, value);
   }
 
@@ -41,27 +58,11 @@ export class BuilderFieldText implements OnInit {
       switch (prop.propType) {
         case PropType.LABEL:
           validators.push(Validators.maxLength(100));
+          break;
       }
       const control = new FormControl(prop.value, { nonNullable: true, validators });
+      if (!prop.editable) control.disable();
       this.formGroup.addControl(prop.propType, control);
     });
   }
 }
-
-// this.formGroup = new FormGroup({
-//   label: new FormControl(this.field.getPropValue(PropType.LABEL) ?? '', {
-//     nonNullable: true,
-//     validators: [Validators.maxLength(100)],
-//   }),
-//   placeholder: new FormControl(this.field.getPropValue(PropType.PLACEHOLDER) ?? '', {
-//     nonNullable: true,
-//     validators: [Validators.maxLength(100)],
-//   }),
-//   required: new FormControl(this.field.getPropValue(PropType.REQUIRED), { nonNullable: true }),
-//   maxlength: new FormControl(this.field.getPropValue(PropType.MAXLENGTH), {
-//     nonNullable: true,
-//   }),
-//   minlength: new FormControl(this.field.getPropValue(PropType.MINLENGTH), {
-//     nonNullable: true,
-//   }),
-// });

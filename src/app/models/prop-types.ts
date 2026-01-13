@@ -1,13 +1,16 @@
 export enum PropType {
   LABEL = 'label',
   PLACEHOLDER = 'placeholder',
-  MAXLENGTH = 'maxlength',
-  MINLENGTH = 'minlength',
+  MAXLENGTHCHAR = 'maxlengthchar',
+  MINLENGTHCHAR = 'minlengthchar',
+  MAXLENGTHWORD = 'maxlengthword',
+  MINLENGTHWORD = 'minlengthword',
   REQUIRED = 'required',
   EMAIL = 'email',
   MAXVALUE = 'maxvalue',
   MINVALUE = 'minvalue',
-  PATTERN = 'pattern',
+  PATTERNPHONE = 'patternphone',
+  PATTERNNUMBER = 'patternnumber',
   MAXDATE = 'maxdate',
   MINDATE = 'mindate',
   MAXYEARDISP = 'maxyeardisp',
@@ -17,13 +20,16 @@ export enum PropType {
 export type PropValueMap = {
   [PropType.LABEL]: string;
   [PropType.PLACEHOLDER]: string;
-  [PropType.MAXLENGTH]: number;
-  [PropType.MINLENGTH]: number;
+  [PropType.MAXLENGTHCHAR]: number;
+  [PropType.MINLENGTHCHAR]: number;
+  [PropType.MAXLENGTHWORD]: number;
+  [PropType.MINLENGTHWORD]: number;
   [PropType.REQUIRED]: boolean;
   [PropType.EMAIL]: boolean;
   [PropType.MAXVALUE]: number;
   [PropType.MINVALUE]: number;
-  [PropType.PATTERN]: RegExp;
+  [PropType.PATTERNPHONE]: boolean;
+  [PropType.PATTERNNUMBER]: boolean;
   [PropType.MAXDATE]: string;
   [PropType.MINDATE]: string;
   [PropType.MAXYEARDISP]: number;
@@ -35,25 +41,14 @@ export type Prop = {
   [K in keyof PropValueMap]: {
     propType: K;
     value: PropValueMap[K];
+    editable: boolean;
   };
 }[keyof PropValueMap];
-
-// export type Prop =
-//   | { propType: PropType.LABEL; value: string }
-//   | { propType: PropType.PLACEHOLDER; value: string }
-//   | { propType: PropType.MAXLENGTH; value: number }
-//   | { propType: PropType.MINLENGTH; value: number }
-//   | { propType: PropType.REQUIRED; value: boolean }
-//   | { propType: PropType.MAXVALUE; value: number }
-//   | { propType: PropType.MINVALUE; value: number }
-//   | { propType: PropType.PATTERN; value: RegExp }
-//   | { propType: PropType.MAXDATE; value: string }
-//   | { propType: PropType.MINDATE; value: string }
-//   | { propType: PropType.MAXYEARDISP; value: number }
-//   | { propType: PropType.MINYEARDISP; value: number }
-//   | { propType: PropType.EMAIL; value: boolean };
 
 export interface PropChangeEvent {
   propType: PropType;
   value: unknown;
 }
+
+export const phonePattern = /^\d(?:\s?\d){7}$/;
+export const numberPattern = /^[+-]?\d+(\.\d+)?$/;

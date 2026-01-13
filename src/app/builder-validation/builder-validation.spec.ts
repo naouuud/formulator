@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BuilderFieldTextarea } from './builder-field-textarea';
+import { BuilderValidation } from './builder-validation';
 
-describe('BuilderFieldTextarea', () => {
-  let component: BuilderFieldTextarea;
-  let fixture: ComponentFixture<BuilderFieldTextarea>;
+describe('BuilderValidation', () => {
+  let component: BuilderValidation;
+  let fixture: ComponentFixture<BuilderValidation>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BuilderFieldTextarea]
+      imports: [BuilderValidation]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(BuilderFieldTextarea);
+    fixture = TestBed.createComponent(BuilderValidation);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

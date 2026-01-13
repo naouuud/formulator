@@ -31,14 +31,6 @@ export abstract class Field {
     this.setProp(PropType.REQUIRED, true);
   }
 
-  // 'squeeze' function to enforce type correctness during construction
-  private _createProp<K extends PropType>(
-    propType: K,
-    value: PropValueMap[K]
-  ): Extract<Prop, { propType: K }> {
-    return { propType, value } as Extract<Prop, { propType: K }>;
-  }
-
   getProp<K extends PropType>(propTypeIn: K): Extract<Prop, { propType: K }> | undefined {
     const prop = this.props.find((p) => p.propType === propTypeIn);
     if (prop) return prop as Extract<Prop, { propType: K }>;
@@ -53,13 +45,23 @@ export abstract class Field {
     return null;
   }
 
-  setProp<K extends PropType>(propTypeIn: K, valueIn: PropValueMap[K]) {
+  setProp<K extends PropType>(propTypeIn: K, valueIn: PropValueMap[K], editableIn: boolean = true) {
     const existing = this.getProp(propTypeIn);
     if (existing) {
       existing.value = valueIn;
+      existing.editable = editableIn;
       return;
     }
-    this.props.push(this._createProp(propTypeIn, valueIn));
+    this.props.push(this._createProp(propTypeIn, valueIn, editableIn));
+  }
+
+  // 'squeeze' function to enforce type correctness during construction
+  private _createProp<K extends PropType>(
+    propType: K,
+    value: PropValueMap[K],
+    editable: boolean
+  ): Extract<Prop, { propType: K }> {
+    return { propType, value, editable } as Extract<Prop, { propType: K }>;
   }
 
   static getFactory(fieldType: FieldType): FieldFactory {
@@ -86,18 +88,19 @@ export class TextField extends Field {
 
   constructor() {
     super();
-    this.setProp(PropType.MAXLENGTH, 100);
-    this.setProp(PropType.MINLENGTH, 0);
+    this.setProp(PropType.MAXLENGTHCHAR, 100);
+    this.setProp(PropType.MINLENGTHCHAR, 0);
     this.setProp(PropType.PLACEHOLDER, '');
   }
 }
 
-export class TextareaField extends TextField {
-  override fieldType: FieldType = FieldType.TEXTAREA;
+export class TextareaField extends Field {
+  fieldType: FieldType = FieldType.TEXTAREA;
 
   constructor() {
     super();
-    this.setProp(PropType.MAXLENGTH, 500);
+    this.setProp(PropType.MAXLENGTHWORD, 500);
+    this.setProp(PropType.MINLENGTHWORD, 0);
     this.setProp(PropType.PLACEHOLDER, 'Enter your text...');
   }
 }

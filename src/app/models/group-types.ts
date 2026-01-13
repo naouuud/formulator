@@ -119,8 +119,9 @@ export class EmailGroup extends TextGroup {
     super();
     const field = this.fields[0];
     field.setProp(PropType.EMAIL, true);
-    field.setProp(PropType.MAXLENGTH, 50);
-    field.setProp(PropType.LABEL, 'Email');
+    field.setProp(PropType.MAXLENGTHCHAR, 50, false);
+    field.setProp(PropType.MINLENGTHCHAR, 0, false);
+    field.setProp(PropType.LABEL, 'Email address', false);
     field.setProp(PropType.PLACEHOLDER, 'Enter your email...');
   }
 }
@@ -130,10 +131,12 @@ export class NumberGroup extends TextGroup {
   constructor() {
     super();
     const field = this.fields[0];
+    field.setProp(PropType.PATTERNNUMBER, true);
+    field.setProp(PropType.MAXLENGTHCHAR, 20, false);
+    field.setProp(PropType.MINLENGTHCHAR, 0, false);
     field.setProp(PropType.MAXVALUE, 1000000000);
     field.setProp(PropType.MINVALUE, -1000000000);
     field.setProp(PropType.PLACEHOLDER, 'Enter number...');
-    field.setProp(PropType.PATTERN, /^[+-]?\d+(\.\d+)?$/);
   }
 }
 
@@ -142,11 +145,11 @@ export class PhoneGroup extends TextGroup {
   constructor() {
     super();
     const field = this.fields[0];
-    field.setProp(PropType.MAXLENGTH, 15);
-    field.setProp(PropType.MINLENGTH, 8);
+    field.setProp(PropType.PATTERNPHONE, true);
+    field.setProp(PropType.MAXLENGTHCHAR, 15, false);
+    field.setProp(PropType.MINLENGTHCHAR, 8, false);
     field.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
-    field.setProp(PropType.LABEL, 'Phone');
-    field.setProp(PropType.PATTERN, /^\d(?:\s?\d){7}$/);
+    field.setProp(PropType.LABEL, 'Phone number', false);
   }
 }
 
@@ -271,11 +274,15 @@ export class AddressGroup extends Group {
     districtField.setProp(PropType.LABEL, 'District');
     districtField.setProp(PropType.PLACEHOLDER, 'Select district');
     const streetField = new TextField();
-    streetField.setProp(PropType.LABEL, 'Street and Building');
+    streetField.setProp(PropType.LABEL, 'Street and Building', false);
     streetField.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
+    streetField.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    streetField.setProp(PropType.MINLENGTHCHAR, 0, false);
     const cityField = new TextField();
-    cityField.setProp(PropType.LABEL, 'City');
+    cityField.setProp(PropType.LABEL, 'City', false);
     cityField.setProp(PropType.PLACEHOLDER, 'Enter city...');
+    cityField.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    cityField.setProp(PropType.MINLENGTHCHAR, 0, false);
     this.pushFields(governorateField, districtField, streetField, cityField);
   }
 }
