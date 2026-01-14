@@ -4,15 +4,15 @@
     id="form-drop"
     [cdkDropListConnectedTo]="['palette']"
     (cdkDropListDropped)="onDrop($event)"
-    (cdkDropListEntered)="this.hideMessage = true"
-    (cdkDropListExited)="this.hideMessage = false"
+    (cdkDropListEntered)="this.hideMessage.set(true)"
+    (cdkDropListExited)="this.hideMessage.set(false)"
     [cdkDropListAutoScrollDisabled]="false"
   >
     <!-- Form title -->
-    <app-builder-form-title [formName]="formModel$().formName" />
+    <app-builder-form-title [formName]="formModel.formName" />
     <!-- Form groups -->
     <div class="flex flex-col gap-4">
-      @for (group of formModel$().groups; track group) {
+      @for (group of formModel.groups; track group) {
       <div
         class="animation-container"
         animate.enter="group-enter-animation"
@@ -20,14 +20,14 @@
       >
         <app-builder-group
           [group]="group"
-          (groupDeleted)="hideMessage = formModel$().groups.length > 0"
+          (groupDeleted)="hideMessage.set(formModel.groups.length > 0)"
         >
         </app-builder-group>
       </div>
       }
     </div>
     <!-- Empty form message -->
-    @if (formModel$().groups.length === 0 && !hideMessage) {
+    @if (formModel.groups.length === 0 && !hideMessage()) {
     <div
       class="flex justify-center items-center min-h-[300px] w-full text-xl font-[500] text-gray-400 mb-4 p-2 border-2 border-gray-300 rounded-md border-dashed"
       animate.enter="message-enter-animation"

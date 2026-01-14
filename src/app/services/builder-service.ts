@@ -5,7 +5,7 @@ import { LocalStorageService } from './local-storage';
 import { Field, FieldType, Option } from '../models/field-types';
 import { Prop, PropType, PropValueMap } from '../models/prop-types';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, debounceTime } from 'rxjs';
+import { BehaviorSubject, debounceTime, Subject } from 'rxjs';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -37,38 +37,33 @@ type FormDto = {
 })
 export class BuilderService {
   formModel: FormModel;
-  private readonly _formModel$: WritableSignal<FormDto> = signal({ ...new FormModel() }); // DTO type
-  readonly formModel$ = this._formModel$.asReadonly();
-  dragDisabled$ = signal(false); // prevent drag during label editing (set in BuilderPropLabel)
+  saveForm = new Subject<void>();
+  dragDisabled$ = signal(false); // prevents group drag
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel = this.localStorage.has('formModel')
       ? this._returnFormModelFromLocalStorage(this.localStorage.get('formModel'))
       : this._returnNewFormModel();
-    this._formModel$.set({ ...this.formModel });
-    toObservable(this.formModel$)
+    this.saveForm.next();
+    this.saveForm
+      .asObservable()
       .pipe(debounceTime(1000))
-      .subscribe({
-        next: (val) => this._saveToLocalStorage(val),
-      });
-    // effect(() => {
-    //   this._saveToLocalStorage(this.formModel$());
-    // });
+      .subscribe(() => this._saveToLocalStorage());
   }
 
   addOption_S(field: Field, option: Option): void {
     field.addOption(option);
-    this._formModel$.set({ ...this.formModel });
+    this.saveForm.next();
   }
 
   deleteOption_S(field: Field, idx: number): void {
     field.deleteOption(idx);
-    this._formModel$.set({ ...this.formModel });
+    this.saveForm.next();
   }
 
   reorderOption_S(field: Field, fromIndex: number, toIndex: number): void {
     field.reorderOption(fromIndex, toIndex);
-    this._formModel$.set({ ...this.formModel });
+    this.saveForm.next();
   }
 
   setProp_S(field: Field, propType: PropType, value: unknown) {
@@ -80,27 +75,27 @@ export class BuilderService {
       );
     }
     field.setProp(propType, value);
-    this._formModel$.set({ ...this.formModel });
+    this.saveForm.next();
   }
 
   setFormName_S(value: string): void {
     this.formModel.setFormName(value);
-    this._formModel$.set({ ...this.formModel });
+    this.saveForm.next();
   }
 
   addGroup_S(groupType: GroupType): void {
     this.formModel.addGroup(groupType);
-    this._formModel$.set({ ...this.formModel });
+    this.saveForm.next();
   }
 
   reorderGroup_S(fromIndex: number, toIndex: number): void {
     this.formModel.reorderGroup(fromIndex, toIndex);
-    this._formModel$.set({ ...this.formModel });
+    this.saveForm.next();
   }
 
   deleteGroup_S(groupId: string): void {
     this.formModel.deleteGroup(groupId);
-    this._formModel$.set({ ...this.formModel });
+    this.saveForm.next();
   }
 
   private _returnNewFormModel(): FormModel {
@@ -114,13 +109,8 @@ export class BuilderService {
     return formModel;
   }
 
-  // private _saveFormModelToLocalStorage(): void {
-  //   this.localStorage.set<FormModel>('formModel', this.formModel);
-  //   console.log('Saving');
-  // }
-
-  private _saveToLocalStorage(formDto: FormDto): void {
-    this.localStorage.set<FormDto>('formModel', formDto);
+  private _saveToLocalStorage(): void {
+    this.localStorage.set('formModel', { ...this.formModel }); // need explicit conversion to Dto
     console.log('Saved');
   }
 

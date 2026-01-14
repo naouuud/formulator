@@ -1,17 +1,21 @@
 import { Component, Input } from '@angular/core';
 import { DuplicateOptionError, EmptyOptionError, Field, Option } from '../../models/field-types';
 import { BuilderService } from '../../services/builder-service';
+import { CdkDropList, CdkDrag, CdkDragDrop, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-add-options',
-  imports: [],
+  imports: [CdkDropList, CdkDrag, CdkDragPlaceholder],
   templateUrl: './add-options.html',
   styleUrl: './add-options.css',
 })
 export class AddOptions {
   @Input() field!: Field;
+  dragDisabled$;
 
-  constructor(private builderService: BuilderService) {}
+  constructor(private builderService: BuilderService) {
+    this.dragDisabled$ = this.builderService.dragDisabled$;
+  }
 
   addOption_C(optionInput: HTMLInputElement) {
     const option = optionInput.value;
@@ -26,6 +30,10 @@ export class AddOptions {
         console.warn(err);
       }
     }
+  }
+
+  reorderOption_C(event: CdkDragDrop<unknown>) {
+    this.builderService.reorderOption_S(this.field, event.previousIndex, event.currentIndex);
   }
 
   deleteOption_C(idx: number) {
