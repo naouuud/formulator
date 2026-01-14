@@ -2,9 +2,9 @@ export enum PropType {
   LABEL = 'label',
   PLACEHOLDER = 'placeholder',
   MAXLENGTHCHAR = 'maxlengthchar',
-  MINLENGTHCHAR = 'minlengthchar',
+  // MINLENGTHCHAR = 'minlengthchar',
   MAXLENGTHWORD = 'maxlengthword',
-  MINLENGTHWORD = 'minlengthword',
+  // MINLENGTHWORD = 'minlengthword',
   REQUIRED = 'required',
   EMAIL = 'email',
   MAXVALUE = 'maxvalue',
@@ -21,9 +21,9 @@ export type PropValueMap = {
   [PropType.LABEL]: string;
   [PropType.PLACEHOLDER]: string;
   [PropType.MAXLENGTHCHAR]: number;
-  [PropType.MINLENGTHCHAR]: number;
+  // [PropType.MINLENGTHCHAR]: number;
   [PropType.MAXLENGTHWORD]: number;
-  [PropType.MINLENGTHWORD]: number;
+  // [PropType.MINLENGTHWORD]: number;
   [PropType.REQUIRED]: boolean;
   [PropType.EMAIL]: boolean;
   [PropType.MAXVALUE]: number;

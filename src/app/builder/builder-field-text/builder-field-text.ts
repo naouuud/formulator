@@ -35,15 +35,15 @@ export class BuilderFieldText implements OnInit {
     this.formGroup.get('required')?.valueChanges.subscribe((value) => {
       this.setProp_C({ propType: PropType.REQUIRED, value });
     });
-    this.formGroup.get('minlengthchar')?.valueChanges.subscribe((value) => {
-      this.setProp_C({ propType: PropType.MINLENGTHCHAR, value: Number(value) });
-    });
+    // this.formGroup.get('minlengthchar')?.valueChanges.subscribe((value) => {
+    //   this.setProp_C({ propType: PropType.MINLENGTHCHAR, value: Number(value) });
+    // });
     this.formGroup.get('maxlengthchar')?.valueChanges.subscribe((value) => {
       this.setProp_C({ propType: PropType.MAXLENGTHCHAR, value: Number(value) });
     });
-    this.formGroup.get('minlengthword')?.valueChanges.subscribe((value) => {
-      this.setProp_C({ propType: PropType.MINLENGTHWORD, value: Number(value) });
-    });
+    // this.formGroup.get('minlengthword')?.valueChanges.subscribe((value) => {
+    //   this.setProp_C({ propType: PropType.MINLENGTHWORD, value: Number(value) });
+    // });
     this.formGroup.get('maxlengthword')?.valueChanges.subscribe((value) => {
       this.setProp_C({ propType: PropType.MAXLENGTHWORD, value: Number(value) });
     });

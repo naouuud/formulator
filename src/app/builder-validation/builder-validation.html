@@ -17,109 +17,114 @@
     </svg>
   </button> -->
 <div class="validation-content" [class.collapsed]="!isValidationOpen" ]>
-  <div class="flex flex-col gap-2 px-4 mt-4 text-xs font-semibold">
+  <div
+    class="flex flex-col gap-2 my-2 px-4 py-2 text-sm rounded-lg bg-gray-100 border border-gray-300"
+  >
     @for (prop of field.props; track $index) {
     <!-- Required  -->
     @if (prop.propType === PropType.REQUIRED) {<label
-      class="flex items-center justify-between text-gray-600 cursor-pointer"
+      class="flex items-center justify-between min-h-8 cursor-pointer"
     >
-      <span>Required</span>
+      <span class="text-gray-700">Response required</span>
+
       <div class="relative">
         <input type="checkbox" formControlName="required" class="sr-only peer" />
         <div
-          class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
+          class="w-8 h-4 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
         ></div>
         <div
-          class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"
+          class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform peer-checked:translate-x-4"
         ></div>
       </div> </label
     >}
     <!-- Max length CHAR -->
     @if (prop.propType === PropType.MAXLENGTHCHAR && prop.editable) {
-    <div class="flex items-center justify-between text-gray-600">
-      <span>Maximum length</span>
+    <div class="flex items-center justify-between min-h-8">
+      <span class="text-gray-700">Character limit</span>
+
       <div class="flex items-center gap-2">
         <select
           formControlName="maxlengthchar"
-          class="w-20 bg-white border border-gray-300 rounded-md px-1 py-1 focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
+          class="w-20 bg-white border border-gray-300 rounded-md px-2 py-1 text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400"
         >
           @for (n of charMax; track $index) {
           <option [value]="n">{{ n }}</option>
           }
         </select>
-        <span>characters</span>
+        <span class="text-gray-500">characters</span>
       </div>
     </div>
     }
     <!-- Min length CHAR -->
-    @if (prop.propType === PropType.MINLENGTHCHAR && prop.editable) {
-    <div class="flex items-center justify-between text-gray-600">
-      <span>Minimum length</span>
-      <div class="flex items-center gap-2">
-        <select
-          formControlName="minlengthchar"
-          class="w-20 bg-white border border-gray-300 rounded-md px-1 py-1 focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
-        >
-          @for (n of charMin; track $index) {
-          <option [value]="n">{{ n }}</option>
-          }
-        </select>
-        <span>characters</span>
+    <!-- @if (prop.propType === PropType.MINLENGTHCHAR && prop.editable) {
+      <div class="flex items-center justify-between text-gray-600">
+        <span>Minimum length</span>
+        <div class="flex items-center gap-2">
+          <select
+            formControlName="minlengthchar"
+            class="w-20 bg-white border border-gray-300 rounded-md px-1 py-1 focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
+          >
+            @for (n of charMin; track $index) {
+            <option [value]="n">{{ n }}</option>
+            }
+          </select>
+          <span>characters</span>
+        </div>
       </div>
-    </div>
-    }
+      } -->
     <!-- Max length WORD -->
     @if (prop.propType === PropType.MAXLENGTHWORD && prop.editable) {
-    <div class="flex items-center justify-between text-gray-600">
-      <span>Maximum length</span>
+    <div class="flex items-center justify-between min-h-8">
+      <span class="text-gray-700">Word limit</span>
+
       <div class="flex items-center gap-2">
         <select
           formControlName="maxlengthword"
-          class="w-20 bg-white border border-gray-300 rounded-md px-1 py-1 focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
+          class="w-20 bg-white border border-gray-300 rounded-md px-2 py-1 text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400"
         >
           @for (n of wordMax; track $index) {
           <option [value]="n">{{ n }}</option>
           }
         </select>
-        <span>words</span>
+        <span class="text-gray-500">words</span>
       </div>
     </div>
     }
     <!-- Min length WORD -->
-    @if (prop.propType === PropType.MINLENGTHWORD && prop.editable) {
-    <div class="flex items-center justify-between text-gray-600">
-      <span>Minimum length</span>
-      <div class="flex items-center gap-2">
-        <select
-          formControlName="minlengthword"
-          class="w-20 bg-white border border-gray-300 rounded-md px-1 py-1 focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
-        >
-          @for (n of wordMin; track $index) {
-          <option [value]="n">{{ n }}</option>
-          }
-        </select>
-        <span>words</span>
+    <!-- @if (prop.propType === PropType.MINLENGTHWORD && prop.editable) {
+      <div class="flex items-center justify-between text-gray-600">
+        <span>Minimum length</span>
+        <div class="flex items-center gap-2">
+          <select
+            formControlName="minlengthword"
+            class="w-20 bg-white border border-gray-300 rounded-md px-1 py-1 focus:ring-1 focus:ring-gray-400 focus:border-gray-500"
+          >
+            @for (n of wordMin; track $index) {
+            <option [value]="n">{{ n }}</option>
+            }
+          </select>
+          <span>words</span>
+        </div>
       </div>
+      } -->
+    <!-- Email -->
+    @if (prop.propType === PropType.EMAIL) {
+    <div class="flex items-center min-h-8 text-gray-500">
+      <span class="italic">Validates email format</span>
     </div>
     }
-    <!-- Email -->
-    @if (prop.propType === PropType.EMAIL) {<label
-      class="flex items-center justify-between text-gray-600 cursor-pointer"
-    >
-      <span class="text-green-600">This field only accepts emails.</span> </label
-    >}
     <!-- Phone Pattern -->
-    @if (prop.propType === PropType.PATTERNPHONE) {<label
-      class="flex items-center justify-between text-gray-600 cursor-pointer"
-    >
-      <span class="text-green-600">This field only accepts phone numbers.</span> </label
-    >}
+    @if (prop.propType === PropType.PATTERNPHONE) {
+    <div class="flex items-center min-h-8 text-gray-500">
+      <span class="italic">Validates phone format</span>
+    </div>
+    }
     <!-- Number Pattern -->
-    @if (prop.propType === PropType.PATTERNNUMBER) {<label
-      class="flex items-center justify-between text-gray-600 cursor-pointer"
-    >
-      <span class="text-green-600">This field only accepts numerical values.</span> </label
-    >}}
+    @if (prop.propType === PropType.PATTERNNUMBER) {
+    <div class="flex items-center min-h-8 text-gray-500">
+      <span class="italic">Validates number input</span>
+    </div>
+    }}
   </div>
 </div>
 <!-- </div> -->

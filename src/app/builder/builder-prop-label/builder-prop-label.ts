@@ -13,4 +13,9 @@ export class BuilderPropLabel {
   @Input() labelMessage!: string;
 
   constructor(public controlContainer: ControlContainer, private builderService: BuilderService) {}
+
+  endEdit(event: Partial<KeyboardEvent>) {
+    // event.preventDefault();
+    (event.target as HTMLInputElement).blur();
+  }
 }
