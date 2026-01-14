@@ -3,6 +3,7 @@ import { Field, Option } from '../../models/field-types';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderValidation } from '../../builder-validation/builder-validation';
 import { AddOptions } from '../add-options/add-options';
+import { BuilderService } from '../../services/builder-service';
 
 @Component({
   selector: 'app-builder-field-select',
@@ -10,11 +11,11 @@ import { AddOptions } from '../add-options/add-options';
   templateUrl: './builder-field-select.html',
   styleUrl: './builder-field-select.css',
 })
-export class BuilderFieldSelect implements OnInit {
+export class BuilderFieldSelect {
   @Input() field!: Field;
-  // options$ = signal<Option[]>([]);
+  dragDisabled$;
 
-  ngOnInit(): void {
-    // this.options$.set(this.field.options);
+  constructor(private builderService: BuilderService) {
+    this.dragDisabled$ = this.builderService.dragDisabled$;
   }
 }

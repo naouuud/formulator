@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BuilderService } from '../../services/builder-service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { filter, throttleTime } from 'rxjs';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-builder-form-title',
@@ -26,5 +26,10 @@ export class BuilderFormTitle implements OnInit {
 
   setFormName(value: string) {
     this.builderService.setFormName_S(value);
+  }
+
+  endEdit(event: Partial<KeyboardEvent>) {
+    // event.preventDefault();
+    (event.target as HTMLInputElement).blur();
   }
 }
