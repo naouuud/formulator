@@ -18,7 +18,7 @@
   </button> -->
 <div class="validation-content" [class.collapsed]="!isValidationOpen" ]>
   <div
-    class="flex flex-col gap-2 mt-2 px-6 py-2 text-sm rounded-3xl bg-gray-100 border border-gray-300"
+    class="flex flex-col gap-2 mt-2 px-8 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300"
   >
     @for (prop of field.props; track $index) {
     <!-- Required  -->
@@ -30,10 +30,10 @@
       <div class="relative">
         <input type="checkbox" formControlName="required" class="sr-only peer" />
         <div
-          class="w-8 h-4 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
+          class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
         ></div>
         <div
-          class="absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform peer-checked:translate-x-4"
+          class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"
         ></div>
       </div> </label
     >}
