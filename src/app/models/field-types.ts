@@ -20,6 +20,9 @@ export const fieldMap = new Map<FieldType, FieldFactory>([
   [FieldType.DATE, () => new DateField()],
 ]);
 
+export class EmptyOptionError extends Error {}
+export class DuplicateOptionError extends Error {}
+
 export abstract class Field {
   abstract fieldType: FieldType;
   fieldId = crypto.randomUUID();
@@ -29,6 +32,29 @@ export abstract class Field {
   constructor() {
     this.setProp(PropType.LABEL, '');
     this.setProp(PropType.REQUIRED, true);
+  }
+
+  addOption(optionIn: Option) {
+    if (!optionIn.trim()) {
+      throw new EmptyOptionError('Invalid option, must contain at least one character');
+    }
+    for (let option of this.options) {
+      if (optionIn === option) {
+        throw new DuplicateOptionError(`Duplicate option '${optionIn}'`);
+      }
+    }
+    this.options.push(optionIn);
+  }
+
+  reorderOption(fromIndex: number, toIndex: number): void {
+    const newArray = [...this.options];
+    const [movedItem] = newArray.splice(fromIndex, 1);
+    newArray.splice(toIndex, 0, movedItem);
+    this.options = newArray;
+  }
+
+  deleteOption(idx: number) {
+    this.options.splice(idx, 1);
   }
 
   getProp<K extends PropType>(propTypeIn: K): Extract<Prop, { propType: K }> | undefined {
@@ -105,10 +131,7 @@ export class TextareaField extends Field {
   }
 }
 
-export type Option = {
-  label: string;
-  value: string;
-};
+export type Option = string;
 
 export class SelectField extends Field {
   fieldType: FieldType = FieldType.SELECT;

@@ -1,1 +1,27 @@
-<p>builder-field-select works!</p>
+<div class="flex flex-col">
+  <!-- Label -->
+  <app-builder-prop-label [labelMessage]="'Ask your responder a question...'" />
+  <!-- Preview -->
+  <div class="relative">
+    <select
+      class="appearance-none pr-10 pl-3 py-2 rounded-md border border-gray-300 bg-white text-sm focus:outline-none w-full"
+    >
+      <option>Selection preview</option>
+      @for (option of field.options; track $index) {
+      <option>{{ option }}</option>
+      }
+    </select>
+    <svg
+      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path d="M5.25 7.5L10 12.25L14.75 7.5" />
+    </svg>
+  </div>
+  <!-- Validation -->
+  <div class="mb-2">
+    <app-builder-validation [field]="field" />
+  </div>
+  <app-add-options [field]="field" />
+</div>
