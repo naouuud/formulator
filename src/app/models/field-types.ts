@@ -89,7 +89,7 @@ export class TextField extends Field {
   constructor() {
     super();
     this.setProp(PropType.MAXLENGTHCHAR, 100);
-    this.setProp(PropType.MINLENGTHCHAR, 0);
+    // this.setProp(PropType.MINLENGTHCHAR, 0);
     this.setProp(PropType.PLACEHOLDER, '');
   }
 }
@@ -100,7 +100,7 @@ export class TextareaField extends Field {
   constructor() {
     super();
     this.setProp(PropType.MAXLENGTHWORD, 500);
-    this.setProp(PropType.MINLENGTHWORD, 0);
+    // this.setProp(PropType.MINLENGTHWORD, 0);
     this.setProp(PropType.PLACEHOLDER, 'Enter your text...');
   }
 }

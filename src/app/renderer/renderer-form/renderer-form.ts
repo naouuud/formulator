@@ -40,9 +40,9 @@ export class RendererForm {
             case PropType.MAXLENGTHCHAR:
               validators.push(Validators.maxLength(prop.value));
               break;
-            case PropType.MINLENGTHCHAR:
-              if (prop.value > 1) validators.push(Validators.minLength(prop.value));
-              break;
+            // case PropType.MINLENGTHCHAR:
+            //   if (prop.value > 1) validators.push(Validators.minLength(prop.value));
+            //   break;
             case PropType.PATTERNPHONE:
               validators.push(Validators.pattern(phonePattern));
               break;

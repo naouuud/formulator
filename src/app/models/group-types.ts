@@ -103,7 +103,7 @@ export class EmailGroup extends TextGroup {
     const field = this.fields[0];
     field.setProp(PropType.EMAIL, true);
     field.setProp(PropType.MAXLENGTHCHAR, 50, false);
-    field.setProp(PropType.MINLENGTHCHAR, 0, false);
+    // field.setProp(PropType.MINLENGTHCHAR, 0, false);
     field.setProp(PropType.LABEL, 'Email address', false);
     field.setProp(PropType.PLACEHOLDER, 'Enter your email...');
   }
@@ -116,7 +116,7 @@ export class NumberGroup extends TextGroup {
     const field = this.fields[0];
     field.setProp(PropType.PATTERNNUMBER, true);
     field.setProp(PropType.MAXLENGTHCHAR, 20, false);
-    field.setProp(PropType.MINLENGTHCHAR, 0, false);
+    // field.setProp(PropType.MINLENGTHCHAR, 0, false);
     field.setProp(PropType.MAXVALUE, 1000000000);
     field.setProp(PropType.MINVALUE, -1000000000);
     field.setProp(PropType.PLACEHOLDER, 'Enter number...');
@@ -130,7 +130,7 @@ export class PhoneGroup extends TextGroup {
     const field = this.fields[0];
     field.setProp(PropType.PATTERNPHONE, true);
     field.setProp(PropType.MAXLENGTHCHAR, 15, false);
-    field.setProp(PropType.MINLENGTHCHAR, 8, false);
+    // field.setProp(PropType.MINLENGTHCHAR, 8, false);
     field.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
     field.setProp(PropType.LABEL, 'Phone number', false);
   }
@@ -233,13 +233,13 @@ export class NameGroup extends Group {
     firstNameField.setProp(PropType.PLACEHOLDER, 'Enter first name...');
     firstNameField.setProp(PropType.REQUIRED, true);
     firstNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-    firstNameField.setProp(PropType.MINLENGTHCHAR, 0, false);
+    // firstNameField.setProp(PropType.MINLENGTHCHAR, 0, false);
     const lastNameField = new TextField();
     lastNameField.setProp(PropType.LABEL, 'Last Name', false);
     lastNameField.setProp(PropType.PLACEHOLDER, 'Enter last name...');
     lastNameField.setProp(PropType.REQUIRED, true);
     lastNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-    lastNameField.setProp(PropType.MINLENGTHCHAR, 0, false);
+    // lastNameField.setProp(PropType.MINLENGTHCHAR, 0, false);
     this.pushFields(firstNameField, lastNameField);
   }
 }
@@ -264,12 +264,12 @@ export class AddressGroup extends Group {
     streetField.setProp(PropType.LABEL, 'Street and building', false);
     streetField.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
     streetField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-    streetField.setProp(PropType.MINLENGTHCHAR, 0, false);
+    // streetField.setProp(PropType.MINLENGTHCHAR, 0, false);
     const cityField = new TextField();
     cityField.setProp(PropType.LABEL, 'City', false);
     cityField.setProp(PropType.PLACEHOLDER, 'Enter city...');
     cityField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-    cityField.setProp(PropType.MINLENGTHCHAR, 0, false);
+    // cityField.setProp(PropType.MINLENGTHCHAR, 0, false);
     this.pushFields(governorateField, districtField, streetField, cityField);
   }
 }

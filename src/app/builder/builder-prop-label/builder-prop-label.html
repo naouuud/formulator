@@ -1,7 +1,8 @@
 <input
   type="text"
-  class="bg-gray-200 block text-md font-medium mb-2 text-gray-900 p-2 border border-gray-300 rounded-md w-full"
+  class="block w-full rounded-md bg-gray-200 p-2 text-md font-medium text-gray-900 transition-all duration-200 ease-out focus:outline-none focus:ring-0 focus:bg-white focus:shadow-lg focus:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-blue-400"
   [placeholder]="labelMessage"
   formControlName="label"
   maxlength="100"
+  (keydown.enter)="endEdit($event)"
 />
