@@ -1,7 +1,5 @@
 <!-- TOP LABEL ("Address") -->
-<label class="block text-md font-medium text-gray-900 mb-2">
-  {{ group.groupLabel }}
-</label>
+<label class="block text-md font-medium text-gray-900 mb-2">Address</label>
 <div class="grid grid-cols-2 gap-4">
   @for (field of group.fields; track $index) {
   <!-- TEXT FIELD FOR STREET AND CITY -->
@@ -15,7 +13,7 @@
       type="text"
       class="w-full mt-1 block bg-gray-50 p-2 pr-14 border border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder-gray-400"
       [placeholder]="field.getPropValue(PropType.PLACEHOLDER)"
-      [attr.maxlength]="field.getPropValue(PropType.MAXLENGTH)"
+      [attr.maxlength]="field.getPropValue(PropType.MAXLENGTHCHAR)"
     />
   </div>
   }
@@ -39,8 +37,8 @@
         }}
       </option>
       @for (option of field.options; track $index) {
-      <option [value]="option.value" class="text-gray-800">
-        {{ option.label }}
+      <option [value]="option" class="text-gray-800">
+        {{ option }}
       </option>
       }
     </select>
