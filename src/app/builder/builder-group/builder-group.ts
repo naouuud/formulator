@@ -30,11 +30,14 @@ const GroupLabels = {
   styleUrl: './builder-group.css',
 })
 export class BuilderGroup implements OnInit {
+  dragDisabled$;
   GroupLabels = GroupLabels;
   @Input() group!: Group;
   @Output() groupDeleted = new Subject<void>();
 
-  constructor(private builderService: BuilderService) {}
+  constructor(private builderService: BuilderService) {
+    this.dragDisabled$ = this.builderService.dragDisabled$;
+  }
   ngOnInit(): void {
     // console.log(this.group);
   }

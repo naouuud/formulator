@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { BuilderService } from '../../services/builder-service';
 
@@ -10,9 +10,12 @@ import { BuilderService } from '../../services/builder-service';
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class BuilderPropLabel {
+  dragDisabled$;
   @Input() labelMessage!: string;
 
-  constructor(public controlContainer: ControlContainer, private builderService: BuilderService) {}
+  constructor(public controlContainer: ControlContainer, private builderService: BuilderService) {
+    this.dragDisabled$ = this.builderService.dragDisabled$;
+  }
 
   endEdit(event: Partial<KeyboardEvent>) {
     // event.preventDefault();

@@ -5,7 +5,7 @@ import { LocalStorageService } from './local-storage';
 import { Field, FieldType, Option } from '../models/field-types';
 import { Prop, PropType, PropValueMap } from '../models/prop-types';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { debounceTime } from 'rxjs';
+import { BehaviorSubject, debounceTime } from 'rxjs';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -39,6 +39,7 @@ export class BuilderService {
   formModel: FormModel;
   private readonly _formModel$: WritableSignal<FormDto> = signal({ ...new FormModel() }); // DTO type
   readonly formModel$ = this._formModel$.asReadonly();
+  dragDisabled$ = signal(false); // prevent drag during label editing (set in BuilderPropLabel)
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel = this.localStorage.has('formModel')
@@ -53,6 +54,21 @@ export class BuilderService {
     // effect(() => {
     //   this._saveToLocalStorage(this.formModel$());
     // });
+  }
+
+  addOption_S(field: Field, option: Option): void {
+    field.addOption(option);
+    this._formModel$.set({ ...this.formModel });
+  }
+
+  deleteOption_S(field: Field, idx: number): void {
+    field.deleteOption(idx);
+    this._formModel$.set({ ...this.formModel });
+  }
+
+  reorderOption_S(field: Field, fromIndex: number, toIndex: number): void {
+    field.reorderOption(fromIndex, toIndex);
+    this._formModel$.set({ ...this.formModel });
   }
 
   setProp_S(field: Field, propType: PropType, value: unknown) {

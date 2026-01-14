@@ -6,7 +6,7 @@
     (cdkDropListDropped)="onDrop($event)"
     (cdkDropListEntered)="this.hideMessage = true"
     (cdkDropListExited)="this.hideMessage = false"
-    [cdkDropListAutoScrollDisabled]="true"
+    [cdkDropListAutoScrollDisabled]="false"
   >
     <!-- Form title -->
     <app-builder-form-title [formName]="formModel$().formName" />

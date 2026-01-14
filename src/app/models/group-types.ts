@@ -160,16 +160,7 @@ export class BooleanGroup extends RadioGroup {
     super();
     const field = this.fields[0];
     if (field.fieldType !== FieldType.RADIO) return;
-    field.options = [
-      {
-        label: 'Yes',
-        value: 'yes',
-      },
-      {
-        label: 'No',
-        value: 'no',
-      },
-    ];
+    field.options = ['Yes', 'No'];
   }
 }
 
@@ -178,13 +169,7 @@ export class GenderGroup extends RadioGroup {
   constructor() {
     super();
     const field = this.fields[0];
-    field.options = [
-      { label: 'Female', value: 'f' },
-      {
-        label: 'Male',
-        value: 'm',
-      },
-    ];
+    field.options = ['Female', 'Male'];
   }
 }
 
@@ -253,10 +238,7 @@ export class AddressGroup extends Group {
     const governorateField = new SelectField();
     governorateField.setProp(PropType.LABEL, 'Governorate');
     governorateField.setProp(PropType.PLACEHOLDER, 'Select governorate');
-    governorateField.options = this.geoData.map((g) => ({
-      label: g.name,
-      value: g.value,
-    }));
+    governorateField.options = this.geoData.map((g) => g.name);
     const districtField = new SelectField();
     districtField.setProp(PropType.LABEL, 'District');
     districtField.setProp(PropType.PLACEHOLDER, 'Select district');
