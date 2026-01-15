@@ -16,15 +16,13 @@
       />
     </svg>
   </button> -->
-<div class="validation-content" [class.collapsed]="!isValidationOpen" ]>
+<div class="flex flex-col gap-2" [class.collapsed]="!isValidationOpen" ]>
   @for (prop of field.props; track $index) {
-
   <!-- Required  -->
   @if (prop.propType === PropType.REQUIRED) {
-  <div class="mt-2 px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+  <div class="px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
     <label class="flex items-center justify-between min-h-8 cursor-pointer">
       <span class="text-gray-700">Response required</span>
-
       <div class="relative">
         <input type="checkbox" formControlName="required" class="sr-only peer" />
         <div
@@ -39,7 +37,7 @@
   }
   <!-- Max length CHAR -->
   @if (prop.propType === PropType.MAXLENGTHCHAR && prop.editable) {
-  <div class="mt-2 px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+  <div class="px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
     <div class="flex items-center justify-between min-h-8">
       <span class="text-gray-700">Character limit</span>
 
@@ -76,7 +74,7 @@
       } -->
   <!-- Max length WORD -->
   @if (prop.propType === PropType.MAXLENGTHWORD && prop.editable) {
-  <div class="mt-2 px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+  <div class="px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
     <div class="flex items-center justify-between min-h-8">
       <span class="text-gray-700">Word limit</span>
 
@@ -113,7 +111,7 @@
       } -->
   <!-- Email -->
   @if (prop.propType === PropType.EMAIL) {
-  <div class="mt-2 px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+  <div class="px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
     <div class="flex items-center min-h-8 text-gray-500">
       <span class="italic">Validates email format</span>
     </div>
@@ -121,7 +119,7 @@
   }
   <!-- Phone Pattern -->
   @if (prop.propType === PropType.PATTERNPHONE) {
-  <div class="mt-2 px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+  <div class="px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
     <div class="flex items-center min-h-8 text-gray-500">
       <span class="italic">Validates phone format</span>
     </div>
@@ -129,7 +127,7 @@
   }
   <!-- Number Pattern -->
   @if (prop.propType === PropType.PATTERNNUMBER) {
-  <div class="mt-2 px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+  <div class="px-4 py-2 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
     <div class="flex items-center min-h-8 text-gray-500">
       <span class="italic">Validates number input</span>
     </div>

@@ -1,4 +1,4 @@
-<div class="flex flex-col">
+<div class="flex flex-col gap-2">
   <!-- Label -->
   <app-builder-prop-label [labelMessage]="'Ask your responder a question...'" />
   <!-- Preview -->
@@ -21,9 +21,8 @@
       <path d="M5.25 7.5L10 12.25L14.75 7.5" />
     </svg>
   </div>
-  <!-- Validation -->
-  <div class="mb-2">
-    <app-builder-validation [field]="field" />
-  </div>
+  <!-- Options Panel  -->
   <app-add-options [field]="field" />
+  <!-- Validation -->
+  <app-builder-validation [field]="field" />
 </div>

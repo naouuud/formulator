@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BuilderFieldRadio } from './builder-field-radio';
+import { CustomRadio } from './custom-radio';
 
-describe('BuilderFieldRadio', () => {
-  let component: BuilderFieldRadio;
-  let fixture: ComponentFixture<BuilderFieldRadio>;
+describe('CustomCheckbox', () => {
+  let component: CustomRadio;
+  let fixture: ComponentFixture<CustomRadio>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BuilderFieldRadio],
+      imports: [CustomRadio],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BuilderFieldRadio);
+    fixture = TestBed.createComponent(CustomRadio);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

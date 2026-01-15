@@ -1,1 +1,8 @@
-<p>builder-field-radio works!</p>
+<div class="flex flex-col gap-2">
+  <!-- Label -->
+  <app-builder-prop-label [labelMessage]="'Ask your responder a question...'" />
+  <!-- Preview = Options Panel -->
+  <app-add-options [field]="field" />
+  <!-- Validation -->
+  <app-builder-validation [field]="field" />
+</div>

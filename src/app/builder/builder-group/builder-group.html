@@ -1,12 +1,14 @@
 <div
-  class="flex flex-col gap-4 p-4 border-2 border-dashed border-gray-300 rounded-2xl bg-gray-200"
+  class="flex flex-col gap-4 p-4 border-2 border-dashed border-gray-400/50 rounded-2xl bg-gray-200"
   cdkDrag
   cdkDragBoundary=".main-component"
   [cdkDragDisabled]="dragDisabled$()"
 >
   <div class="flex justify-between items-center">
     <!-- <div class="text-gray-400 hover:cursor-pointer pl-1">Drag to move</div> -->
-    <div class="text-gray-400 hover:cursor-pointer">{{ GroupLabels[group.groupType] }}</div>
+    <div class="text-blue-500 hover:cursor-pointer border border-blue-500 px-4 py-2 rounded-full">
+      {{ GroupLabels[group.groupType] }}
+    </div>
     <button type="button" class="flex" (click)="deleteGroup_C(group.groupId)">
       <app-builder-group-delete />
     </button>

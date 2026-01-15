@@ -1,14 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
-import { Field, FieldType } from '../../models/field-types';
-import { Prop, PropChangeEvent, PropType } from '../../models/prop-types';
-import { BuilderService } from '../../services/builder-service';
+import { Component, Input } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { Field } from '../../models/field-types';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderValidation } from '../../builder-validation/builder-validation';
 import { CommonModule } from '@angular/common';
