@@ -1,0 +1,3 @@
+input.peer:checked + span span {
+  transform: scale(1);
+}

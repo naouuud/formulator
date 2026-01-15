@@ -1,10 +1,26 @@
-<input
-  type="text"
-  class="block w-full rounded-full bg-gray-200 px-3 py-2 text-md font-medium text-gray-900 placeholder:text-gray-900 transition-all duration-200 ease-out focus:outline-none focus:bg-white focus:shadow-lg focus:-translate-y-0.5 focus:ring-2 focus:ring-blue-400 focus:mb-1"
-  [placeholder]="labelMessage"
-  formControlName="label"
-  maxlength="100"
-  (keydown.enter)="endEdit($event)"
-  (mouseenter)="dragDisabled$.set(true)"
-  (mouseleave)="dragDisabled$.set(false)"
-/>
+<div class="-mb-2 flex items-center focus-transform duration-200 ease-out focus-within:mb-0">
+  <input
+    type="text"
+    class="block w-full rounded-full bg-gray-200 px-3 py-2 text-md font-medium text-gray-900 placeholder:text-gray-400 transition-all duration-200 ease-out focus:outline-none focus:bg-white focus:shadow-md focus:ring-2 focus:ring-blue-400"
+    [placeholder]="labelMessage"
+    formControlName="label"
+    maxlength="100"
+    (keydown.enter)="endEdit($event)"
+    (mouseenter)="dragDisabled$.set(true)"
+    (mouseleave)="dragDisabled$.set(false)"
+  />
+
+  @if (getControl()?.disabled) {
+  <div
+    class="ml-2 flex items-center px-2 text-red-400 text-xs uppercase rounded-full whitespace-nowrap transition-transform duration-200 ease-out focus-within:translate-y-1"
+  >
+    Preset label
+  </div>
+  } @else {
+  <div
+    class="ml-2 flex items-center px-2 text-green-500 text-xs uppercase rounded-full whitespace-nowrap transition-transform duration-200 ease-out focus-within:translate-y-1"
+  >
+    Editable label
+  </div>
+  }
+</div>

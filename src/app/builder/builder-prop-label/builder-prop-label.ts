@@ -1,5 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  ControlContainer,
+  FormGroupDirective,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { BuilderService } from '../../services/builder-service';
 
 @Component({
@@ -15,6 +20,10 @@ export class BuilderPropLabel {
 
   constructor(public controlContainer: ControlContainer, private builderService: BuilderService) {
     this.dragDisabled$ = this.builderService.dragDisabled$;
+  }
+
+  getControl(): AbstractControl | null {
+    return this.controlContainer?.control?.get('label') ?? null;
   }
 
   endEdit(event: Partial<KeyboardEvent>) {

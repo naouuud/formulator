@@ -8,7 +8,7 @@ export type UiType = {
   attribution: string;
 };
 
-export const uiTypesBasic: UiType[] = [
+export const uiTypesCustom: UiType[] = [
   {
     label: 'Short Text',
     description: 'Maximum length 100 characters.',
@@ -64,7 +64,7 @@ export const uiTypesBasic: UiType[] = [
   },
 ];
 
-export const uiTypesCustom: UiType[] = [
+export const uiTypesBasic: UiType[] = [
   { label: 'Full Name', groupType: GroupType.NAME, img: 'user.png', attribution: 'Bharat Icons' },
   {
     label: 'Date of Birth',

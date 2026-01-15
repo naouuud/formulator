@@ -1,11 +1,10 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { FormModel } from '../models/form-model';
 import { GroupType } from '../models/group-types';
 import { LocalStorageService } from './local-storage';
 import { Field, FieldType, Option } from '../models/field-types';
 import { Prop, PropType, PropValueMap } from '../models/prop-types';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, debounceTime, Subject } from 'rxjs';
+import { debounceTime, Subject } from 'rxjs';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -114,14 +113,12 @@ export class BuilderService {
     console.log('Saved');
   }
 
-  // runtime validation for props
+  // runtime prop validation
   private _PropSchema: PropSchemaType = {
     [PropType.LABEL]: { type: 'string' },
     [PropType.PLACEHOLDER]: { type: 'string' },
     [PropType.MAXLENGTHCHAR]: { type: 'number' },
-    // [PropType.MINLENGTHCHAR]: { type: 'number' },
     [PropType.MAXLENGTHWORD]: { type: 'number' },
-    // [PropType.MINLENGTHWORD]: { type: 'number' },
     [PropType.REQUIRED]: { type: 'boolean' },
     [PropType.EMAIL]: { type: 'boolean' },
     [PropType.MAXVALUE]: { type: 'number' },

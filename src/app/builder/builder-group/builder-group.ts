@@ -7,7 +7,7 @@ import { BuilderGroupDelete } from '../builder-group-delete/builder-group-delete
 import { Subject } from 'rxjs';
 
 const GroupLabels = {
-  [GroupType.BIRTHDAY]: 'Date of birth',
+  [GroupType.BIRTHDAY]: 'Date of Birth',
   [GroupType.GENDER]: 'Gender',
   [GroupType.PHONE]: 'Phone',
   [GroupType.EMAIL]: 'Email',
@@ -15,11 +15,11 @@ const GroupLabels = {
   [GroupType.TEXTAREA]: 'Long text (e.g. comment, essay)',
   [GroupType.SELECT]: 'Dropdown',
   [GroupType.CHECKBOX]: 'Checkbox (check all that apply)',
-  [GroupType.RADIO]: 'Radio (check one only)',
+  [GroupType.RADIO]: 'Radio (check one option only)',
   [GroupType.DATE]: 'Date',
   [GroupType.NUMBER]: 'Number',
   [GroupType.BOOLEAN]: 'Yes/No',
-  [GroupType.NAME]: 'Full name',
+  [GroupType.NAME]: 'Full Name',
   [GroupType.ADDRESS]: 'Address',
 };
 

@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Field, FieldType } from '../../models/field-types';
-import { BuilderFieldCheckbox } from '../builder-field-checkbox/builder-field-checkbox';
 import { BuilderFieldText } from '../builder-field-text/builder-field-text';
 import { BuilderFieldRadio } from '../builder-field-radio/builder-field-radio';
 import { BuilderFieldDate } from '../builder-field-date/builder-field-date';
@@ -20,12 +19,11 @@ import { BuilderFieldTextarea } from '../builder-field-textarea/builder-field-te
   selector: 'app-builder-field',
   imports: [
     BuilderFieldText,
-    BuilderFieldCheckbox,
+    BuilderFieldTextarea,
+    BuilderFieldSelect,
     BuilderFieldRadio,
     BuilderFieldDate,
-    BuilderFieldSelect,
     ReactiveFormsModule,
-    BuilderFieldTextarea,
   ],
   templateUrl: './builder-field.html',
   styleUrl: './builder-field.css',
@@ -46,15 +44,9 @@ export class BuilderField implements OnInit {
     this.formGroup.get('required')?.valueChanges.subscribe((value) => {
       this.setProp_C({ propType: PropType.REQUIRED, value });
     });
-    // this.formGroup.get('minlengthchar')?.valueChanges.subscribe((value) => {
-    //   this.setProp_C({ propType: PropType.MINLENGTHCHAR, value: Number(value) });
-    // });
     this.formGroup.get('maxlengthchar')?.valueChanges.subscribe((value) => {
       this.setProp_C({ propType: PropType.MAXLENGTHCHAR, value: Number(value) });
     });
-    // this.formGroup.get('minlengthword')?.valueChanges.subscribe((value) => {
-    //   this.setProp_C({ propType: PropType.MINLENGTHWORD, value: Number(value) });
-    // });
     this.formGroup.get('maxlengthword')?.valueChanges.subscribe((value) => {
       this.setProp_C({ propType: PropType.MAXLENGTHWORD, value: Number(value) });
     });

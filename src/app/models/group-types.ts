@@ -104,7 +104,7 @@ export class EmailGroup extends TextGroup {
     field.setProp(PropType.EMAIL, true);
     field.setProp(PropType.MAXLENGTHCHAR, 50, false);
     // field.setProp(PropType.MINLENGTHCHAR, 0, false);
-    field.setProp(PropType.LABEL, 'Email address', false);
+    field.setProp(PropType.LABEL, 'Email', false);
     field.setProp(PropType.PLACEHOLDER, 'Enter your email...');
   }
 }
@@ -132,7 +132,7 @@ export class PhoneGroup extends TextGroup {
     field.setProp(PropType.MAXLENGTHCHAR, 15, false);
     // field.setProp(PropType.MINLENGTHCHAR, 8, false);
     field.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
-    field.setProp(PropType.LABEL, 'Phone number', false);
+    field.setProp(PropType.LABEL, 'Phone', false);
   }
 }
 
@@ -160,7 +160,7 @@ export class BooleanGroup extends RadioGroup {
     super();
     const field = this.fields[0];
     if (field.fieldType !== FieldType.RADIO) return;
-    field.options = ['Yes', 'No'];
+    field.options = ['Yes', 'No', 'Unsure'];
   }
 }
 
@@ -169,7 +169,8 @@ export class GenderGroup extends RadioGroup {
   constructor() {
     super();
     const field = this.fields[0];
-    field.options = ['Female', 'Male'];
+    field.setProp(PropType.LABEL, 'Gender');
+    field.options = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
   }
 }
 
