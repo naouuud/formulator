@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Field } from '../../models/field-types';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
-import { BuilderValidation } from '../../builder-validation/builder-validation';
+import { BuilderValidation } from '../builder-validation/builder-validation';
 import { CommonModule } from '@angular/common';
 
 @Component({

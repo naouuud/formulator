@@ -6,8 +6,27 @@
 >
   <div class="flex justify-between items-center">
     <!-- <div class="text-gray-400 hover:cursor-pointer pl-1">Drag to move</div> -->
-    <div class="text-blue-500 hover:cursor-pointer border border-blue-500 px-4 py-2 rounded-full">
-      {{ GroupLabels[group.groupType] }}
+    <div class="flex gap-2">
+      <div
+        class="text-blue-500 hover:cursor-pointer border border-blue-500 px-4 py-2 rounded-full"
+        [innerHTML]="GroupLabels[group.groupType]"
+      ></div>
+      @if (group.groupType === GroupType.RADIO || group.groupType === GroupType.CHECKBOX) {
+      <div
+        (click)="toggleRadioCheckbox_C()"
+        class="flex items-center text-violet-500 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full text-xs"
+      >
+        Switch
+      </div>
+      }
+      <!-- @if (group.groupType === GroupType.CHECKBOX) {
+      <div
+        (click)="toggleRadioCheckbox_C()"
+        class="flex items-center text-violet-500 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full text-xs"
+      >
+        Switich to radio
+      </div>
+      } -->
     </div>
     <button type="button" class="flex" (click)="deleteGroup_C(group.groupId)">
       <app-builder-group-delete />

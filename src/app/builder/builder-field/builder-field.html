@@ -6,9 +6,9 @@
   } @case (FieldType.SELECT) {
   <app-builder-field-select [field]="field" />
   } @case (FieldType.RADIO) {
-  <app-builder-field-radio [field]="field" />
+  <app-builder-field-option [field]="field" />
   } @case (FieldType.CHECKBOX) {
-  <app-builder-field-radio [field]="field" />
+  <app-builder-field-option [field]="field" />
   } @case (FieldType.DATE) {
   <app-builder-field-date [field]="field" />
   } @default {}}

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
-import { BuilderValidation } from '../../builder-validation/builder-validation';
+import { BuilderValidation } from '../builder-validation/builder-validation';
 import { Field } from '../../models/field-types';
 
 @Component({

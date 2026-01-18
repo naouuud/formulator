@@ -1,6 +1,6 @@
 import { Component, Input, input } from '@angular/core';
-import { PropType } from '../models/prop-types';
-import { Field } from '../models/field-types';
+import { PropType } from '../../models/prop-types';
+import { Field } from '../../models/field-types';
 import {
   ControlContainer,
   FormGroup,

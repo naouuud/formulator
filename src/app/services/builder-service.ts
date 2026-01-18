@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { FormModel } from '../models/form-model';
-import { GroupType } from '../models/group-types';
+import { Group, GroupType } from '../models/group-types';
 import { LocalStorageService } from './local-storage';
 import { Field, FieldType, Option } from '../models/field-types';
 import { Prop, PropType, PropValueMap } from '../models/prop-types';
@@ -82,6 +82,11 @@ export class BuilderService {
     this.saveForm.next();
   }
 
+  toggleRadioCheckbox_S(group: Group): void {
+    group.toggleRadioCheckbox();
+    this.saveForm.next();
+  }
+
   addGroup_S(groupType: GroupType): void {
     this.formModel.addGroup(groupType);
     this.saveForm.next();
@@ -110,7 +115,7 @@ export class BuilderService {
 
   private _saveToLocalStorage(): void {
     this.localStorage.set('formModel', { ...this.formModel }); // need explicit conversion to Dto
-    console.log('Saved');
+    console.log(this.formModel);
   }
 
   // runtime prop validation

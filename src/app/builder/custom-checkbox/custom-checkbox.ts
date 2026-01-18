@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Field, Option } from '../models/field-types';
+import { Field, Option } from '../../models/field-types';
 
 @Component({
   selector: 'app-custom-checkbox',
@@ -8,7 +8,7 @@ import { Field, Option } from '../models/field-types';
   styleUrl: './custom-checkbox.css',
 })
 export class CustomCheckbox {
-  // @Input() field!: Field;
+  @Input() field!: Field;
   @Input() option!: Option;
   // @Input() index!: number;
 }

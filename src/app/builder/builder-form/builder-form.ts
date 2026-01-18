@@ -21,8 +21,11 @@ export class BuilderForm {
   }
 
   onDrop(event: CdkDragDrop<any>) {
-    if (event.previousContainer === event.container) this._reorderGroup_C(event);
-    else this._addGroup_C(event);
+    if (event.previousContainer === event.container) {
+      this._reorderGroup_C(event);
+    } else {
+      this._addGroup_C(event);
+    }
   }
 
   private _reorderGroup_C(event: CdkDragDrop<unknown>) {
