@@ -2,38 +2,30 @@ export enum PropType {
   LABEL = 'label',
   PLACEHOLDER = 'placeholder',
   MAXLENGTHCHAR = 'maxlengthchar',
-  // MINLENGTHCHAR = 'minlengthchar',
   MAXLENGTHWORD = 'maxlengthword',
-  // MINLENGTHWORD = 'minlengthword',
   REQUIRED = 'required',
   EMAIL = 'email',
   MAXVALUE = 'maxvalue',
   MINVALUE = 'minvalue',
   PATTERNPHONE = 'patternphone',
   PATTERNNUMBER = 'patternnumber',
-  MAXDATE = 'maxdate',
-  MINDATE = 'mindate',
-  MAXYEARDISP = 'maxyeardisp',
-  MINYEARDISP = 'minyeardisp',
+  DATERANGE = 'daterange',
 }
+
+export type DateRange = { max: string; min: string };
 
 export type PropValueMap = {
   [PropType.LABEL]: string;
   [PropType.PLACEHOLDER]: string;
   [PropType.MAXLENGTHCHAR]: number;
-  // [PropType.MINLENGTHCHAR]: number;
   [PropType.MAXLENGTHWORD]: number;
-  // [PropType.MINLENGTHWORD]: number;
   [PropType.REQUIRED]: boolean;
   [PropType.EMAIL]: boolean;
   [PropType.MAXVALUE]: number;
   [PropType.MINVALUE]: number;
   [PropType.PATTERNPHONE]: boolean;
   [PropType.PATTERNNUMBER]: boolean;
-  [PropType.MAXDATE]: string;
-  [PropType.MINDATE]: string;
-  [PropType.MAXYEARDISP]: number;
-  [PropType.MINYEARDISP]: number;
+  [PropType.DATERANGE]: DateRange;
 };
 
 // produces type dynamically using PropValueMap (same as below)

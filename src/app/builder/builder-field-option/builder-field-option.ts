@@ -2,12 +2,12 @@ import { Component, Input } from '@angular/core';
 import { Field } from '../../models/field-types';
 import { BuilderService } from '../../services/builder-service';
 import { BuilderValidation } from '../builder-validation/builder-validation';
-import { AddOptions } from '../add-options/add-options';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
+import { BuilderOptions } from '../builder-options/builder-options';
 
 @Component({
   selector: 'app-builder-field-option',
-  imports: [BuilderValidation, AddOptions, BuilderPropLabel],
+  imports: [BuilderValidation, BuilderPropLabel, BuilderOptions],
   templateUrl: './builder-field-option.html',
   styleUrl: './builder-field-option.css',
 })

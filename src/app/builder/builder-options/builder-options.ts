@@ -6,12 +6,12 @@ import { CustomRadio } from '../custom-radio/custom-radio';
 import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
 
 @Component({
-  selector: 'app-add-options',
+  selector: 'app-builder-options',
   imports: [CdkDropList, CdkDrag, CdkDragPlaceholder, CustomRadio, CustomCheckbox],
-  templateUrl: './add-options.html',
-  styleUrl: './add-options.css',
+  templateUrl: './builder-options.html',
+  styleUrl: './builder-options.css',
 })
-export class AddOptions {
+export class BuilderOptions {
   FieldType = FieldType;
   @Input() field!: Field;
   dragDisabled$;

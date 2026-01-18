@@ -1,18 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AddOptions } from './add-options';
+import { BuilderOptions } from './builder-options';
 
-describe('AddOptions', () => {
-  let component: AddOptions;
-  let fixture: ComponentFixture<AddOptions>;
+describe('BuilderOptions', () => {
+  let component: BuilderOptions;
+  let fixture: ComponentFixture<BuilderOptions>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AddOptions]
-    })
-    .compileComponents();
+      imports: [BuilderOptions],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(AddOptions);
+    fixture = TestBed.createComponent(BuilderOptions);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

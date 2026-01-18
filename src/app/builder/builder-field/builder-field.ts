@@ -38,17 +38,20 @@ export class BuilderField implements OnInit {
 
   ngOnInit(): void {
     this._buildFormGroup();
-    this.formGroup.get('label')?.valueChanges.subscribe((value) => {
+    this.formGroup.get('label')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.LABEL, value });
     });
-    this.formGroup.get('required')?.valueChanges.subscribe((value) => {
+    this.formGroup.get('required')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.REQUIRED, value });
     });
-    this.formGroup.get('maxlengthchar')?.valueChanges.subscribe((value) => {
+    this.formGroup.get('maxlengthchar')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.MAXLENGTHCHAR, value: Number(value) });
     });
-    this.formGroup.get('maxlengthword')?.valueChanges.subscribe((value) => {
+    this.formGroup.get('maxlengthword')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.MAXLENGTHWORD, value: Number(value) });
+    });
+    this.formGroup.get('yearmax')?.valueChanges.subscribe((value: unknown) => {
+      this.setProp_C({ propType: PropType.DATERANGE, value });
     });
   }
 

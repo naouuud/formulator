@@ -22,5 +22,5 @@
 }
 
 .cdk-drag.cdk-drag-animating {
-  transition: transform 100ms ease-out;
+  transition: transform 100ms ease-in;
 }

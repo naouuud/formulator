@@ -10,7 +10,7 @@
     >
       <option class="text-gray-400">Selection preview</option>
       @for (option of field.options; track $index) {
-      <option class="text-gray-700">{{ option }}</option>
+        <option class="text-gray-700">{{ option }}</option>
       }
     </select>
     <svg
@@ -22,7 +22,7 @@
     </svg>
   </div>
   <!-- Options Panel  -->
-  <app-add-options [field]="field" />
+  <app-builder-options [field]="field" />
   <!-- Validation -->
   <app-builder-validation [field]="field" />
 </div>
