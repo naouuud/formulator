@@ -70,7 +70,7 @@ export class BuilderService {
       throw new Error(
         `Invalid value for propType '${propType}'. ` +
           `Expected ${this._PropSchema[propType].type}, ` +
-          `received ${this._describeValue(value)}.`
+          `received ${this._describeValue(value)}.`,
       );
     }
     field.setProp(propType, value);
@@ -109,7 +109,7 @@ export class BuilderService {
   }
 
   private _returnFormModelFromLocalStorage(json: any): FormModel {
-    const formModel = FormModel.fromJSON(json);
+    const formModel = FormModel.deserialize(json);
     return formModel;
   }
 
@@ -138,7 +138,7 @@ export class BuilderService {
 
   private _isValidPropValue<K extends PropType>(
     propType: K,
-    value: unknown
+    value: unknown,
   ): value is PropValueMap[K] {
     const schema = this._PropSchema[propType];
     if (!schema) return false;

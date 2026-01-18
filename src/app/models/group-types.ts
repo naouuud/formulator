@@ -1,9 +1,8 @@
 import { leb_governorates } from './lebanon';
 import { Field, FieldType } from './field-types';
 import { PropType } from './prop-types';
-import { getSupportedInputTypes } from '@angular/cdk/platform';
 
-export type GroupFactory = () => Group;
+type GroupFactory = () => Group;
 
 export enum GroupType {
   NONE = 'none',
@@ -22,12 +21,6 @@ export enum GroupType {
   NAME = 'name',
   ADDRESS = 'address',
 }
-
-// interface GroupI {
-//   groupType: GroupType;
-//   groupId: ReturnType<typeof crypto.randomUUID>;
-//   fields: Field[];
-// }
 
 export class Group {
   groupType: GroupType = GroupType.NONE;
@@ -50,53 +43,48 @@ export class Group {
   }
 
   static create(groupType: GroupType): Group {
-    const factory = Group.#getFactory(groupType);
-    return factory();
-  }
-
-  static fromJSON(json: any): Group {
-    if (json.groupType == null) {
-      // === undefined || === null
-      throw new Error(`No groupType available on saved model, unable to initialize group`);
-    }
-    if (!Object.values(GroupType).includes(json.groupType)) {
-      throw new Error(`Invalid groupType '${json.groupType}'`);
-    }
-    const factory = Group.#getFactory(json.groupType);
-    const group = factory(); // create new group
-    Object.assign(group, json); // copy properties
-    group.fields = (json.fields ?? []).map((f: any) => Field.fromJSON(f)); // initialize new fields
-    return group;
-  }
-
-  static #getFactory(groupType: GroupType): GroupFactory {
-    const groupMap = new Map<GroupType, GroupFactory>([
-      [GroupType.TEXT, createTextGroup],
-      [GroupType.TEXTAREA, createTextareaGroup],
-      [GroupType.SELECT, createSelectGroup],
-      [GroupType.CHECKBOX, createCheckboxGroup],
-      [GroupType.RADIO, createRadioGroup],
-      [GroupType.DATE, createRadioGroup],
-      [GroupType.NUMBER, createNumberGroup],
-      [GroupType.BOOLEAN, createBooleanGroup],
-      [GroupType.NAME, createNameGroup],
-      [GroupType.ADDRESS, createAddressGroup],
-      [GroupType.BIRTHDAY, createBirthdayGroup],
-      [GroupType.GENDER, createGenderGroup],
-      [GroupType.PHONE, createPhoneGroup],
-      [GroupType.EMAIL, createEmailGroup],
-    ]);
-    const groupFactory = groupMap.get(groupType);
-    if (!groupFactory) {
+    const factory = groupMap.get(groupType);
+    if (!factory) {
       throw new Error(
         `Internal Error: No factory registered for groupType '${groupType}'. Did you forget to add it to groupMap?`,
       );
     }
-    return groupFactory;
+    return factory();
+  }
+
+  static deserialize(serializedModel: any): Group {
+    const groupType = serializedModel.groupType;
+    if (groupType == null) {
+      // === undefined || === null
+      throw new Error(`No groupType available on saved model, unable to initialize group`);
+    }
+    if (!Object.values(GroupType).includes(groupType)) {
+      throw new Error(`Invalid groupType '${groupType}'`);
+    }
+    const group = Group.create(groupType); // create new group
+    Object.assign(group, serializedModel); // copy enumerable properties
+    group.fields = (serializedModel.fields ?? []).map((f: any) => Field.deserialize(f)); // initialize new fields
+    return group;
   }
 }
 
-// FACTORIES
+const groupMap = new Map<GroupType, GroupFactory>([
+  [GroupType.TEXT, createTextGroup],
+  [GroupType.TEXTAREA, createTextareaGroup],
+  [GroupType.SELECT, createSelectGroup],
+  [GroupType.CHECKBOX, createCheckboxGroup],
+  [GroupType.RADIO, createRadioGroup],
+  [GroupType.DATE, createDateGroup],
+  [GroupType.NUMBER, createNumberGroup],
+  [GroupType.BOOLEAN, createBooleanGroup],
+  [GroupType.NAME, createNameGroup],
+  [GroupType.ADDRESS, createAddressGroup],
+  [GroupType.BIRTHDAY, createBirthdayGroup],
+  [GroupType.GENDER, createGenderGroup],
+  [GroupType.PHONE, createPhoneGroup],
+  [GroupType.EMAIL, createEmailGroup],
+]);
+
 function createTextGroup() {
   const group = new Group();
   group.groupType = GroupType.TEXT;
@@ -121,7 +109,7 @@ function createEmailGroup(): Group {
   return group;
 }
 
-export function createNumberGroup(): Group {
+function createNumberGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.NUMBER;
 
@@ -136,7 +124,7 @@ export function createNumberGroup(): Group {
   return group;
 }
 
-export function createPhoneGroup(): Group {
+function createPhoneGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.PHONE;
 
@@ -150,7 +138,7 @@ export function createPhoneGroup(): Group {
   return group;
 }
 
-export function createTextareaGroup(): Group {
+function createTextareaGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.TEXTAREA;
 
@@ -160,7 +148,7 @@ export function createTextareaGroup(): Group {
   return group;
 }
 
-export function createRadioGroup(): Group {
+function createRadioGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.RADIO;
 
@@ -170,7 +158,7 @@ export function createRadioGroup(): Group {
   return group;
 }
 
-export function createBooleanGroup(): Group {
+function createBooleanGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.BOOLEAN;
 
@@ -181,7 +169,7 @@ export function createBooleanGroup(): Group {
   return group;
 }
 
-export function createGenderGroup(): Group {
+function createGenderGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.GENDER;
 
@@ -193,7 +181,7 @@ export function createGenderGroup(): Group {
   return group;
 }
 
-export function createCheckboxGroup(): Group {
+function createCheckboxGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.CHECKBOX;
 
@@ -203,7 +191,7 @@ export function createCheckboxGroup(): Group {
   return group;
 }
 
-export function createSelectGroup(): Group {
+function createSelectGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.SELECT;
 
@@ -213,7 +201,7 @@ export function createSelectGroup(): Group {
   return group;
 }
 
-export function createDateGroup(): Group {
+function createDateGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.DATE;
 
@@ -223,7 +211,7 @@ export function createDateGroup(): Group {
   return group;
 }
 
-export function createBirthdayGroup(): Group {
+function createBirthdayGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.BIRTHDAY;
 
@@ -238,7 +226,7 @@ export function createBirthdayGroup(): Group {
   return group;
 }
 
-export function createNameGroup(): Group {
+function createNameGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.NAME;
 
@@ -258,7 +246,7 @@ export function createNameGroup(): Group {
   return group;
 }
 
-export function createAddressGroup(): Group {
+function createAddressGroup(): Group {
   const group = new Group();
   group.groupType = GroupType.ADDRESS;
 
