@@ -18,7 +18,10 @@ export class BuilderPropLabel {
   dragDisabled$;
   @Input() labelMessage!: string;
 
-  constructor(public controlContainer: ControlContainer, private builderService: BuilderService) {
+  constructor(
+    public controlContainer: ControlContainer,
+    private builderService: BuilderService,
+  ) {
     this.dragDisabled$ = this.builderService.dragDisabled$;
   }
 

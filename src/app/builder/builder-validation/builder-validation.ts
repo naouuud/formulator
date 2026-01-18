@@ -1,16 +1,12 @@
-import { Component, Input, input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { PropType } from '../../models/prop-types';
 import { Field } from '../../models/field-types';
-import {
-  ControlContainer,
-  FormGroup,
-  FormGroupDirective,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+import { BuilderValidationDaterange } from '../builder-validation-daterange/builder-validation-daterange';
 
 @Component({
   selector: 'app-builder-validation',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, BuilderValidationDaterange],
   templateUrl: './builder-validation.html',
   styleUrl: './builder-validation.css',
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],

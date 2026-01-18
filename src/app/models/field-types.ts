@@ -120,7 +120,6 @@ function createTextField(): Field {
   const field = new Field();
   field.fieldType = FieldType.TEXT;
   field.setProp(PropType.MAXLENGTHCHAR, 100);
-  // this.setProp(PropType.MINLENGTHCHAR, 0);
   field.setProp(PropType.PLACEHOLDER, '');
   return field;
 }
@@ -129,7 +128,6 @@ function createTextareaField(): Field {
   const field = new Field();
   field.fieldType = FieldType.TEXTAREA;
   field.setProp(PropType.MAXLENGTHWORD, 500);
-  // this.setProp(PropType.MINLENGTHWORD, 0);
   field.setProp(PropType.PLACEHOLDER, 'Enter your text...');
   return field;
 }
@@ -154,10 +152,13 @@ function createCheckboxField(): Field {
 
 function createDateField(): Field {
   const field = new Field();
-  const year = new Date().getFullYear();
-  field.setProp(PropType.MINYEARDISP, year - 100);
-  field.setProp(PropType.MAXYEARDISP, year);
-  field.setProp(PropType.MINDATE, '');
-  field.setProp(PropType.MAXDATE, '');
+  field.fieldType = FieldType.DATE;
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
+  const currentDay = currentDate.getDate();
+  const maxDateString = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
+  const minDateString = `${currentYear - 100}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
+  field.setProp(PropType.DATERANGE, { max: maxDateString, min: minDateString });
   return field;
 }

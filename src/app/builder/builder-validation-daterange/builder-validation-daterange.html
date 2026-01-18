@@ -1,0 +1,63 @@
+<div class="flex flex-col gap-2">
+  <!-- Title -->
+  <span class="px-4 py-1 text-xs uppercase text-gray-400"
+    >Date range (select range or set custom range)</span
+  >
+  <!-- Choose preset -->
+  <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+    <div class="min-h-8 text-gray-700 flex justify-between items-center">
+      <span class>Date range</span>
+      <select>
+        <option value="">Select</option>
+        <option value="future">Future dates only (e.g. appointment)</option>
+        <option value="past">Past dates only (e.g. date of birth)</option>
+        <option value="custon">Custom</option>
+      </select>
+    </div>
+  </div>
+  <!-- Start date -->
+  <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+    <div class="min-h-8 text-gray-700 flex justify-between items-center">
+      <span>Start date</span>
+      <input type="date" />
+    </div>
+  </div>
+  <!-- End date -->
+  <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+    <div class="min-h-8 text-gray-700 flex justify-between items-center">
+      <span class>End date </span>
+      <input type="date" />
+    </div>
+  </div>
+
+  <!-- Only Future -->
+  <!-- <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+    <label class="flex items-center justify-between min-h-8 cursor-pointer">
+      <span class="text-gray-700">Allow future date only (e.g. appointment)</span>
+      <div class="relative">
+        <input type="checkbox" formControlName="onlyfuture" class="sr-only peer" />
+        <div
+          class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
+        ></div>
+        <div
+          class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"
+        ></div>
+      </div>
+    </label>
+  </div> -->
+  <!-- Only Past -->
+  <!-- <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+    <label class="flex items-center justify-between min-h-8 cursor-pointer">
+      <span class="text-gray-700">Allow past date only (e.g. date of birth)</span>
+      <div class="relative">
+        <input type="checkbox" formControlName="onlypast" class="sr-only peer" />
+        <div
+          class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
+        ></div>
+        <div
+          class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"
+        ></div>
+      </div>
+    </label>
+  </div> -->
+</div>

@@ -8,7 +8,7 @@ import { debounceTime, Subject } from 'rxjs';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
-    type: 'string' | 'number' | 'boolean' | 'regexp';
+    type: 'string' | 'number' | 'boolean' | 'regexp' | 'object';
   };
 };
 
@@ -41,13 +41,13 @@ export class BuilderService {
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel = this.localStorage.has('formModel')
-      ? this._returnFormModelFromLocalStorage(this.localStorage.get('formModel'))
-      : this._returnNewFormModel();
+      ? this.#returnFormModelFromLocalStorage(this.localStorage.get('formModel'))
+      : this.#returnNewFormModel();
     this.saveForm.next();
     this.saveForm
       .asObservable()
       .pipe(debounceTime(1000))
-      .subscribe(() => this._saveToLocalStorage());
+      .subscribe(() => this.#saveToLocalStorage());
   }
 
   addOption_S(field: Field, option: Option): void {
@@ -66,11 +66,11 @@ export class BuilderService {
   }
 
   setProp_S(field: Field, propType: PropType, value: unknown) {
-    if (!this._isValidPropValue(propType, value)) {
+    if (!this.#isValidPropValue(propType, value)) {
       throw new Error(
         `Invalid value for propType '${propType}'. ` +
-          `Expected ${this._PropSchema[propType].type}, ` +
-          `received ${this._describeValue(value)}.`,
+          `Expected ${this.#propSchema[propType].type}, ` +
+          `received ${this.#describeValue(value)}.`,
       );
     }
     field.setProp(propType, value);
@@ -102,24 +102,24 @@ export class BuilderService {
     this.saveForm.next();
   }
 
-  private _returnNewFormModel(): FormModel {
+  #returnNewFormModel(): FormModel {
     const formModel = new FormModel();
     // formModel.addGroup(GroupType.NAME);
     return formModel;
   }
 
-  private _returnFormModelFromLocalStorage(json: any): FormModel {
+  #returnFormModelFromLocalStorage(json: any): FormModel {
     const formModel = FormModel.deserialize(json);
     return formModel;
   }
 
-  private _saveToLocalStorage(): void {
+  #saveToLocalStorage(): void {
     this.localStorage.set('formModel', { ...this.formModel }); // need explicit conversion to Dto
     console.log(this.formModel);
   }
 
   // runtime prop validation
-  private _PropSchema: PropSchemaType = {
+  #propSchema: PropSchemaType = {
     [PropType.LABEL]: { type: 'string' },
     [PropType.PLACEHOLDER]: { type: 'string' },
     [PropType.MAXLENGTHCHAR]: { type: 'number' },
@@ -130,39 +130,28 @@ export class BuilderService {
     [PropType.MINVALUE]: { type: 'number' },
     [PropType.PATTERNPHONE]: { type: 'boolean' },
     [PropType.PATTERNNUMBER]: { type: 'boolean' },
-    [PropType.MAXDATE]: { type: 'string' },
-    [PropType.MINDATE]: { type: 'string' },
-    [PropType.MAXYEARDISP]: { type: 'number' },
-    [PropType.MINYEARDISP]: { type: 'number' },
+    [PropType.DATERANGE]: { type: 'object' },
   } as const;
 
-  private _isValidPropValue<K extends PropType>(
-    propType: K,
-    value: unknown,
-  ): value is PropValueMap[K] {
-    const schema = this._PropSchema[propType];
+  #isValidPropValue<K extends PropType>(propType: K, value: unknown): value is PropValueMap[K] {
+    const schema = this.#propSchema[propType];
     if (!schema) return false;
-
     switch (schema.type) {
       case 'string':
         return typeof value === 'string';
-
       case 'number':
         return typeof value === 'number' && !Number.isNaN(value);
-
       case 'boolean':
         return typeof value === 'boolean';
-
       case 'regexp':
         return value instanceof RegExp;
-
       default:
         return false;
     }
   }
 
   // for error message
-  private _describeValue(value: unknown): string {
+  #describeValue(value: unknown): string {
     if (value === null) return 'null';
     if (value instanceof RegExp) return 'RegExp';
     if (Array.isArray(value)) return 'array';

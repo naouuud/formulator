@@ -3,12 +3,11 @@ import { AbstractControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { FieldType, Field } from '../../models/field-types';
 import { CommonModule } from '@angular/common';
 import { RendererTextarea } from '../renderer-textarea/renderer-textarea';
-import { RendererDate } from '../renderer-date/renderer-date';
 import { PropType } from '../../models/prop-types';
 
 @Component({
   selector: 'app-renderer-field',
-  imports: [CommonModule, ReactiveFormsModule, RendererTextarea, RendererDate],
+  imports: [CommonModule, ReactiveFormsModule, RendererTextarea],
   templateUrl: './renderer-field.html',
   styleUrl: './renderer-field.css',
 })

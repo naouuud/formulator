@@ -206,7 +206,6 @@ function createDateGroup(): Group {
   group.groupType = GroupType.DATE;
 
   const field = Field.create(FieldType.DATE);
-
   group.fields.push(field);
   return group;
 }
@@ -216,11 +215,14 @@ function createBirthdayGroup(): Group {
   group.groupType = GroupType.BIRTHDAY;
 
   const field = Field.create(FieldType.DATE);
-  const date = new Date();
-  const year = date.getFullYear();
-  field.setProp(PropType.MINYEARDISP, year - 125);
-  field.setProp(PropType.MINDATE, `${year - 125}-01-01`);
-  field.setProp(PropType.MAXDATE, `${year}-${date.getMonth() + 1}-${date.getDate()}`);
+  field.setProp(PropType.LABEL, 'Date of Birth', false);
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
+  const currentDay = currentDate.getDate();
+  const maxDateString = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
+  const minDateString = `${currentYear - 125}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
+  field.setProp(PropType.DATERANGE, { max: maxDateString, min: minDateString }, false);
 
   group.fields.push(field);
   return group;
