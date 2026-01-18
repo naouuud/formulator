@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, signal } from '@angular/core';
 import { Field, Option } from '../../models/field-types';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
-import { BuilderValidation } from '../../builder-validation/builder-validation';
+import { BuilderValidation } from '../builder-validation/builder-validation';
 import { AddOptions } from '../add-options/add-options';
 import { BuilderService } from '../../services/builder-service';
 

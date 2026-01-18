@@ -34,6 +34,11 @@ export abstract class Field {
     this.setProp(PropType.REQUIRED, true);
   }
 
+  // toggleRadioCheckbox(): void {
+  //   if (this.fieldType === FieldType.CHECKBOX) this.fieldType = FieldType.RADIO;
+  //   if (this.fieldType === FieldType.RADIO) this.fieldType = FieldType.CHECKBOX;
+  // }
+
   addOption(optionIn: Option) {
     if (!optionIn.trim()) {
       throw new EmptyOptionError('Invalid option, must contain at least one character');

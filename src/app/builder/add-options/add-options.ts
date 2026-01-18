@@ -1,15 +1,9 @@
 import { Component, Input } from '@angular/core';
-import {
-  DuplicateOptionError,
-  EmptyOptionError,
-  Field,
-  FieldType,
-  Option,
-} from '../../models/field-types';
+import { DuplicateOptionError, EmptyOptionError, Field, FieldType } from '../../models/field-types';
 import { BuilderService } from '../../services/builder-service';
 import { CdkDropList, CdkDrag, CdkDragDrop, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
-import { CustomRadio } from '../../custom-checkbox/custom-radio';
-import { CustomCheckbox } from '../../custom-checkbox/custom-checkbox';
+import { CustomRadio } from '../custom-radio/custom-radio';
+import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
 
 @Component({
   selector: 'app-add-options',

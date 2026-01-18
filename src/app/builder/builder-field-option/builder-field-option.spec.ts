@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BuilderFieldRadio } from './builder-field-radio';
+import { BuilderFieldOption } from './builder-field-option';
 
 describe('BuilderFieldRadio', () => {
-  let component: BuilderFieldRadio;
-  let fixture: ComponentFixture<BuilderFieldRadio>;
+  let component: BuilderFieldOption;
+  let fixture: ComponentFixture<BuilderFieldOption>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BuilderFieldRadio],
+      imports: [BuilderFieldOption],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BuilderFieldRadio);
+    fixture = TestBed.createComponent(BuilderFieldOption);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

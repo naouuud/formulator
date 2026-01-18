@@ -14,8 +14,8 @@ const GroupLabels = {
   [GroupType.TEXT]: 'Short text',
   [GroupType.TEXTAREA]: 'Long text (e.g. comment, essay)',
   [GroupType.SELECT]: 'Dropdown',
-  [GroupType.CHECKBOX]: 'Checkbox (check all that apply)',
-  [GroupType.RADIO]: 'Radio (check one option only)',
+  [GroupType.CHECKBOX]: 'Checkbox <span class="text-xs">(check all that apply)</span>',
+  [GroupType.RADIO]: 'Radio <span class="text-xs">(check one option only)</span>',
   [GroupType.DATE]: 'Date',
   [GroupType.NUMBER]: 'Number',
   [GroupType.BOOLEAN]: 'Yes/No',
@@ -32,6 +32,7 @@ const GroupLabels = {
 export class BuilderGroup implements OnInit {
   dragDisabled$;
   GroupLabels = GroupLabels;
+  GroupType = GroupType;
   @Input() group!: Group;
   @Output() groupDeleted = new Subject<void>();
 
@@ -40,6 +41,10 @@ export class BuilderGroup implements OnInit {
   }
   ngOnInit(): void {
     // console.log(this.group);
+  }
+
+  toggleRadioCheckbox_C(): void {
+    this.builderService.toggleRadioCheckbox_S(this.group);
   }
 
   deleteGroup_C(groupId: string): void {

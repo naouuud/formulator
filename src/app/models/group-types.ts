@@ -52,6 +52,16 @@ export abstract class Group {
   groupId = crypto.randomUUID();
   fields: Field[] = [];
 
+  toggleRadioCheckbox(): void {
+    if (this.groupType === GroupType.RADIO) {
+      this.groupType = GroupType.CHECKBOX;
+      this.fields[0].fieldType = FieldType.CHECKBOX;
+    } else if (this.groupType === GroupType.CHECKBOX) {
+      this.groupType = GroupType.RADIO;
+      this.fields[0].fieldType = FieldType.RADIO;
+    }
+  }
+
   addField(fieldType: FieldType) {
     const factory = Field.getFactory(fieldType);
     const field = factory();
@@ -145,7 +155,7 @@ export class TextareaGroup extends Group {
 }
 
 export class RadioGroup extends Group {
-  override groupType: GroupType = GroupType.RADIO;
+  override groupType = GroupType.RADIO;
   constructor() {
     super();
     this.pushFields(new RadioField());
@@ -169,7 +179,7 @@ export class GenderGroup extends RadioGroup {
   constructor() {
     super();
     const field = this.fields[0];
-    field.setProp(PropType.LABEL, 'Gender');
+    field.setProp(PropType.LABEL, 'Gender', false);
     field.options = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
   }
 }

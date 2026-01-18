@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Field, FieldType } from '../../models/field-types';
 import { BuilderFieldText } from '../builder-field-text/builder-field-text';
-import { BuilderFieldRadio } from '../builder-field-radio/builder-field-radio';
+import { BuilderFieldOption } from '../builder-field-option/builder-field-option';
 import { BuilderFieldDate } from '../builder-field-date/builder-field-date';
 import { BuilderFieldSelect } from '../builder-field-select/builder-field-select';
 import { BuilderService } from '../../services/builder-service';
@@ -21,7 +21,7 @@ import { BuilderFieldTextarea } from '../builder-field-textarea/builder-field-te
     BuilderFieldText,
     BuilderFieldTextarea,
     BuilderFieldSelect,
-    BuilderFieldRadio,
+    BuilderFieldOption,
     BuilderFieldDate,
     ReactiveFormsModule,
   ],
