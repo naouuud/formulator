@@ -12,12 +12,12 @@
         [innerHTML]="GroupLabels[group.groupType]"
       ></div>
       @if (group.groupType === GroupType.RADIO || group.groupType === GroupType.CHECKBOX) {
-      <div
-        (click)="toggleRadioCheckbox_C()"
-        class="flex items-center text-violet-500 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full text-xs"
-      >
-        Switch
-      </div>
+        <div
+          (click)="toggleRadioCheckbox_C()"
+          class="flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
+        >
+          Switch
+        </div>
       }
       <!-- @if (group.groupType === GroupType.CHECKBOX) {
       <div
@@ -33,6 +33,6 @@
     </button>
   </div>
   @for (field of group.fields; track $index) {
-  <app-builder-field [field]="field" />
+    <app-builder-field [field]="field" />
   }
 </div>
