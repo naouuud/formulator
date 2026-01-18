@@ -1,19 +1,12 @@
 import { leb_governorates } from './lebanon';
-import {
-  CheckBoxField,
-  DateField,
-  Field,
-  FieldType,
-  RadioField,
-  SelectField,
-  TextareaField,
-  TextField,
-} from './field-types';
+import { Field, FieldType } from './field-types';
 import { PropType } from './prop-types';
+import { getSupportedInputTypes } from '@angular/cdk/platform';
 
 export type GroupFactory = () => Group;
 
 export enum GroupType {
+  NONE = 'none',
   BIRTHDAY = 'birthday',
   GENDER = 'gender',
   PHONE = 'phone',
@@ -30,25 +23,14 @@ export enum GroupType {
   ADDRESS = 'address',
 }
 
-export const groupMap = new Map<GroupType, GroupFactory>([
-  [GroupType.TEXT, () => new TextGroup()],
-  [GroupType.TEXTAREA, () => new TextareaGroup()],
-  [GroupType.SELECT, () => new SelectGroup()],
-  [GroupType.CHECKBOX, () => new CheckboxGroup()],
-  [GroupType.RADIO, () => new RadioGroup()],
-  [GroupType.DATE, () => new DateGroup()],
-  [GroupType.NUMBER, () => new NumberGroup()],
-  [GroupType.BOOLEAN, () => new BooleanGroup()],
-  [GroupType.NAME, () => new NameGroup()],
-  [GroupType.ADDRESS, () => new AddressGroup()],
-  [GroupType.BIRTHDAY, () => new BirthdayGroup()],
-  [GroupType.GENDER, () => new GenderGroup()],
-  [GroupType.PHONE, () => new PhoneGroup()],
-  [GroupType.EMAIL, () => new EmailGroup()],
-]);
+// interface GroupI {
+//   groupType: GroupType;
+//   groupId: ReturnType<typeof crypto.randomUUID>;
+//   fields: Field[];
+// }
 
-export abstract class Group {
-  abstract groupType: GroupType;
+export class Group {
+  groupType: GroupType = GroupType.NONE;
   groupId = crypto.randomUUID();
   fields: Field[] = [];
 
@@ -63,23 +45,13 @@ export abstract class Group {
   }
 
   addField(fieldType: FieldType) {
-    const factory = Field.getFactory(fieldType);
-    const field = factory();
+    const field = Field.create(fieldType);
     this.fields.push(field);
   }
 
-  pushFields(...field: Field[]) {
-    this.fields.push(...field);
-  }
-
-  static getFactory(groupType: GroupType): GroupFactory {
-    const groupFactory = groupMap.get(groupType);
-    if (!groupFactory) {
-      throw new Error(
-        `Internal Error: No factory registered for groupType '${groupType}'. Did you forget to add it to groupMap?`
-      );
-    }
-    return groupFactory;
+  static create(groupType: GroupType): Group {
+    const factory = Group.#getFactory(groupType);
+    return factory();
   }
 
   static fromJSON(json: any): Group {
@@ -90,179 +62,225 @@ export abstract class Group {
     if (!Object.values(GroupType).includes(json.groupType)) {
       throw new Error(`Invalid groupType '${json.groupType}'`);
     }
-    const factory = Group.getFactory(json.groupType);
+    const factory = Group.#getFactory(json.groupType);
     const group = factory(); // create new group
     Object.assign(group, json); // copy properties
     group.fields = (json.fields ?? []).map((f: any) => Field.fromJSON(f)); // initialize new fields
     return group;
   }
-}
 
-export class TextGroup extends Group {
-  override groupType: GroupType = GroupType.TEXT;
-  constructor() {
-    super();
-    this.pushFields(new TextField());
+  static #getFactory(groupType: GroupType): GroupFactory {
+    const groupMap = new Map<GroupType, GroupFactory>([
+      [GroupType.TEXT, createTextGroup],
+      [GroupType.TEXTAREA, createTextareaGroup],
+      [GroupType.SELECT, createSelectGroup],
+      [GroupType.CHECKBOX, createCheckboxGroup],
+      [GroupType.RADIO, createRadioGroup],
+      [GroupType.DATE, createRadioGroup],
+      [GroupType.NUMBER, createNumberGroup],
+      [GroupType.BOOLEAN, createBooleanGroup],
+      [GroupType.NAME, createNameGroup],
+      [GroupType.ADDRESS, createAddressGroup],
+      [GroupType.BIRTHDAY, createBirthdayGroup],
+      [GroupType.GENDER, createGenderGroup],
+      [GroupType.PHONE, createPhoneGroup],
+      [GroupType.EMAIL, createEmailGroup],
+    ]);
+    const groupFactory = groupMap.get(groupType);
+    if (!groupFactory) {
+      throw new Error(
+        `Internal Error: No factory registered for groupType '${groupType}'. Did you forget to add it to groupMap?`,
+      );
+    }
+    return groupFactory;
   }
 }
 
-export class EmailGroup extends TextGroup {
-  override groupType: GroupType = GroupType.EMAIL;
-  constructor() {
-    super();
-    const field = this.fields[0];
-    field.setProp(PropType.EMAIL, true);
-    field.setProp(PropType.MAXLENGTHCHAR, 50, false);
-    // field.setProp(PropType.MINLENGTHCHAR, 0, false);
-    field.setProp(PropType.LABEL, 'Email', false);
-    field.setProp(PropType.PLACEHOLDER, 'Enter your email...');
-  }
+// FACTORIES
+function createTextGroup() {
+  const group = new Group();
+  group.groupType = GroupType.TEXT;
+
+  const field = Field.create(FieldType.TEXT);
+  group.fields.push(field);
+  return group;
 }
 
-export class NumberGroup extends TextGroup {
-  override groupType: GroupType = GroupType.NUMBER;
-  constructor() {
-    super();
-    const field = this.fields[0];
-    field.setProp(PropType.PATTERNNUMBER, true);
-    field.setProp(PropType.MAXLENGTHCHAR, 20, false);
-    // field.setProp(PropType.MINLENGTHCHAR, 0, false);
-    field.setProp(PropType.MAXVALUE, 1000000000);
-    field.setProp(PropType.MINVALUE, -1000000000);
-    field.setProp(PropType.PLACEHOLDER, 'Enter number...');
-  }
+function createEmailGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.EMAIL;
+
+  const field = Field.create(FieldType.TEXT);
+  field.setProp(PropType.EMAIL, true);
+  field.setProp(PropType.MAXLENGTHCHAR, 50, false);
+  // field.setProp(PropType.MINLENGTHCHAR, 0, false);
+  field.setProp(PropType.LABEL, 'Email', false);
+  field.setProp(PropType.PLACEHOLDER, 'Enter your email...');
+
+  group.fields.push(field);
+  return group;
 }
 
-export class PhoneGroup extends TextGroup {
-  override groupType: GroupType = GroupType.PHONE;
-  constructor() {
-    super();
-    const field = this.fields[0];
-    field.setProp(PropType.PATTERNPHONE, true);
-    field.setProp(PropType.MAXLENGTHCHAR, 15, false);
-    // field.setProp(PropType.MINLENGTHCHAR, 8, false);
-    field.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
-    field.setProp(PropType.LABEL, 'Phone', false);
-  }
+export function createNumberGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.NUMBER;
+
+  const field = Field.create(FieldType.TEXT);
+  field.setProp(PropType.PATTERNNUMBER, true);
+  field.setProp(PropType.MAXLENGTHCHAR, 20, false);
+  field.setProp(PropType.MAXVALUE, 1_000_000_000);
+  field.setProp(PropType.MINVALUE, -1_000_000_000);
+  field.setProp(PropType.PLACEHOLDER, 'Enter number...');
+
+  group.fields.push(field);
+  return group;
 }
 
-export class TextareaGroup extends Group {
-  override groupType: GroupType = GroupType.TEXTAREA;
-  constructor() {
-    super();
-    this.pushFields(new TextareaField());
-  }
+export function createPhoneGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.PHONE;
+
+  const field = Field.create(FieldType.TEXT);
+  field.setProp(PropType.PATTERNPHONE, true);
+  field.setProp(PropType.MAXLENGTHCHAR, 15, false);
+  field.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
+  field.setProp(PropType.LABEL, 'Phone', false);
+
+  group.fields.push(field);
+  return group;
 }
 
-export class RadioGroup extends Group {
-  override groupType = GroupType.RADIO;
-  constructor() {
-    super();
-    this.pushFields(new RadioField());
-  }
+export function createTextareaGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.TEXTAREA;
+
+  const field = Field.create(FieldType.TEXTAREA);
+
+  group.fields.push(field);
+  return group;
 }
 
-export class BooleanGroup extends RadioGroup {
-  override groupType: GroupType = GroupType.BOOLEAN;
-  private unsureOption: boolean = false;
+export function createRadioGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.RADIO;
 
-  constructor() {
-    super();
-    const field = this.fields[0];
-    if (field.fieldType !== FieldType.RADIO) return;
-    field.options = ['Yes', 'No', 'Unsure'];
-  }
+  const field = Field.create(FieldType.RADIO);
+
+  group.fields.push(field);
+  return group;
 }
 
-export class GenderGroup extends RadioGroup {
-  override groupType: GroupType = GroupType.GENDER;
-  constructor() {
-    super();
-    const field = this.fields[0];
-    field.setProp(PropType.LABEL, 'Gender', false);
-    field.options = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
-  }
+export function createBooleanGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.BOOLEAN;
+
+  const field = Field.create(FieldType.RADIO);
+  field.options = ['Yes', 'No', 'Unsure'];
+
+  group.fields.push(field);
+  return group;
 }
 
-export class CheckboxGroup extends Group {
-  override groupType: GroupType = GroupType.CHECKBOX;
-  constructor() {
-    super();
-    this.pushFields(new CheckBoxField());
-  }
+export function createGenderGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.GENDER;
+
+  const field = Field.create(FieldType.RADIO);
+  field.setProp(PropType.LABEL, 'Gender', false);
+  field.options = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
+
+  group.fields.push(field);
+  return group;
 }
 
-export class SelectGroup extends Group {
-  override groupType: GroupType = GroupType.SELECT;
-  constructor() {
-    super();
-    this.pushFields(new SelectField());
-  }
+export function createCheckboxGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.CHECKBOX;
+
+  const field = Field.create(FieldType.CHECKBOX);
+
+  group.fields.push(field);
+  return group;
 }
 
-export class DateGroup extends Group {
-  override groupType: GroupType = GroupType.DATE;
-  constructor() {
-    super();
-    this.pushFields(new DateField());
-  }
+export function createSelectGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.SELECT;
+
+  const field = Field.create(FieldType.SELECT);
+
+  group.fields.push(field);
+  return group;
 }
 
-export class BirthdayGroup extends DateGroup {
-  override groupType: GroupType = GroupType.BIRTHDAY;
-  constructor() {
-    super();
-    const date = new Date();
-    const year = date.getFullYear();
-    this.fields[0].setProp(PropType.MINYEARDISP, year - 125);
-    this.fields[0].setProp(PropType.MINDATE, `${year - 125}-01-01`);
-    this.fields[0].setProp(PropType.MAXDATE, `${year}-${date.getMonth() + 1}-${date.getDate()}`);
-  }
+export function createDateGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.DATE;
+
+  const field = Field.create(FieldType.DATE);
+
+  group.fields.push(field);
+  return group;
 }
 
-export class NameGroup extends Group {
-  override groupType: GroupType = GroupType.NAME;
-  constructor() {
-    super();
-    const firstNameField = new TextField();
-    firstNameField.setProp(PropType.LABEL, 'First Name', false);
-    firstNameField.setProp(PropType.PLACEHOLDER, 'Enter first name...');
-    firstNameField.setProp(PropType.REQUIRED, true);
-    firstNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-    // firstNameField.setProp(PropType.MINLENGTHCHAR, 0, false);
-    const lastNameField = new TextField();
-    lastNameField.setProp(PropType.LABEL, 'Last Name', false);
-    lastNameField.setProp(PropType.PLACEHOLDER, 'Enter last name...');
-    lastNameField.setProp(PropType.REQUIRED, true);
-    lastNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-    // lastNameField.setProp(PropType.MINLENGTHCHAR, 0, false);
-    this.pushFields(firstNameField, lastNameField);
-  }
+export function createBirthdayGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.BIRTHDAY;
+
+  const field = Field.create(FieldType.DATE);
+  const date = new Date();
+  const year = date.getFullYear();
+  field.setProp(PropType.MINYEARDISP, year - 125);
+  field.setProp(PropType.MINDATE, `${year - 125}-01-01`);
+  field.setProp(PropType.MAXDATE, `${year}-${date.getMonth() + 1}-${date.getDate()}`);
+
+  group.fields.push(field);
+  return group;
 }
 
-export class AddressGroup extends Group {
-  override groupType: GroupType = GroupType.ADDRESS;
-  geoData = leb_governorates;
+export function createNameGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.NAME;
 
-  constructor() {
-    super();
-    const governorateField = new SelectField();
-    governorateField.setProp(PropType.LABEL, 'Governorate');
-    governorateField.setProp(PropType.PLACEHOLDER, 'Select governorate');
-    governorateField.options = this.geoData.map((g) => g.name);
-    const districtField = new SelectField();
-    districtField.setProp(PropType.LABEL, 'District');
-    districtField.setProp(PropType.PLACEHOLDER, 'Select district');
-    const streetField = new TextField();
-    streetField.setProp(PropType.LABEL, 'Street and building', false);
-    streetField.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
-    streetField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-    // streetField.setProp(PropType.MINLENGTHCHAR, 0, false);
-    const cityField = new TextField();
-    cityField.setProp(PropType.LABEL, 'City', false);
-    cityField.setProp(PropType.PLACEHOLDER, 'Enter city...');
-    cityField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-    // cityField.setProp(PropType.MINLENGTHCHAR, 0, false);
-    this.pushFields(governorateField, districtField, streetField, cityField);
-  }
+  const firstName = Field.create(FieldType.TEXT);
+  firstName.setProp(PropType.LABEL, 'First Name', false);
+  firstName.setProp(PropType.PLACEHOLDER, 'Enter first name...');
+  firstName.setProp(PropType.REQUIRED, true);
+  firstName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  const lastName = Field.create(FieldType.TEXT);
+  lastName.setProp(PropType.LABEL, 'Last Name', false);
+  lastName.setProp(PropType.PLACEHOLDER, 'Enter last name...');
+  lastName.setProp(PropType.REQUIRED, true);
+  lastName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  group.fields.push(firstName, lastName);
+  return group;
+}
+
+export function createAddressGroup(): Group {
+  const group = new Group();
+  group.groupType = GroupType.ADDRESS;
+
+  const governorate = Field.create(FieldType.SELECT);
+  governorate.setProp(PropType.LABEL, 'Governorate');
+  governorate.setProp(PropType.PLACEHOLDER, 'Select governorate');
+  governorate.options = leb_governorates.map((g) => g.name);
+
+  const district = Field.create(FieldType.SELECT);
+  district.setProp(PropType.LABEL, 'District');
+  district.setProp(PropType.PLACEHOLDER, 'Select district');
+
+  const street = Field.create(FieldType.TEXT);
+  street.setProp(PropType.LABEL, 'Street and building', false);
+  street.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
+  street.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  const city = Field.create(FieldType.TEXT);
+  city.setProp(PropType.LABEL, 'City', false);
+  city.setProp(PropType.PLACEHOLDER, 'Enter city...');
+  city.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  group.fields.push(governorate, district, street, city);
+  return group;
 }

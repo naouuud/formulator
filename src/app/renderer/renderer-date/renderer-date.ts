@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { AbstractControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { PropType } from '../../models/prop-types';
-import { DateField } from '../../models/field-types';
+import { Field } from '../../models/field-types';
 
 @Component({
   selector: 'app-renderer-birthday',
@@ -20,7 +20,7 @@ import { DateField } from '../../models/field-types';
 })
 export class RendererDate implements OnInit {
   PropType = PropType;
-  @Input() field!: DateField;
+  @Input() field!: Field;
   @Input() formGroupIn!: FormGroup;
   @Input() formControlIn!: AbstractControl;
 
@@ -96,8 +96,8 @@ export class RendererDate implements OnInit {
         {
           length: maxYearDisp - minYearDisp + 1,
         },
-        (_, i) => maxYearDisp - i
-      )
+        (_, i) => maxYearDisp - i,
+      ),
     );
   }
 

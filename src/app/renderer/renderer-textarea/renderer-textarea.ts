@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { PropType } from '../../models/prop-types';
-import { TextareaField } from '../../models/field-types';
+import { Field } from '../../models/field-types';
 
 @Component({
   selector: 'app-renderer-textarea',
@@ -11,7 +11,7 @@ import { TextareaField } from '../../models/field-types';
 })
 export class RendererTextarea {
   PropType = PropType;
-  @Input() field!: TextareaField;
+  @Input() field!: Field;
   @Input() formGroupIn!: FormGroup;
 
   currentLength = 0;
