@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { rendererTestForm } from '../../models/renderer-test';
 import {
   FormControl,
   FormGroup,
@@ -12,6 +11,7 @@ import { RendererGroup } from '../renderer-group/renderer-group';
 import { Field } from '../../models/field-types';
 import { Prop, PropType, phonePattern, numberPattern } from '../../models/prop-types';
 import { FormModel } from '../../models/form-model';
+import { LocalStorageService } from '../../services/local-storage';
 
 @Component({
   selector: 'app-renderer-form',
@@ -20,16 +20,17 @@ import { FormModel } from '../../models/form-model';
   styleUrl: './renderer-form.css',
 })
 export class RendererForm {
-  formGroup: FormGroup; // move to service?
-  form: FormModel = rendererTestForm;
+  formModel: FormModel;
+  formGroup: FormGroup;
 
-  constructor() {
+  constructor(private localStorage: LocalStorageService) {
+    this.formModel = this.localStorage.get<FormModel>('formModel') ?? new FormModel();
     this.formGroup = new FormGroup({});
     this._buildFormGroup();
   }
 
   private _buildFormGroup(): void {
-    this.form.groups.forEach((group: Group) => {
+    this.formModel.groups.forEach((group: Group) => {
       group.fields.forEach((field: Field) => {
         const validators: ValidatorFn[] = [];
         field.props.forEach((prop: Prop) => {

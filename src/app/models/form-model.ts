@@ -10,8 +10,7 @@ export class FormModel {
   }
 
   addGroup(groupType: GroupType): void {
-    const factory = Group.getFactory(groupType);
-    const group = factory();
+    const group = Group.create(groupType);
     this.groups.push(group);
   }
 

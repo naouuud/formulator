@@ -7,6 +7,7 @@ import { BuilderGroupDelete } from '../builder-group-delete/builder-group-delete
 import { Subject } from 'rxjs';
 
 const GroupLabels = {
+  [GroupType.NONE]: 'None',
   [GroupType.BIRTHDAY]: 'Date of Birth',
   [GroupType.GENDER]: 'Gender',
   [GroupType.PHONE]: 'Phone',

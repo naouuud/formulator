@@ -3,6 +3,7 @@ import { Prop, PropType, PropValueMap } from './prop-types';
 export type FieldFactory = () => Field;
 
 export enum FieldType {
+  NONE = 'none',
   TEXT = 'text',
   TEXTAREA = 'textarea',
   SELECT = 'select',
@@ -11,20 +12,11 @@ export enum FieldType {
   DATE = 'date',
 }
 
-export const fieldMap = new Map<FieldType, FieldFactory>([
-  [FieldType.TEXT, () => new TextField()],
-  [FieldType.TEXTAREA, () => new TextareaField()],
-  [FieldType.SELECT, () => new SelectField()],
-  [FieldType.CHECKBOX, () => new CheckBoxField()],
-  [FieldType.RADIO, () => new RadioField()],
-  [FieldType.DATE, () => new DateField()],
-]);
-
 export class EmptyOptionError extends Error {}
 export class DuplicateOptionError extends Error {}
 
-export abstract class Field {
-  abstract fieldType: FieldType;
+export class Field {
+  fieldType: FieldType = FieldType.NONE;
   fieldId = crypto.randomUUID();
   props: Prop[] = [];
   options: Option[] = [];
@@ -90,81 +82,142 @@ export abstract class Field {
   private _createProp<K extends PropType>(
     propType: K,
     value: PropValueMap[K],
-    editable: boolean
+    editable: boolean,
   ): Extract<Prop, { propType: K }> {
     return { propType, value, editable } as Extract<Prop, { propType: K }>;
   }
 
-  static getFactory(fieldType: FieldType): FieldFactory {
-    const fieldFactory = fieldMap.get(fieldType);
-    if (!fieldFactory) {
-      throw new Error(
-        `Internal Error: No factory registered for fieldType '${fieldType}'. Did you forget to add it to groupMap?`
-      );
-    }
-    return fieldFactory;
+  static create(fieldType: FieldType): Field {
+    const factory = Field.#getFactory(fieldType);
+    return factory();
   }
 
   static fromJSON(json: any): Field | undefined {
-    const fieldFactory = Field.getFactory(json.fieldType);
+    const fieldFactory = Field.#getFactory(json.fieldType);
     if (!fieldFactory) return;
     const field = fieldFactory();
     Object.assign(field, json);
     return field;
   }
-}
 
-export class TextField extends Field {
-  fieldType: FieldType = FieldType.TEXT;
-
-  constructor() {
-    super();
-    this.setProp(PropType.MAXLENGTHCHAR, 100);
-    // this.setProp(PropType.MINLENGTHCHAR, 0);
-    this.setProp(PropType.PLACEHOLDER, '');
+  static #getFactory(fieldType: FieldType): FieldFactory {
+    const fieldMap = new Map<FieldType, FieldFactory>([
+      [FieldType.TEXT, createTextField],
+      [FieldType.TEXTAREA, createTextareaField],
+      [FieldType.SELECT, createSelectField],
+      [FieldType.CHECKBOX, createCheckboxField],
+      [FieldType.RADIO, createRadioField],
+      [FieldType.DATE, createDateField],
+    ]);
+    const fieldFactory = fieldMap.get(fieldType);
+    if (!fieldFactory) {
+      throw new Error(
+        `Internal Error: No factory registered for fieldType '${fieldType}'. Did you forget to add it to groupMap?`,
+      );
+    }
+    return fieldFactory;
   }
 }
 
-export class TextareaField extends Field {
-  fieldType: FieldType = FieldType.TEXTAREA;
+// FACTORIES
 
-  constructor() {
-    super();
-    this.setProp(PropType.MAXLENGTHWORD, 500);
-    // this.setProp(PropType.MINLENGTHWORD, 0);
-    this.setProp(PropType.PLACEHOLDER, 'Enter your text...');
-  }
+function createTextField(): Field {
+  const field = new Field();
+  field.fieldType = FieldType.TEXT;
+  field.setProp(PropType.MAXLENGTHCHAR, 100);
+  // this.setProp(PropType.MINLENGTHCHAR, 0);
+  field.setProp(PropType.PLACEHOLDER, '');
+  return field;
 }
+
+// export class TextField extends Field {
+//   fieldType: FieldType = FieldType.TEXT;
+
+//   constructor() {
+//     super();
+//     this.setProp(PropType.MAXLENGTHCHAR, 100);
+//     // this.setProp(PropType.MINLENGTHCHAR, 0);
+//     this.setProp(PropType.PLACEHOLDER, '');
+//   }
+// }
+
+function createTextareaField(): Field {
+  const field = new Field();
+  field.fieldType = FieldType.TEXTAREA;
+  field.setProp(PropType.MAXLENGTHWORD, 500);
+  // this.setProp(PropType.MINLENGTHWORD, 0);
+  field.setProp(PropType.PLACEHOLDER, 'Enter your text...');
+  return field;
+}
+
+// export class TextareaField extends Field {
+//   fieldType: FieldType = FieldType.TEXTAREA;
+//   constructor() {
+//     super();
+//     this.setProp(PropType.MAXLENGTHWORD, 500);
+//     // this.setProp(PropType.MINLENGTHWORD, 0);
+//     this.setProp(PropType.PLACEHOLDER, 'Enter your text...');
+//   }
+// }
 
 export type Option = string;
 
-export class SelectField extends Field {
-  fieldType: FieldType = FieldType.SELECT;
-  placeholder: string = '';
+function createSelectField(): Field {
+  const field = new Field();
+  field.fieldType = FieldType.SELECT;
+  return field;
 }
 
-export class RadioField extends Field {
-  fieldType: FieldType = FieldType.RADIO;
+// export class SelectField extends Field {
+//   fieldType: FieldType = FieldType.SELECT;
+//   placeholder: string = '';
+// }
+
+function createRadioField(): Field {
+  const field = new Field();
+  field.fieldType = FieldType.RADIO;
+  return field;
 }
 
-export class CheckBoxField extends Field {
-  fieldType: FieldType = FieldType.CHECKBOX;
+// export class RadioField extends Field {
+//   fieldType: FieldType = FieldType.RADIO;
+// }
 
-  constructor() {
-    super();
-    this.setProp(PropType.REQUIRED, false);
-  }
+function createCheckboxField(): Field {
+  const field = new Field();
+  field.fieldType = FieldType.CHECKBOX;
+  return field;
 }
 
-export class DateField extends Field {
-  fieldType: FieldType = FieldType.DATE;
+// export class CheckBoxField extends Field {
+//   fieldType: FieldType = FieldType.CHECKBOX;
 
-  constructor() {
-    super();
-    const year = new Date().getFullYear();
-    this.setProp(PropType.MINYEARDISP, year - 100);
-    this.setProp(PropType.MAXYEARDISP, year);
-    this.setProp(PropType.MINDATE, '');
-    this.setProp(PropType.MAXDATE, '');
-  }
+//   constructor() {
+//     super();
+//     this.setProp(PropType.REQUIRED, false);
+//   }
+// }
+
+function createDateField(): Field {
+  const field = new Field();
+  const year = new Date().getFullYear();
+  field.setProp(PropType.MINYEARDISP, year - 100);
+  field.setProp(PropType.MAXYEARDISP, year);
+  field.setProp(PropType.MINDATE, '');
+  field.setProp(PropType.MAXDATE, '');
+
+  return field;
 }
+
+// export class DateField extends Field {
+//   fieldType: FieldType = FieldType.DATE;
+
+//   constructor() {
+//     super();
+//     const year = new Date().getFullYear();
+//     this.setProp(PropType.MINYEARDISP, year - 100);
+//     this.setProp(PropType.MAXYEARDISP, year);
+//     this.setProp(PropType.MINDATE, '');
+//     this.setProp(PropType.MAXDATE, '');
+//   }
+// }
