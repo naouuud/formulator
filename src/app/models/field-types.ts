@@ -1,6 +1,9 @@
 import { Prop, PropType, PropValueMap } from './prop-types';
 
 export type FieldFactory = () => Field;
+export class EmptyOptionError extends Error {}
+export class DuplicateOptionError extends Error {}
+export type Option = string;
 
 export enum FieldType {
   NONE = 'none',
@@ -12,9 +15,6 @@ export enum FieldType {
   DATE = 'date',
 }
 
-export class EmptyOptionError extends Error {}
-export class DuplicateOptionError extends Error {}
-
 export class Field {
   fieldType: FieldType = FieldType.NONE;
   fieldId = crypto.randomUUID();
@@ -25,11 +25,6 @@ export class Field {
     this.setProp(PropType.LABEL, '');
     this.setProp(PropType.REQUIRED, true);
   }
-
-  // toggleRadioCheckbox(): void {
-  //   if (this.fieldType === FieldType.CHECKBOX) this.fieldType = FieldType.RADIO;
-  //   if (this.fieldType === FieldType.RADIO) this.fieldType = FieldType.CHECKBOX;
-  // }
 
   addOption(optionIn: Option) {
     if (!optionIn.trim()) {
@@ -75,11 +70,11 @@ export class Field {
       existing.editable = editableIn;
       return;
     }
-    this.props.push(this._createProp(propTypeIn, valueIn, editableIn));
+    this.props.push(this.#createProp(propTypeIn, valueIn, editableIn));
   }
 
   // 'squeeze' function to enforce type correctness during construction
-  private _createProp<K extends PropType>(
+  #createProp<K extends PropType>(
     propType: K,
     value: PropValueMap[K],
     editable: boolean,
@@ -88,38 +83,38 @@ export class Field {
   }
 
   static create(fieldType: FieldType): Field {
-    const factory = Field.#getFactory(fieldType);
-    return factory();
-  }
-
-  static fromJSON(json: any): Field | undefined {
-    const fieldFactory = Field.#getFactory(json.fieldType);
-    if (!fieldFactory) return;
-    const field = fieldFactory();
-    Object.assign(field, json);
-    return field;
-  }
-
-  static #getFactory(fieldType: FieldType): FieldFactory {
-    const fieldMap = new Map<FieldType, FieldFactory>([
-      [FieldType.TEXT, createTextField],
-      [FieldType.TEXTAREA, createTextareaField],
-      [FieldType.SELECT, createSelectField],
-      [FieldType.CHECKBOX, createCheckboxField],
-      [FieldType.RADIO, createRadioField],
-      [FieldType.DATE, createDateField],
-    ]);
-    const fieldFactory = fieldMap.get(fieldType);
-    if (!fieldFactory) {
+    const factory = fieldMap.get(fieldType);
+    if (!factory) {
       throw new Error(
         `Internal Error: No factory registered for fieldType '${fieldType}'. Did you forget to add it to groupMap?`,
       );
     }
-    return fieldFactory;
+    return factory();
+  }
+
+  static deserialize(serializedModel: any): Field | undefined {
+    const fieldType = serializedModel.fieldType;
+    if (fieldType == null) {
+      // === undefined || === null
+      throw new Error(`No groupType available on saved model, unable to initialize group`);
+    }
+    if (!Object.values(FieldType).includes(fieldType)) {
+      throw new Error(`Invalid groupType '${fieldType}'`);
+    }
+    const field = Field.create(fieldType);
+    Object.assign(field, serializedModel);
+    return field;
   }
 }
 
-// FACTORIES
+const fieldMap = new Map<FieldType, FieldFactory>([
+  [FieldType.TEXT, createTextField],
+  [FieldType.TEXTAREA, createTextareaField],
+  [FieldType.SELECT, createSelectField],
+  [FieldType.CHECKBOX, createCheckboxField],
+  [FieldType.RADIO, createRadioField],
+  [FieldType.DATE, createDateField],
+]);
 
 function createTextField(): Field {
   const field = new Field();
@@ -130,17 +125,6 @@ function createTextField(): Field {
   return field;
 }
 
-// export class TextField extends Field {
-//   fieldType: FieldType = FieldType.TEXT;
-
-//   constructor() {
-//     super();
-//     this.setProp(PropType.MAXLENGTHCHAR, 100);
-//     // this.setProp(PropType.MINLENGTHCHAR, 0);
-//     this.setProp(PropType.PLACEHOLDER, '');
-//   }
-// }
-
 function createTextareaField(): Field {
   const field = new Field();
   field.fieldType = FieldType.TEXTAREA;
@@ -150,28 +134,11 @@ function createTextareaField(): Field {
   return field;
 }
 
-// export class TextareaField extends Field {
-//   fieldType: FieldType = FieldType.TEXTAREA;
-//   constructor() {
-//     super();
-//     this.setProp(PropType.MAXLENGTHWORD, 500);
-//     // this.setProp(PropType.MINLENGTHWORD, 0);
-//     this.setProp(PropType.PLACEHOLDER, 'Enter your text...');
-//   }
-// }
-
-export type Option = string;
-
 function createSelectField(): Field {
   const field = new Field();
   field.fieldType = FieldType.SELECT;
   return field;
 }
-
-// export class SelectField extends Field {
-//   fieldType: FieldType = FieldType.SELECT;
-//   placeholder: string = '';
-// }
 
 function createRadioField(): Field {
   const field = new Field();
@@ -179,24 +146,11 @@ function createRadioField(): Field {
   return field;
 }
 
-// export class RadioField extends Field {
-//   fieldType: FieldType = FieldType.RADIO;
-// }
-
 function createCheckboxField(): Field {
   const field = new Field();
   field.fieldType = FieldType.CHECKBOX;
   return field;
 }
-
-// export class CheckBoxField extends Field {
-//   fieldType: FieldType = FieldType.CHECKBOX;
-
-//   constructor() {
-//     super();
-//     this.setProp(PropType.REQUIRED, false);
-//   }
-// }
 
 function createDateField(): Field {
   const field = new Field();
@@ -205,19 +159,5 @@ function createDateField(): Field {
   field.setProp(PropType.MAXYEARDISP, year);
   field.setProp(PropType.MINDATE, '');
   field.setProp(PropType.MAXDATE, '');
-
   return field;
 }
-
-// export class DateField extends Field {
-//   fieldType: FieldType = FieldType.DATE;
-
-//   constructor() {
-//     super();
-//     const year = new Date().getFullYear();
-//     this.setProp(PropType.MINYEARDISP, year - 100);
-//     this.setProp(PropType.MAXYEARDISP, year);
-//     this.setProp(PropType.MINDATE, '');
-//     this.setProp(PropType.MAXDATE, '');
-//   }
-// }

@@ -30,10 +30,10 @@ export class FormModel {
     this.groups.splice(deleteIdx, 1);
   }
 
-  static fromJSON(json: any): FormModel {
-    const formModel = new FormModel(); // create new
-    Object.assign(formModel, json); // copy properties
-    formModel.groups = (json.groups ?? []).map((g: Group) => Group.fromJSON(g)); // initialize new groups
+  static deserialize(serializedModel: any): FormModel {
+    const formModel = new FormModel(); // create new form model
+    Object.assign(formModel, serializedModel); // copy enumerable properties
+    formModel.groups = (serializedModel.groups ?? []).map((g: Group) => Group.deserialize(g)); // initialize new groups
     return formModel;
   }
 }
