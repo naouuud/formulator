@@ -1,3 +1,6 @@
+export class InvalidDateError extends Error {}
+export class InvalidRangeError extends Error {}
+
 export enum PropType {
   LABEL = 'label',
   PLACEHOLDER = 'placeholder',
@@ -12,7 +15,24 @@ export enum PropType {
   DATERANGE = 'daterange',
 }
 
-export type DateRange = { max: string; min: string };
+// Dates
+type DateString = string;
+export type DateRange = { max: DateString; min: DateString };
+// runtime enforcement of DateString format
+function isDateString(value: string): value is DateString {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(value);
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
+}
+// factory implements runtime check and throws error
+export function createDateRange(max: string, min: string): DateRange {
+  if (!isDateString(min) || !isDateString(max))
+    throw new InvalidDateError(
+      'Invalid date provided, use format "YYYY-MM-DD" and ensure date is a valid calendar date.',
+    );
+  if (min > max) throw new InvalidRangeError('Invalid date range, min cannot be larger than max.'); // ISO strings compare lexicographically
+  return { max, min };
+}
 
 export type PropValueMap = {
   [PropType.LABEL]: string;

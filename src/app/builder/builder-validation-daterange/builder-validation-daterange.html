@@ -1,32 +1,32 @@
 <div class="flex flex-col gap-2">
   <!-- Title -->
   <span class="px-4 py-1 text-xs uppercase text-gray-400"
-    >Date range (select range or set custom range)</span
+    >Date range (set range or create custom range)</span
   >
   <!-- Choose preset -->
   <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
     <div class="min-h-8 text-gray-700 flex justify-between items-center">
       <span class>Date range</span>
       <select>
-        <option value="">Select</option>
+        <option value="">Set date range</option>
         <option value="future">Future dates only (e.g. appointment)</option>
         <option value="past">Past dates only (e.g. date of birth)</option>
         <option value="custon">Custom</option>
       </select>
     </div>
   </div>
-  <!-- Start date -->
+  <!-- Min date -->
   <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
     <div class="min-h-8 text-gray-700 flex justify-between items-center">
       <span>Start date</span>
-      <input type="date" />
+      <input type="date" [value]="minDate$()" (input)="minDate$.set($event.target.value)" />
     </div>
   </div>
-  <!-- End date -->
+  <!-- Max date -->
   <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
     <div class="min-h-8 text-gray-700 flex justify-between items-center">
       <span class>End date </span>
-      <input type="date" />
+      <input type="date" [value]="maxDate$()" (input)="maxDate$.set($event.target.value)" />
     </div>
   </div>
 

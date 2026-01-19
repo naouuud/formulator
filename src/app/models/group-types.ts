@@ -1,6 +1,6 @@
 import { leb_governorates } from './lebanon';
 import { Field, FieldType } from './field-types';
-import { PropType } from './prop-types';
+import { createDateRange, PropType } from './prop-types';
 
 type GroupFactory = () => Group;
 
@@ -222,7 +222,8 @@ function createBirthdayGroup(): Group {
   const currentDay = currentDate.getDate();
   const maxDateString = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
   const minDateString = `${currentYear - 125}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
-  field.setProp(PropType.DATERANGE, { max: maxDateString, min: minDateString }, false);
+  const dateRange = createDateRange(maxDateString, minDateString); // use factory
+  field.setProp(PropType.DATERANGE, dateRange, false);
 
   group.fields.push(field);
   return group;

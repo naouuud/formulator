@@ -1,4 +1,4 @@
-import { Prop, PropType, PropValueMap } from './prop-types';
+import { createDateRange, Prop, PropType, PropValueMap } from './prop-types';
 
 export type FieldFactory = () => Field;
 export class EmptyOptionError extends Error {}
@@ -159,6 +159,7 @@ function createDateField(): Field {
   const currentDay = currentDate.getDate();
   const maxDateString = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
   const minDateString = `${currentYear - 100}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
-  field.setProp(PropType.DATERANGE, { max: maxDateString, min: minDateString });
+  const dateRange = createDateRange(maxDateString, minDateString); // use factory
+  field.setProp(PropType.DATERANGE, dateRange);
   return field;
 }
