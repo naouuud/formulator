@@ -1,4 +1,4 @@
-import { createDateRange, Prop, PropType, PropValueMap } from './prop-types';
+import { createDateRange, Prop, PropType, PropValueMap, todayString } from './prop-types';
 
 export type FieldFactory = () => Field;
 export class EmptyOptionError extends Error {}
@@ -20,11 +20,6 @@ export class Field {
   fieldId = crypto.randomUUID();
   props: Prop[] = [];
   options: Option[] = [];
-
-  constructor() {
-    this.setProp(PropType.LABEL, '');
-    this.setProp(PropType.REQUIRED, true);
-  }
 
   addOption(optionIn: Option) {
     if (!optionIn.trim()) {
@@ -119,6 +114,8 @@ const fieldMap = new Map<FieldType, FieldFactory>([
 function createTextField(): Field {
   const field = new Field();
   field.fieldType = FieldType.TEXT;
+  field.setProp(PropType.LABEL, '');
+  field.setProp(PropType.REQUIRED, true);
   field.setProp(PropType.MAXLENGTHCHAR, 100);
   field.setProp(PropType.PLACEHOLDER, '');
   return field;
@@ -127,6 +124,8 @@ function createTextField(): Field {
 function createTextareaField(): Field {
   const field = new Field();
   field.fieldType = FieldType.TEXTAREA;
+  field.setProp(PropType.LABEL, '');
+  field.setProp(PropType.REQUIRED, true);
   field.setProp(PropType.MAXLENGTHWORD, 500);
   field.setProp(PropType.PLACEHOLDER, 'Enter your text...');
   return field;
@@ -135,30 +134,34 @@ function createTextareaField(): Field {
 function createSelectField(): Field {
   const field = new Field();
   field.fieldType = FieldType.SELECT;
+  field.setProp(PropType.LABEL, '');
+  field.setProp(PropType.REQUIRED, true);
   return field;
 }
 
 function createRadioField(): Field {
   const field = new Field();
   field.fieldType = FieldType.RADIO;
+  field.setProp(PropType.LABEL, '');
+  field.setProp(PropType.REQUIRED, true);
   return field;
 }
 
 function createCheckboxField(): Field {
   const field = new Field();
   field.fieldType = FieldType.CHECKBOX;
+  field.setProp(PropType.LABEL, '');
+  field.setProp(PropType.REQUIRED, true);
   return field;
 }
 
 function createDateField(): Field {
   const field = new Field();
   field.fieldType = FieldType.DATE;
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth();
-  const currentDay = currentDate.getDate();
-  const maxDateString = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
-  const minDateString = `${currentYear - 100}-${(currentMonth + 1).toString().padStart(2, '0')}-${currentDay.toString().padStart(2, '0')}`;
+  field.setProp(PropType.LABEL, '');
+  field.setProp(PropType.REQUIRED, true);
+  const maxDateString = todayString();
+  const minDateString = todayString(-100);
   const dateRange = createDateRange(maxDateString, minDateString); // use factory
   field.setProp(PropType.DATERANGE, dateRange);
   return field;

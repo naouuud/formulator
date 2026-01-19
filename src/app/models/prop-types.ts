@@ -15,21 +15,36 @@ export enum PropType {
   DATERANGE = 'daterange',
 }
 
+export const phonePattern = /^\d(?:\s?\d){7}$/;
+export const numberPattern = /^[+-]?\d+(\.\d+)?$/;
+
 // Dates
 type DateString = string;
 export type DateRange = { max: DateString; min: DateString };
 // runtime enforcement of DateString format
 function isDateString(value: string): value is DateString {
+  if (value === 'today') return true; // 'today' is valid DateString
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const date = new Date(value);
   return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
 }
+export function todayString(yearOffset: number = 0): DateString {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  const todayString = `${year + yearOffset}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+  return todayString;
+}
 // factory implements runtime check and throws error
+// DateString 'today' allows dynamic storage, interpreted at runtime
 export function createDateRange(max: string, min: string): DateRange {
   if (!isDateString(min) || !isDateString(max))
     throw new InvalidDateError(
       'Invalid date provided, use format "YYYY-MM-DD" and ensure date is a valid calendar date.',
     );
+  if (max === 'today') max = todayString(); // not checked
+  if (min === 'today') min = todayString();
   if (min > max) throw new InvalidRangeError('Invalid date range, min cannot be larger than max.'); // ISO strings compare lexicographically
   return { max, min };
 }
@@ -61,6 +76,3 @@ export interface PropChangeEvent {
   propType: PropType;
   value: unknown;
 }
-
-export const phonePattern = /^\d(?:\s?\d){7}$/;
-export const numberPattern = /^[+-]?\d+(\.\d+)?$/;
