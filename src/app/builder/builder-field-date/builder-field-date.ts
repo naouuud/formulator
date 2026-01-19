@@ -1,12 +1,11 @@
 import { Component, computed, Input, OnInit, signal, Signal, WritableSignal } from '@angular/core';
 import { Field } from '../../models/field-types';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
-import { BuilderValidation } from '../builder-validation/builder-validation';
-import { PropType } from '../../models/prop-types';
+import { BuilderValidationDaterange } from '../builder-validation-daterange/builder-validation-daterange';
 
 @Component({
   selector: 'app-builder-field-date',
-  imports: [BuilderPropLabel, BuilderValidation],
+  imports: [BuilderPropLabel, BuilderValidationDaterange],
   templateUrl: './builder-field-date.html',
   styleUrl: './builder-field-date.css',
 })
