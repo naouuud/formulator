@@ -143,6 +143,8 @@ export class BuilderService {
         return typeof value === 'number' && !Number.isNaN(value);
       case 'boolean':
         return typeof value === 'boolean';
+      case 'object':
+        return typeof value === 'object';
       case 'regexp':
         return value instanceof RegExp;
       default:

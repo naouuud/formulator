@@ -50,9 +50,10 @@ export class BuilderField implements OnInit {
     this.formGroup.get('maxlengthword')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.MAXLENGTHWORD, value: Number(value) });
     });
-    this.formGroup.get('yearmax')?.valueChanges.subscribe((value: unknown) => {
-      this.setProp_C({ propType: PropType.DATERANGE, value });
-    });
+    // Date range handled in own component due to complexity
+    // this.formGroup.get('daterange')?.valueChanges.subscribe((value: unknown) => {
+    //   this.setProp_C({ propType: PropType.DATERANGE, value });
+    // });
   }
 
   setProp_C(propChangeEvent: PropChangeEvent) {
@@ -72,5 +73,6 @@ export class BuilderField implements OnInit {
       if (!prop.editable) control.disable();
       this.formGroup.addControl(prop.propType, control);
     });
+    console.log(this.formGroup);
   }
 }
