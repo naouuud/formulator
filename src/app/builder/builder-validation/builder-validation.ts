@@ -2,11 +2,10 @@ import { Component, Input } from '@angular/core';
 import { PropType } from '../../models/prop-types';
 import { Field } from '../../models/field-types';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
-import { BuilderValidationDaterange } from '../builder-validation-daterange/builder-validation-daterange';
 
 @Component({
   selector: 'app-builder-validation',
-  imports: [ReactiveFormsModule, BuilderValidationDaterange],
+  imports: [ReactiveFormsModule],
   templateUrl: './builder-validation.html',
   styleUrl: './builder-validation.css',
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
