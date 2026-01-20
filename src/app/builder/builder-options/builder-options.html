@@ -1,69 +1,73 @@
-<div class="flex flex-col gap-3 p-3 rounded-[24px] border border-gray-400/60 bg-gray-100">
-  <!-- Input -->
-  <div class="flex items-center gap-2">
-    <input
-      #optionInput
-      type="text"
-      placeholder="Add option..."
-      class="flex-1 px-3 py-2 text-sm rounded-full border border-gray-400/60 focus:outline-none focus:ring-2 focus:ring-blue-400"
-      (keydown.enter)="addOption_C(optionInput)"
-    />
-    <!-- Add button -->
-    <button
-      type="button"
-      class="px-3 py-2 text-sm font-medium rounded-full bg-blue-500 text-white hover:bg-blue-600 active:scale-95 transition"
-      (click)="addOption_C(optionInput)"
-    >
-      Add
-    </button>
-  </div>
-  <!-- Options list -->
-  <div
-    class="flex flex-col gap-2"
-    cdkDropList
-    (cdkDropListDropped)="reorderOption_C($event)"
-    cdkDropListOrientation="mixed"
-    (mouseenter)="dragDisabled$.set(true)"
-    (mouseleave)="dragDisabled$.set(false)"
-  >
-    @if (!field.options.length) {
-    <div class="px-4 py-1 text-gray-500">No options to display</div>
-    } @for (option of field.options; track $index) {
-    <div
-      cdkDrag
-      class="flex justify-between items-center gap-2 px-3 py-1.5 rounded-full border border-gray-300 text-sm text-gray-700 hover:cursor-pointer"
-    >
-      <!-- List type (radio, checkbox or basic) -->
-      @if (field.fieldType === FieldType.RADIO ) {
-      <app-custom-radio [option]="option"></app-custom-radio>
-      } @else if (field.fieldType === FieldType.CHECKBOX) {
-      <app-custom-checkbox [option]="option" [field]="field"></app-custom-checkbox>
-      } @else {
-      <span>{{ option }}</span>
-      }
-      <!-- Delete button -->
+<div class="flex flex-col gap-2">
+  <span class="px-4 py-1 text-xs uppercase text-gray-400">Options </span>
+  <div class="flex flex-col gap-3 px-2 py-3 rounded-[24px] border border-gray-300 bg-gray-100">
+    <!-- Input -->
+    <div class="flex items-center gap-2">
+      <input
+        #optionInput
+        type="text"
+        placeholder="Add option..."
+        class="flex-1 px-3 py-2 text-sm rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        (keydown.enter)="addOption_C(optionInput)"
+      />
+      <!-- Add button -->
       <button
         type="button"
-        class="flex justify-center w-4 h-4 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition"
-        aria-label="Remove option"
-        (click)="deleteOption_C($index)"
+        class="px-3 py-2 text-sm font-medium rounded-full bg-blue-500 text-white hover:bg-blue-600 active:scale-95 transition"
+        (click)="addOption_C(optionInput)"
       >
-        <svg
-          viewBox="0 0 24 24"
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <circle cx="12" cy="12" r="9" />
-          <line x1="9" y1="9" x2="15" y2="15" />
-          <line x1="15" y1="9" x2="9" y2="15" />
-        </svg>
+        Add
       </button>
-      <div *cdkDragPlaceholder class="empty-pill"></div>
     </div>
-    }
+    <!-- Options list -->
+    <div
+      class="flex flex-col gap-2"
+      cdkDropList
+      (cdkDropListDropped)="reorderOption_C($event)"
+      cdkDropListOrientation="mixed"
+      (mouseenter)="dragDisabled$.set(true)"
+      (mouseleave)="dragDisabled$.set(false)"
+    >
+      @if (!field.options.length) {
+        <div class="px-4 py-1 text-gray-500">No options to display</div>
+      }
+      @for (option of field.options; track $index) {
+        <div
+          cdkDrag
+          class="flex justify-between items-center gap-2 px-4 py-1.5 rounded-full border border-gray-200 text-sm text-gray-700 hover:cursor-pointer hover:bg-white"
+        >
+          <!-- List type (radio, checkbox or basic) -->
+          @if (field.fieldType === FieldType.RADIO) {
+            <app-custom-radio [option]="option"></app-custom-radio>
+          } @else if (field.fieldType === FieldType.CHECKBOX) {
+            <app-custom-checkbox [option]="option" [field]="field"></app-custom-checkbox>
+          } @else {
+            <span>{{ option }}</span>
+          }
+          <!-- Delete button -->
+          <button
+            type="button"
+            class="flex justify-center w-4 h-4 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition"
+            aria-label="Remove option"
+            (click)="deleteOption_C($index)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+            </svg>
+          </button>
+          <div *cdkDragPlaceholder class="empty-pill"></div>
+        </div>
+      }
+    </div>
   </div>
 </div>

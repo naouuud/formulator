@@ -1,9 +1,15 @@
 <div class="flex flex-col gap-2">
   <!-- Label -->
   <app-builder-prop-label [labelMessage]="'Ask your responder a question...'" />
+  <!-- Reactivity Test -->
+  <!-- <div>
+    {{
+      `MIN: ${this.field.getPropValue(PropType.DATERANGE)?.min}, MAX: ${this.field.getPropValue(PropType.DATERANGE)?.max}`
+    }}
+  </div> -->
   <!-- Preview -->
-  <span class="pl-3 text-xs uppercase text-gray-400">Preview</span>
-  <div class="flex space-x-4 px-6 py-4">
+  <span class="px-4 py-1 text-xs uppercase text-gray-400">Preview</span>
+  <div class="flex space-x-4 px-4 py-1">
     <!-- Hidden date input (for validation) -->
     <!-- Month -->
     <div class="w-1/3">
@@ -11,12 +17,12 @@
       <select
         id="month"
         class="w-full block bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
-        (input)="selectMonth($event)"
+        (input)="setSelectedDay($event)"
       >
         <option value="" disabled selected>Select month</option>
-        @for (month of months(); track $index) {
+        @for (month of monthOptions; track $index) {
           <option
-            [disabled]="selectedYear() === thisYear() && $index > thisMonth()"
+            [disabled]="selectedYear() === currentYear() && $index > currentMonth()"
             [value]="$index"
           >
             {{ month }}
@@ -30,14 +36,16 @@
       <select
         id="day"
         class="w-full block bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
-        (input)="selectDay($event)"
+        (input)="setSelectedMonth($event)"
       >
         <option value="" disabled selected>Select day</option>
-        @for (day of days(); track $index) {
+        @for (day of dayOptions(); track $index) {
           <option
             [value]="day"
             [disabled]="
-              selectedYear() === thisYear() && selectedMonth() === thisMonth() && day > today()
+              selectedYear() === currentYear() &&
+              selectedMonth() === currentMonth() &&
+              day > currentDay()
             "
           >
             {{ day }}
@@ -51,15 +59,16 @@
       <select
         id="year"
         class="w-full block bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400"
-        (input)="selectYear($event)"
+        (input)="setSelectedYear($event)"
       >
         <option value="" disabled selected>Select year</option>
-        @for (year of years(); track $index) {
+        @for (year of yearOptions(); track $index) {
           <option [value]="year">{{ year }}</option>
         }
       </select>
     </div>
   </div>
   <!-- Validation -->
-  <app-builder-validation-daterange [field]="field" />
+  <app-builder-validation [field]="field" />
+  <app-builder-validation-daterange [field]="field" (triggerChangeEMIT)="setYearOptions()" />
 </div>
