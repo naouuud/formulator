@@ -216,8 +216,8 @@ function createBirthdayGroup(): Group {
 
   const field = Field.create(FieldType.DATE);
   field.setProp(PropType.LABEL, 'Date of Birth', false);
-  const maxDateString = todayString();
-  const minDateString = todayString(-125);
+  const maxDateString = 'today';
+  const minDateString = todayString(-120);
   const dateRange = createDateRange(maxDateString, minDateString); // use factory
   field.setProp(PropType.DATERANGE, dateRange, false);
 

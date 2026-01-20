@@ -36,15 +36,15 @@ type FormDto = {
 })
 export class BuilderService {
   formModel: FormModel;
-  saveForm = new Subject<void>();
+  saveFormSUB = new Subject<void>();
   dragDisabled$ = signal(false); // prevents group drag
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel = this.localStorage.has('formModel')
       ? this.#returnFormModelFromLocalStorage(this.localStorage.get('formModel'))
       : this.#returnNewFormModel();
-    this.saveForm.next();
-    this.saveForm
+    // this.saveForm.next();
+    this.saveFormSUB
       .asObservable()
       .pipe(debounceTime(1000))
       .subscribe(() => this.#saveToLocalStorage());
@@ -52,17 +52,17 @@ export class BuilderService {
 
   addOption_S(field: Field, option: Option): void {
     field.addOption(option);
-    this.saveForm.next();
+    this.saveFormSUB.next();
   }
 
   deleteOption_S(field: Field, idx: number): void {
     field.deleteOption(idx);
-    this.saveForm.next();
+    this.saveFormSUB.next();
   }
 
   reorderOption_S(field: Field, fromIndex: number, toIndex: number): void {
     field.reorderOption(fromIndex, toIndex);
-    this.saveForm.next();
+    this.saveFormSUB.next();
   }
 
   setProp_S(field: Field, propType: PropType, value: unknown) {
@@ -74,32 +74,32 @@ export class BuilderService {
       );
     }
     field.setProp(propType, value);
-    this.saveForm.next();
+    this.saveFormSUB.next();
   }
 
   setFormName_S(value: string): void {
     this.formModel.setFormName(value);
-    this.saveForm.next();
+    this.saveFormSUB.next();
   }
 
   toggleRadioCheckbox_S(group: Group): void {
     group.toggleRadioCheckbox();
-    this.saveForm.next();
+    this.saveFormSUB.next();
   }
 
   addGroup_S(groupType: GroupType): void {
     this.formModel.addGroup(groupType);
-    this.saveForm.next();
+    this.saveFormSUB.next();
   }
 
   reorderGroup_S(fromIndex: number, toIndex: number): void {
     this.formModel.reorderGroup(fromIndex, toIndex);
-    this.saveForm.next();
+    this.saveFormSUB.next();
   }
 
   deleteGroup_S(groupId: string): void {
     this.formModel.deleteGroup(groupId);
-    this.saveForm.next();
+    this.saveFormSUB.next();
   }
 
   #returnNewFormModel(): FormModel {

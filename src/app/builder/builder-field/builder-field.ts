@@ -73,6 +73,6 @@ export class BuilderField implements OnInit {
       if (!prop.editable) control.disable();
       this.formGroup.addControl(prop.propType, control);
     });
-    console.log(this.formGroup);
+    // console.log(this.formGroup);
   }
 }
