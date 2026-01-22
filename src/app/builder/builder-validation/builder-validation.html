@@ -25,7 +25,7 @@
         <label class="flex items-center justify-between min-h-8 cursor-pointer">
           <span class="text-gray-700">Response required</span>
           <div class="relative">
-            <input type="checkbox" formControlName="required" class="sr-only peer" />
+            <input type="checkbox" [formControlName]="PropType.REQUIRED" class="sr-only peer" />
             <div
               class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
             ></div>
@@ -43,7 +43,7 @@
           <span class="text-gray-700">Character limit</span>
           <div class="flex items-center gap-2">
             <select
-              formControlName="maxlengthchar"
+              [formControlName]="PropType.MAXLENGTHCHAR"
               class="w-20 bg-white border border-gray-300 rounded-md px-2 py-1 text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400"
             >
               @for (n of charMax; track $index) {
@@ -62,7 +62,7 @@
           <span class="text-gray-700">Word limit</span>
           <div class="flex items-center gap-2">
             <select
-              formControlName="maxlengthword"
+              [formControlName]="PropType.MAXLENGTHWORD"
               class="w-20 bg-white border border-gray-300 rounded-md px-2 py-1 text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-400"
             >
               @for (n of wordMax; track $index) {

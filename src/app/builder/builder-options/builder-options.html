@@ -1,4 +1,8 @@
-<div class="flex flex-col gap-2">
+<div
+  class="flex flex-col gap-2"
+  (mouseenter)="dragDisabled$.set(true)"
+  (mouseleave)="dragDisabled$.set(false)"
+>
   <span class="px-4 py-1 text-xs uppercase text-gray-400">Options </span>
   <div class="flex flex-col gap-3 px-2 py-3 rounded-[24px] border border-gray-300 bg-gray-100">
     <!-- Input -->
@@ -25,8 +29,6 @@
       cdkDropList
       (cdkDropListDropped)="reorderOption_C($event)"
       cdkDropListOrientation="mixed"
-      (mouseenter)="dragDisabled$.set(true)"
-      (mouseleave)="dragDisabled$.set(false)"
     >
       @if (!field.options.length) {
         <div class="px-4 py-1 text-gray-500">No options to display</div>
@@ -68,6 +70,32 @@
           <div *cdkDragPlaceholder class="empty-pill"></div>
         </div>
       }
+      <!-- Other Option (visual) -->
+      @if (optionOtherValue) {
+        <app-option-other [fieldType]="field.fieldType" />
+      }
     </div>
+    <!-- Other Option Prop -->
+    @if (optionOtherProp) {
+      <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+        <label class="flex items-center justify-between min-h-8 cursor-pointer">
+          <span class="text-gray-500 text-xs uppercase">Allow responder to choose 'Other'</span>
+          <div class="relative">
+            <input
+              type="checkbox"
+              [formControlName]="PropType.OPTIONOTHER"
+              (change)="updateOptionOtherValue($event)"
+              class="sr-only peer"
+            />
+            <div
+              class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
+            ></div>
+            <div
+              class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"
+            ></div>
+          </div>
+        </label>
+      </div>
+    }
   </div>
 </div>

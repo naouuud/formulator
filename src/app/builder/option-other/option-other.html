@@ -1,0 +1,30 @@
+<div class="px-4 py-1.5 rounded-full border border-gray-200 text-sm text-gray-700 hover:bg-white">
+  <div class="flex items-center gap-3">
+    <!-- Radio / Checkbox -->
+    @if (fieldType === FieldType.RADIO) {
+      <span
+        class="relative flex items-center justify-center w-4 h-4 shrink-0 rounded-full border-2 border-gray-300 peer-checked:border-blue-500"
+      >
+        <span
+          class="w-2 h-2 rounded-full bg-blue-500 scale-0 peer-checked:scale-100 transition-transform"
+        ></span>
+      </span>
+    }
+    @if (fieldType === FieldType.CHECKBOX) {
+      <span
+        class="relative flex items-center justify-center w-4 h-4 shrink-0 rounded border-2 border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500"
+      ></span>
+    }
+    <!-- Option text -->
+    <span class="whitespace-nowrap text-gray-700">
+      {{ OptionOtherText }}
+    </span>
+    <!-- Fills remaining space -->
+    <input
+      type="text"
+      class="flex-1 min-w-0 rounded-xl bg-white border border-gray-300 py-1.5 px-3 text-sm shadow-inner placeholder:text-gray-500"
+      placeholder="Response preview"
+      disabled
+    />
+  </div>
+</div>

@@ -11,22 +11,22 @@
         class="text-blue-500 hover:cursor-pointer border border-blue-500 px-4 py-2 rounded-full"
         [innerHTML]="GroupLabels[group.groupType]"
       ></div>
-      @if (group.groupType === GroupType.RADIO || group.groupType === GroupType.CHECKBOX) {
+      @if (group.groupType === GroupType.RADIO) {
         <div
           (click)="toggleRadioCheckbox_C()"
-          class="flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
+          class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
         >
-          Switch
+          Switch to Checkbox
         </div>
       }
-      <!-- @if (group.groupType === GroupType.CHECKBOX) {
-      <div
-        (click)="toggleRadioCheckbox_C()"
-        class="flex items-center text-violet-500 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full text-xs"
-      >
-        Switich to radio
-      </div>
-      } -->
+      @if (group.groupType === GroupType.CHECKBOX) {
+        <div
+          (click)="toggleRadioCheckbox_C()"
+          class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
+        >
+          Switich to Radio
+        </div>
+      }
     </div>
     <button type="button" class="flex" (click)="deleteGroup_C(group.groupId)">
       <app-builder-group-delete />
