@@ -13,6 +13,7 @@ export enum PropType {
   PATTERNPHONE = 'patternphone',
   PATTERNNUMBER = 'patternnumber',
   DATERANGE = 'daterange',
+  OPTIONOTHER = 'optionother',
 }
 
 export const phonePattern = /^\d(?:\s?\d){7}$/;
@@ -71,6 +72,7 @@ export type PropValueMap = {
   [PropType.PATTERNPHONE]: boolean;
   [PropType.PATTERNNUMBER]: boolean;
   [PropType.DATERANGE]: DateRange;
+  [PropType.OPTIONOTHER]: boolean;
 };
 
 // produces type dynamically using PropValueMap (same as below)

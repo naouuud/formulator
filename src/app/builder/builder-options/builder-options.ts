@@ -1,23 +1,58 @@
-import { Component, Input } from '@angular/core';
-import { DuplicateOptionError, EmptyOptionError, Field, FieldType } from '../../models/field-types';
+import { Component, computed, effect, Input, OnInit, signal } from '@angular/core';
+import {
+  DuplicateOptionError,
+  EmptyOptionError,
+  Field,
+  FieldType,
+  OptionOtherText,
+} from '../../models/field-types';
 import { BuilderService } from '../../services/builder-service';
 import { CdkDropList, CdkDrag, CdkDragDrop, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
 import { CustomRadio } from '../custom-radio/custom-radio';
 import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
+import { PropType } from '../../models/prop-types';
+import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+import { OptionOther } from '../option-other/option-other';
 
 @Component({
   selector: 'app-builder-options',
-  imports: [CdkDropList, CdkDrag, CdkDragPlaceholder, CustomRadio, CustomCheckbox],
+  imports: [
+    CdkDropList,
+    CdkDrag,
+    CdkDragPlaceholder,
+    CustomRadio,
+    CustomCheckbox,
+    ReactiveFormsModule,
+    OptionOther,
+  ],
   templateUrl: './builder-options.html',
   styleUrl: './builder-options.css',
+  viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
-export class BuilderOptions {
+export class BuilderOptions implements OnInit {
   FieldType = FieldType;
   @Input() field!: Field;
   dragDisabled$;
+  optionOtherProp = false;
+  optionOtherValue = false; // fallback value
+  OptionOtherText = OptionOtherText;
+  PropType = PropType;
 
   constructor(private builderService: BuilderService) {
     this.dragDisabled$ = this.builderService.dragDisabled$;
+  }
+
+  ngOnInit(): void {
+    this.optionOtherProp = !!this.field.getProp(PropType.OPTIONOTHER);
+    if (this.optionOtherProp) {
+      // initialize from field
+      this.optionOtherValue = this.field.getPropValue(PropType.OPTIONOTHER)!;
+    }
+  }
+
+  updateOptionOtherValue(event: Event) {
+    const value = (event.target as HTMLInputElement).checked;
+    this.optionOtherValue = value;
   }
 
   addOption_C(optionInput: HTMLInputElement) {

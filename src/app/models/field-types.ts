@@ -4,6 +4,7 @@ export type FieldFactory = () => Field;
 export class EmptyOptionError extends Error {}
 export class DuplicateOptionError extends Error {}
 export type Option = string;
+export const OptionOtherText = 'Other (please specify)';
 
 export enum FieldType {
   NONE = 'none',
@@ -43,6 +44,18 @@ export class Field {
   deleteOption(idx: number) {
     this.options.splice(idx, 1);
   }
+
+  // addOptionOther() {
+  //   this.options.push(OPTION_OTHER_TEXT);
+  // }
+
+  // removeOptionOther() {
+  //   const options = this.options;
+  //   if (options.length) return;
+  //   const lastOption = options[options.length - 1];
+  //   if (lastOption !== OPTION_OTHER_TEXT) return;
+  //   options.splice(options.length - 1, 1);
+  // }
 
   getProp<K extends PropType>(propTypeIn: K): Extract<Prop, { propType: K }> | undefined {
     const prop = this.props.find((p) => p.propType === propTypeIn);
@@ -144,6 +157,8 @@ function createRadioField(): Field {
   field.fieldType = FieldType.RADIO;
   field.setProp(PropType.LABEL, '');
   field.setProp(PropType.REQUIRED, true);
+  field.setProp(PropType.OPTIONOTHER, false);
+
   return field;
 }
 
@@ -152,6 +167,7 @@ function createCheckboxField(): Field {
   field.fieldType = FieldType.CHECKBOX;
   field.setProp(PropType.LABEL, '');
   field.setProp(PropType.REQUIRED, true);
+  field.setProp(PropType.OPTIONOTHER, false);
   return field;
 }
 

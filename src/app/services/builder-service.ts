@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { FormModel } from '../models/form-model';
 import { Group, GroupType } from '../models/group-types';
 import { LocalStorageService } from './local-storage';
-import { Field, FieldType, Option } from '../models/field-types';
+import { Field, FieldType, Option, OptionOtherText } from '../models/field-types';
 import { Prop, PropType, PropValueMap } from '../models/prop-types';
 import { debounceTime, Subject } from 'rxjs';
 
@@ -64,6 +64,16 @@ export class BuilderService {
     field.reorderOption(fromIndex, toIndex);
     this.saveFormSUB.next();
   }
+
+  // addOptionOther_S(field: Field): void {
+  //   field.addOptionOther();
+  //   this.saveFormSUB.next();
+  // }
+
+  // removeOptionOther_S(field: Field): void {
+  //   field.removeOptionOther();
+  //   this.saveFormSUB.next();
+  // }
 
   setProp_S(field: Field, propType: PropType, value: unknown) {
     if (!this.#isValidPropValue(propType, value)) {
@@ -131,6 +141,7 @@ export class BuilderService {
     [PropType.PATTERNPHONE]: { type: 'boolean' },
     [PropType.PATTERNNUMBER]: { type: 'boolean' },
     [PropType.DATERANGE]: { type: 'object' },
+    [PropType.OPTIONOTHER]: { type: 'boolean' },
   } as const;
 
   #isValidPropValue<K extends PropType>(propType: K, value: unknown): value is PropValueMap[K] {
