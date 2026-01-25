@@ -27,6 +27,29 @@
           Switich to Radio
         </div>
       }
+      @if (
+        group.groupType === GroupType.RADIO ||
+        group.groupType === GroupType.CHECKBOX ||
+        group.groupType === GroupType.SELECT
+      ) {
+        <div class="relative flex">
+          <!-- Button -->
+          <div
+            (click)="floatVisible = !floatVisible"
+            class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
+          >
+            <span>Import Options</span>
+          </div>
+          <!-- Float -->
+          @if (floatVisible) {
+            <app-option-lists-float
+              class="absolute top-full left-0 mt-2 z-50"
+              [optionLists]="getOptionLists_C()"
+              (optionListEM)="replaceOptions_C($event)"
+            ></app-option-lists-float>
+          }
+        </div>
+      }
     </div>
     <button type="button" class="flex" (click)="deleteGroup_C(group.groupId)">
       <app-builder-group-delete />

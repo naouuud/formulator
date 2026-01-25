@@ -45,17 +45,9 @@ export class Field {
     this.options.splice(idx, 1);
   }
 
-  // addOptionOther() {
-  //   this.options.push(OPTION_OTHER_TEXT);
-  // }
-
-  // removeOptionOther() {
-  //   const options = this.options;
-  //   if (options.length) return;
-  //   const lastOption = options[options.length - 1];
-  //   if (lastOption !== OPTION_OTHER_TEXT) return;
-  //   options.splice(options.length - 1, 1);
-  // }
+  replaceOptions(optionList: Option[]): void {
+    this.options = [...optionList];
+  }
 
   getProp<K extends PropType>(propTypeIn: K): Extract<Prop, { propType: K }> | undefined {
     const prop = this.props.find((p) => p.propType === propTypeIn);

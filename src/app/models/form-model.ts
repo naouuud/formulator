@@ -1,3 +1,4 @@
+import { Option } from './field-types';
 import { Group, GroupType } from './group-types';
 
 export class FormModel {
