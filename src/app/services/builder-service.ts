@@ -36,15 +36,14 @@ type FormDto = {
 })
 export class BuilderService {
   formModel: FormModel;
-  saveFormSUB = new Subject<void>();
+  saveFormSB = new Subject<void>();
   dragDisabled$ = signal(false); // prevents group drag
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel = this.localStorage.has('formModel')
       ? this.#returnFormModelFromLocalStorage(this.localStorage.get('formModel'))
       : this.#returnNewFormModel();
-    // this.saveForm.next();
-    this.saveFormSUB
+    this.saveFormSB
       .asObservable()
       .pipe(debounceTime(1000))
       .subscribe(() => this.#saveToLocalStorage());
@@ -52,28 +51,50 @@ export class BuilderService {
 
   addOption_S(field: Field, option: Option): void {
     field.addOption(option);
-    this.saveFormSUB.next();
+    this.saveFormSB.next();
   }
 
   deleteOption_S(field: Field, idx: number): void {
     field.deleteOption(idx);
-    this.saveFormSUB.next();
+    this.saveFormSB.next();
   }
 
   reorderOption_S(field: Field, fromIndex: number, toIndex: number): void {
     field.reorderOption(fromIndex, toIndex);
-    this.saveFormSUB.next();
+    this.saveFormSB.next();
   }
 
-  // addOptionOther_S(field: Field): void {
-  //   field.addOptionOther();
-  //   this.saveFormSUB.next();
-  // }
+  // application level ds
+  getOptionLists_S(): Option[][] {
+    const optionLists: Option[][] = [];
+    this.formModel.groups.forEach((g) => {
+      if (![GroupType.CHECKBOX, GroupType.RADIO, GroupType.SELECT].includes(g.groupType)) return;
+      g.fields.forEach((f) => {
+        if (!f.options.length) return;
+        optionLists.push([...f.options]);
+      });
+    });
+    if (optionLists.length < 2) return optionLists;
+    // remove duplicates (BRUTE)
+    for (let i = 0; i < optionLists.length - 1; i++) {
+      let j = i + 1;
+      while (j < optionLists.length) {
+        if (this.#arraysEqual(optionLists[i], optionLists[j])) {
+          optionLists.splice(j, 1);
+        } else {
+          j++;
+        }
+      }
+    }
+    return optionLists;
+  }
 
-  // removeOptionOther_S(field: Field): void {
-  //   field.removeOptionOther();
-  //   this.saveFormSUB.next();
-  // }
+  replaceOptions_S(group: Group, optionList: Option[]): void {
+    if (![GroupType.CHECKBOX, GroupType.RADIO, GroupType.SELECT].includes(group.groupType)) return;
+    const field = group.fields[0];
+    field.replaceOptions(optionList);
+    this.saveFormSB.next();
+  }
 
   setProp_S(field: Field, propType: PropType, value: unknown) {
     if (!this.#isValidPropValue(propType, value)) {
@@ -84,32 +105,32 @@ export class BuilderService {
       );
     }
     field.setProp(propType, value);
-    this.saveFormSUB.next();
+    this.saveFormSB.next();
   }
 
   setFormName_S(value: string): void {
     this.formModel.setFormName(value);
-    this.saveFormSUB.next();
+    this.saveFormSB.next();
   }
 
   toggleRadioCheckbox_S(group: Group): void {
     group.toggleRadioCheckbox();
-    this.saveFormSUB.next();
+    this.saveFormSB.next();
   }
 
   addGroup_S(groupType: GroupType): void {
     this.formModel.addGroup(groupType);
-    this.saveFormSUB.next();
+    this.saveFormSB.next();
   }
 
   reorderGroup_S(fromIndex: number, toIndex: number): void {
     this.formModel.reorderGroup(fromIndex, toIndex);
-    this.saveFormSUB.next();
+    this.saveFormSB.next();
   }
 
   deleteGroup_S(groupId: string): void {
     this.formModel.deleteGroup(groupId);
-    this.saveFormSUB.next();
+    this.saveFormSB.next();
   }
 
   #returnNewFormModel(): FormModel {
@@ -169,5 +190,14 @@ export class BuilderService {
     if (value instanceof RegExp) return 'RegExp';
     if (Array.isArray(value)) return 'array';
     return typeof value;
+  }
+
+  // util
+  #arraysEqual(a: string[] | null | undefined, b: string[] | null | undefined): boolean {
+    // console.log(a, b);
+    if (a === undefined || b === undefined) return false;
+    if (a === null || b === null) return a === b;
+    if (a.length !== b.length) return false;
+    return a.every((value) => b.includes(value)) && b.every((value) => a.includes(value));
   }
 }

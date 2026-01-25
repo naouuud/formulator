@@ -121,7 +121,7 @@ export class BuilderValidationDaterange implements OnInit {
   setDateRange_C(maxDateString: string, minDateString: string) {
     const dateRange = createDateRange(maxDateString, minDateString); // factory enforces type correctness and throws error
     this.builderService.setProp_S(this.field, PropType.DATERANGE, dateRange);
-    this.triggerChangeEMIT.next();
+    this.triggerChangeEMIT.emit();
   }
 
   setSelectValue(event: Event) {

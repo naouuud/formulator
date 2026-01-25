@@ -1,0 +1,22 @@
+<!-- Wrapper (relative anchor for floating menu) -->
+<div class="relative">
+  <!-- Floating menu -->
+  <div
+    class="absolute rounded-lg border border-gray-200 bg-white shadow-lg transform transition-all duration-150 origin-top scale-95 opacity-0 animate-fade-in"
+  >
+    <div class="py-1">
+      <!-- One option list preview -->
+      @for (optionList of optionLists; track $index) {
+        <button
+          type="button"
+          (click)="emitOptionList(optionList)"
+          class="group flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-violet-100 transition"
+        >
+          <span class="text-sm text-gray-700 truncate">{{
+            optionList.slice(0, 3).join(', ') + (optionList.length > 3 ? '…' : '')
+          }}</span>
+        </button>
+      }
+    </div>
+  </div>
+</div>
