@@ -1,5 +1,12 @@
 import { createDateRange, Prop, PropType, PropValueMap, todayString } from './prop-types';
 
+export type FieldDto = {
+  fieldType: FieldType;
+  fieldId: ReturnType<typeof crypto.randomUUID>;
+  props: Prop[];
+  options: Option[];
+};
+
 export type FieldFactory = () => Field;
 export class EmptyOptionError extends Error {}
 export class DuplicateOptionError extends Error {}
@@ -92,8 +99,8 @@ export class Field {
     return factory();
   }
 
-  static deserialize(serializedModel: any): Field | undefined {
-    const fieldType = serializedModel.fieldType;
+  static deserialize(fieldDto: FieldDto): Field {
+    const fieldType = fieldDto.fieldType;
     if (fieldType == null) {
       // === undefined || === null
       throw new Error(`No groupType available on saved model, unable to initialize group`);
@@ -102,7 +109,7 @@ export class Field {
       throw new Error(`Invalid groupType '${fieldType}'`);
     }
     const field = Field.create(fieldType);
-    Object.assign(field, serializedModel);
+    Object.assign(field, fieldDto);
     return field;
   }
 }

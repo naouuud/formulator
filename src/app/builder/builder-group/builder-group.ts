@@ -4,10 +4,9 @@ import { CdkDrag } from '@angular/cdk/drag-drop';
 import { BuilderService } from '../../services/builder-service';
 import { BuilderField } from '../builder-field/builder-field';
 import { BuilderGroupDelete } from '../builder-group-delete/builder-group-delete';
-import { Subject } from 'rxjs';
 import { OptionListsFloat } from '../option-lists-float/option-lists-float';
 import { Option } from '../../models/field-types';
-import { AbstractControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 const GroupLabels = {
   [GroupType.NONE]: 'None',
@@ -38,9 +37,9 @@ export class BuilderGroup {
   GroupLabels = GroupLabels;
   GroupType = GroupType;
   @Input() group!: Group;
+  @Input() allFormGroupsIn!: FormGroup;
   @Output() groupDeletedEM = new EventEmitter<string[]>();
   floatVisible = false;
-  @Input() allFormGroupsIn!: FormGroup;
 
   constructor(private builderService: BuilderService) {
     this.dragDisabled$ = this.builderService.dragDisabled$;
@@ -53,7 +52,7 @@ export class BuilderGroup {
   deleteGroup_C(groupId: string): void {
     const fieldIds = this.group.fields.map((f) => f.fieldId); // save fieldIds before deleting to delete formcontrols
     this.builderService.deleteGroup_S(groupId);
-    this.groupDeletedEM.emit(fieldIds); //emit to delete formcontrols
+    this.groupDeletedEM.emit(fieldIds); // emit to delete formcontrols
   }
 
   replaceOptions_C(optionList: Option[] | null) {
@@ -65,7 +64,7 @@ export class BuilderGroup {
     return this.builderService.getOptionLists_S();
   }
 
-  // enforce typing (allFormGroupsIn.get otherwise returns Abstract Control)
+  // to bypass typing (allFormGroupsIn.get returns AbstractControl)
   getFormGroup(fieldId: string): FormGroup {
     return this.allFormGroupsIn.get(fieldId) as FormGroup;
   }
