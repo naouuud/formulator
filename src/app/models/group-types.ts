@@ -1,6 +1,12 @@
 import { leb_governorates } from './lebanon';
-import { Field, FieldType } from './field-types';
+import { Field, FieldDto, FieldType } from './field-types';
 import { createDateRange, PropType, todayString } from './prop-types';
+
+export type GroupDto = {
+  groupType: GroupType;
+  groupId: ReturnType<typeof crypto.randomUUID>;
+  fields: FieldDto[];
+};
 
 type GroupFactory = () => Group;
 
@@ -52,8 +58,8 @@ export class Group {
     return factory();
   }
 
-  static deserialize(serializedModel: any): Group {
-    const groupType = serializedModel.groupType;
+  static deserialize(groupDto: GroupDto): Group {
+    const groupType = groupDto.groupType;
     if (groupType == null) {
       // === undefined || === null
       throw new Error(`No groupType available on saved model, unable to initialize group`);
@@ -62,8 +68,8 @@ export class Group {
       throw new Error(`Invalid groupType '${groupType}'`);
     }
     const group = Group.create(groupType); // create new group
-    Object.assign(group, serializedModel); // copy enumerable properties
-    group.fields = (serializedModel.fields ?? []).map((f: any) => Field.deserialize(f)); // initialize new fields
+    Object.assign(group, groupDto); // copy enumerable properties
+    group.fields = (groupDto.fields ?? []).map((f: FieldDto) => Field.deserialize(f)); // initialize new fields
     return group;
   }
 }

@@ -6,14 +6,7 @@ import { BuilderFieldDate } from '../builder-field-date/builder-field-date';
 import { BuilderFieldSelect } from '../builder-field-select/builder-field-select';
 import { BuilderService } from '../../services/builder-service';
 import { Prop, PropChangeEvent, PropType } from '../../models/prop-types';
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { BuilderFieldTextarea } from '../builder-field-textarea/builder-field-textarea';
 
 @Component({

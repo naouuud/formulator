@@ -1,5 +1,10 @@
-import { Option } from './field-types';
-import { Group, GroupType } from './group-types';
+import { Group, GroupDto, GroupType } from './group-types';
+
+export type FormModelDto = {
+  formId: ReturnType<typeof crypto.randomUUID>;
+  formName: string;
+  groups: GroupDto[];
+};
 
 export class FormModel {
   formId = crypto.randomUUID();
@@ -32,10 +37,15 @@ export class FormModel {
     this.groups.splice(deleteIdx, 1);
   }
 
-  static deserialize(serializedModel: any): FormModel {
+  // Apply domain checks here!
+  static serialize(formModel: FormModel): FormModelDto {
+    return { ...formModel };
+  }
+
+  static deserialize(formModelDto: FormModelDto): FormModel {
     const formModel = new FormModel(); // create new form model
-    Object.assign(formModel, serializedModel); // copy enumerable properties
-    formModel.groups = (serializedModel.groups ?? []).map((g: Group) => Group.deserialize(g)); // initialize new groups
+    Object.assign(formModel, formModelDto); // copy enumerable properties
+    formModel.groups = (formModelDto.groups ?? []).map((g: GroupDto) => Group.deserialize(g)); // initialize new groups
     return formModel;
   }
 }

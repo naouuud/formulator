@@ -15,15 +15,16 @@ import { Prop, PropType } from '../../models/prop-types';
 })
 export class BuilderForm {
   formModel$;
-  hideMessage = signal(false);
+  hideMessage;
+  allFormGroups;
   PropType = PropType;
-
-  allFormGroups = new FormGroup({});
 
   constructor(private builderService: BuilderService) {
     this.formModel$ = this.builderService.formModel$;
+    this.allFormGroups = new FormGroup({});
+    this.hideMessage = signal(false);
     effect(() => {
-      const formModel = this.formModel$(); //only called once, no more reactive pushes or will reinitialize all formGroups
+      const formModel = this.formModel$(); // only set once in service
       this.#addFormGroup(...formModel.groups);
     });
   }
