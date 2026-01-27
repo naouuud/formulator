@@ -7,6 +7,7 @@ import { BuilderFieldSelect } from '../builder-field-select/builder-field-select
 import { BuilderService } from '../../services/builder-service';
 import { Prop, PropChangeEvent, PropType } from '../../models/prop-types';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
@@ -31,26 +32,25 @@ import { BuilderFieldTextarea } from '../builder-field-textarea/builder-field-te
 export class BuilderField implements OnInit {
   FieldType = FieldType;
   PropType = PropType;
-  formGroup: FormGroup = new FormGroup({});
+  @Input() formGroupIn!: FormGroup;
   @Input() field!: Field;
 
   constructor(private builderService: BuilderService) {}
 
   ngOnInit(): void {
-    this._buildFormGroup();
-    this.formGroup.get('label')?.valueChanges.subscribe((value: unknown) => {
+    this.formGroupIn.get('label')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.LABEL, value });
     });
-    this.formGroup.get('required')?.valueChanges.subscribe((value: unknown) => {
+    this.formGroupIn.get('required')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.REQUIRED, value });
     });
-    this.formGroup.get('maxlengthchar')?.valueChanges.subscribe((value: unknown) => {
+    this.formGroupIn.get('maxlengthchar')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.MAXLENGTHCHAR, value: Number(value) });
     });
-    this.formGroup.get('maxlengthword')?.valueChanges.subscribe((value: unknown) => {
+    this.formGroupIn.get('maxlengthword')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.MAXLENGTHWORD, value: Number(value) });
     });
-    this.formGroup.get('optionother')?.valueChanges.subscribe((value: unknown) => {
+    this.formGroupIn.get('optionother')?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.OPTIONOTHER, value });
     });
     // Date range handled in own component due to complexity
@@ -62,20 +62,5 @@ export class BuilderField implements OnInit {
   setProp_C(propChangeEvent: PropChangeEvent) {
     const { propType, value } = propChangeEvent;
     this.builderService.setProp_S(this.field, propType, value);
-  }
-
-  private _buildFormGroup(): void {
-    this.field.props.forEach((prop: Prop) => {
-      const validators: ValidatorFn[] = [];
-      switch (prop.propType) {
-        case PropType.LABEL:
-          validators.push(Validators.maxLength(100));
-          break;
-      }
-      const control = new FormControl(prop.value, { nonNullable: true, validators });
-      if (!prop.editable) control.disable();
-      this.formGroup.addControl(prop.propType, control);
-    });
-    // console.log(this.formGroup);
   }
 }

@@ -8,32 +8,33 @@
     (cdkDropListExited)="this.hideMessage.set(false)"
     [cdkDropListAutoScrollDisabled]="false"
   >
-    <!-- Form title -->
-    <app-builder-form-title [formName]="formModel.formName" />
-    <!-- Form groups -->
+    <!-- Form Title -->
+    <app-builder-form-title [formName]="formModel$().formName" />
+    <!-- Form Groups -->
     <div class="flex flex-col gap-4">
-      @for (group of formModel.groups; track group) {
-      <div
-        class="animation-container"
-        animate.enter="group-enter-animation"
-        animate.leave="group-leave-animation"
-      >
-        <app-builder-group
-          [group]="group"
-          (groupDeleted)="hideMessage.set(formModel.groups.length > 0)"
+      @for (group of formModel$().groups; track group) {
+        <div
+          class="animation-container"
+          animate.enter="group-enter-animation"
+          animate.leave="group-leave-animation"
         >
-        </app-builder-group>
-      </div>
+          <app-builder-group
+            [group]="group"
+            (groupDeletedEM)="groupDeleteCleanup($event)"
+            [allFormGroupsIn]="allFormGroups"
+          >
+          </app-builder-group>
+        </div>
       }
     </div>
     <!-- Empty form message -->
-    @if (formModel.groups.length === 0 && !hideMessage()) {
-    <div
-      class="flex justify-center items-center min-h-[300px] w-full text-xl font-[500] text-gray-400 mb-4 p-2 border-2 border-gray-300 rounded-md border-dashed"
-      animate.enter="message-enter-animation"
-    >
-      <span>Drag icons to begin creating a form</span>
-    </div>
+    @if (formModel$().groups.length === 0 && !hideMessage()) {
+      <div
+        class="flex justify-center items-center min-h-[300px] w-full text-xl font-[500] text-gray-400 mb-4 p-2 border-2 border-gray-300 rounded-md border-dashed"
+        animate.enter="message-enter-animation"
+      >
+        <span>Drag icons to begin creating a form</span>
+      </div>
     }
   </div>
 </div>

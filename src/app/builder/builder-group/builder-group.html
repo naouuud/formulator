@@ -55,7 +55,8 @@
       <app-builder-group-delete />
     </button>
   </div>
+  <!-- Fields -->
   @for (field of group.fields; track $index) {
-    <app-builder-field [field]="field" />
+    <app-builder-field [field]="field" [formGroupIn]="getFormGroup(field.fieldId)" />
   }
 </div>
