@@ -17,6 +17,15 @@
           }}</span>
         </button>
       }
+      @if (!optionLists.length) {
+        <button
+          type="button"
+          (click)="emitClose()"
+          class="group flex w-full items-center gap-2 px-3 py-2 text-left"
+        >
+          <span class="text-sm text-gray-700 truncate">No options to import</span>
+        </button>
+      }
     </div>
   </div>
 </div>

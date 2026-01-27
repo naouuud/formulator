@@ -17,7 +17,7 @@
     </svg>
   </button> -->
 <div class="flex flex-col gap-2" [class.collapsed]="!isValidationOpen" ]>
-  <span class="px-4 py-1 text-xs uppercase text-gray-400">Validation</span>
+  <!-- <span class="px-4 py-1 text-xs uppercase text-gray-400">Validation</span> -->
   @for (prop of field.props; track $index) {
     <!-- Required  -->
     @if (prop.propType === PropType.REQUIRED) {

@@ -35,14 +35,16 @@ type FormDto = {
   providedIn: 'root',
 })
 export class BuilderService {
-  formModel: FormModel;
+  formModel$ = signal(new FormModel());
   saveFormSB = new Subject<void>();
   dragDisabled$ = signal(false); // prevents group drag
 
   constructor(private localStorage: LocalStorageService) {
-    this.formModel = this.localStorage.has('formModel')
-      ? this.#returnFormModelFromLocalStorage(this.localStorage.get('formModel'))
-      : this.#returnNewFormModel();
+    // this.formModel = this.localStorage.has('formModel')
+    //   ? this.#returnFormModelFromLocalStorage(this.localStorage.get('formModel'))
+    //   : this.#returnNewFormModel();
+    const savedModelExists = this.localStorage.has('formModel');
+    if (savedModelExists) this.formModel$.set(this.#returnFormModelFromLocalStorage());
     this.saveFormSB
       .asObservable()
       .pipe(debounceTime(1000))
@@ -67,7 +69,7 @@ export class BuilderService {
   // application level ds
   getOptionLists_S(): Option[][] {
     const optionLists: Option[][] = [];
-    this.formModel.groups.forEach((g) => {
+    this.formModel$().groups.forEach((g) => {
       if (![GroupType.CHECKBOX, GroupType.RADIO, GroupType.SELECT].includes(g.groupType)) return;
       g.fields.forEach((f) => {
         if (!f.options.length) return;
@@ -109,7 +111,7 @@ export class BuilderService {
   }
 
   setFormName_S(value: string): void {
-    this.formModel.setFormName(value);
+    this.formModel$().setFormName(value);
     this.saveFormSB.next();
   }
 
@@ -118,35 +120,38 @@ export class BuilderService {
     this.saveFormSB.next();
   }
 
-  addGroup_S(groupType: GroupType): void {
-    this.formModel.addGroup(groupType);
+  addGroup_S(groupType: GroupType): Group {
+    const group = this.formModel$().addGroup(groupType);
     this.saveFormSB.next();
+    return group;
   }
 
   reorderGroup_S(fromIndex: number, toIndex: number): void {
-    this.formModel.reorderGroup(fromIndex, toIndex);
+    this.formModel$().reorderGroup(fromIndex, toIndex);
     this.saveFormSB.next();
   }
 
   deleteGroup_S(groupId: string): void {
-    this.formModel.deleteGroup(groupId);
+    this.formModel$().deleteGroup(groupId);
     this.saveFormSB.next();
   }
 
-  #returnNewFormModel(): FormModel {
-    const formModel = new FormModel();
-    // formModel.addGroup(GroupType.NAME);
-    return formModel;
-  }
+  // #returnNewFormModel(): FormModel {
+  //   const formModel = new FormModel();
+  //   // formModel.addGroup(GroupType.NAME);
+  //   return formModel;
+  // }
 
-  #returnFormModelFromLocalStorage(json: any): FormModel {
-    const formModel = FormModel.deserialize(json);
+  #returnFormModelFromLocalStorage(): FormModel {
+    // const formModel = FormModel.deserialize(json);
+    const formModelJSON = this.localStorage.get('formModel');
+    const formModel = FormModel.deserialize(formModelJSON);
     return formModel;
   }
 
   #saveToLocalStorage(): void {
-    this.localStorage.set('formModel', { ...this.formModel }); // need explicit conversion to Dto
-    console.log(this.formModel);
+    this.localStorage.set('formModel', { ...this.formModel$() }); // replace with FormModel.serialize()
+    console.log(this.formModel$());
   }
 
   // runtime prop validation

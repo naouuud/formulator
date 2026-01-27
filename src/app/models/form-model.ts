@@ -10,9 +10,10 @@ export class FormModel {
     this.formName = value.trim();
   }
 
-  addGroup(groupType: GroupType): void {
+  addGroup(groupType: GroupType): Group {
     const group = Group.create(groupType);
     this.groups.push(group);
+    return group;
   }
 
   reorderGroup(fromIndex: number, toIndex: number): void {
