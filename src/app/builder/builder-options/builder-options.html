@@ -30,10 +30,10 @@
       (cdkDropListDropped)="reorderOption_C($event)"
       cdkDropListOrientation="mixed"
     >
-      @if (!field.options.length) {
+      @if (!field.getOptions().length) {
         <div class="px-4 py-1 text-gray-500">No options to display</div>
       }
-      @for (option of field.options; track $index) {
+      @for (option of field.getOptions(); track $index) {
         <div
           cdkDrag
           class="flex justify-between items-center gap-2 px-4 py-1.5 rounded-full border border-gray-200 text-sm text-gray-700 hover:cursor-pointer hover:bg-white"
