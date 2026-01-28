@@ -2,8 +2,8 @@ import { Injectable, signal } from '@angular/core';
 import { FormModel, FormModelDto } from '../models/form-model';
 import { Group, GroupType } from '../models/group-types';
 import { LocalStorageService } from './local-storage';
-import { Field, Option } from '../models/field-types';
-import { PropType, PropValueMap } from '../models/prop-types';
+import { Field } from '../models/field-types';
+import { PropType, PropValueMap, Option } from '../models/prop-types';
 import { debounceTime, Subject } from 'rxjs';
 
 type PropSchemaType = {
@@ -140,13 +140,13 @@ export class BuilderService {
     [PropType.MAXLENGTHWORD]: { type: 'number' },
     [PropType.REQUIRED]: { type: 'boolean' },
     [PropType.EMAIL]: { type: 'boolean' },
-    [PropType.MAXVALUE]: { type: 'number' },
-    [PropType.MINVALUE]: { type: 'number' },
+    // [PropType.MAXVALUE]: { type: 'number' },
+    // [PropType.MINVALUE]: { type: 'number' },
     [PropType.PATTERNPHONE]: { type: 'boolean' },
     [PropType.PATTERNNUMBER]: { type: 'boolean' },
     [PropType.DATERANGE]: { type: 'object' },
-    [PropType.OPTIONOTHER]: { type: 'boolean' },
     [PropType.OPTIONS]: { type: 'object' },
+    [PropType.OPTIONOTHER]: { type: 'boolean' },
   } as const;
 
   #isValidPropValue<K extends PropType>(propType: K, value: unknown): value is PropValueMap[K] {

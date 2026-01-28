@@ -1,7 +1,6 @@
-import { Option } from './field-types';
-
 export class InvalidDateError extends Error {}
 export class InvalidRangeError extends Error {}
+export type Option = string;
 
 export enum PropType {
   LABEL = 'label',
@@ -10,13 +9,13 @@ export enum PropType {
   MAXLENGTHWORD = 'maxlengthword',
   REQUIRED = 'required',
   EMAIL = 'email',
-  MAXVALUE = 'maxvalue',
-  MINVALUE = 'minvalue',
+  // MAXVALUE = 'maxvalue',
+  // MINVALUE = 'minvalue',
   PATTERNPHONE = 'patternphone',
   PATTERNNUMBER = 'patternnumber',
   DATERANGE = 'daterange',
-  OPTIONOTHER = 'optionother',
   OPTIONS = 'options',
+  OPTIONOTHER = 'optionother',
 }
 
 export const phonePattern = /^\d(?:\s?\d){7}$/;
@@ -70,13 +69,13 @@ export type PropValueMap = {
   [PropType.MAXLENGTHWORD]: number;
   [PropType.REQUIRED]: boolean;
   [PropType.EMAIL]: boolean;
-  [PropType.MAXVALUE]: number;
-  [PropType.MINVALUE]: number;
+  // [PropType.MAXVALUE]: number;
+  // [PropType.MINVALUE]: number;
   [PropType.PATTERNPHONE]: boolean;
   [PropType.PATTERNNUMBER]: boolean;
   [PropType.DATERANGE]: DateRange;
-  [PropType.OPTIONOTHER]: boolean;
   [PropType.OPTIONS]: Option[];
+  [PropType.OPTIONOTHER]: boolean;
 };
 
 // produces type dynamically using PropValueMap (same as below)

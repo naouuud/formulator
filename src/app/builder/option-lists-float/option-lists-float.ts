@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
-import { Option } from '../../models/field-types';
+import { Option } from '../../models/prop-types';
 
 @Component({
   selector: 'app-option-lists-float',

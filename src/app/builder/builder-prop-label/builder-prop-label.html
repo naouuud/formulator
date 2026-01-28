@@ -1,15 +1,17 @@
 <div class="-mb-2 flex items-center focus-transform duration-200 ease-out focus-within:mb-0">
+  <!-- Validation Message -->
   <input
     type="text"
     class="block w-full rounded-full bg-gray-200 px-3 py-2 text-md font-medium text-gray-900 placeholder:text-gray-500 transition-all duration-200 ease-out focus:outline-none focus:bg-white focus:shadow-md focus:ring-2 focus:ring-blue-400"
+    [ngClass]="{ 'ring-2 ring-red-300 focus:ring-red-300': getControl()?.touched }"
     [placeholder]="labelMessage"
     formControlName="label"
-    maxlength="100"
-    (keydown.enter)="endEdit($event)"
+    (input)="getControl()?.markAsTouched()"
+    (blur)="getControl()?.markAsUntouched()"
     (mouseenter)="dragDisabled$.set(true)"
     (mouseleave)="dragDisabled$.set(false)"
+    (keydown.enter)="endEdit($event)"
   />
-
   @if (getControl()?.disabled) {
     <div
       class="ml-2 flex items-center px-2 text-red-400 text-xs uppercase rounded-full whitespace-nowrap transition-transform duration-200 ease-out focus-within:translate-y-1"
@@ -24,3 +26,8 @@
     </div>
   }
 </div>
+@if (getControl()?.touched) {
+  <div class="px-3 mt-4 text-red-600 text-xs">
+    {{ getErrorMessage() }}
+  </div>
+}

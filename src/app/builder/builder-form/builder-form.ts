@@ -51,14 +51,18 @@ export class BuilderForm {
   groupDeleteCleanup(fieldIds: string[]) {
     this.hideMessage.set(this.formModel$().groups.length > 0); // set empty message on if no groups left
     fieldIds.forEach((fieldId: string) => this.allFormGroups.removeControl(fieldId)); // clean up controls
-    console.log(this.allFormGroups);
+    // console.log(this.allFormGroups);
   }
 
   submitForm(): void {
     if (this.allFormGroups.valid) {
-      // proceed
+      console.log('Form Valid');
     } else {
+      console.log('Not valid');
       this.allFormGroups.markAllAsTouched();
+      setTimeout(() => {
+        this.allFormGroups.markAsUntouched();
+      }, 5_000);
     }
   }
 
@@ -71,13 +75,21 @@ export class BuilderForm {
           const validators: ValidatorFn[] = [];
           switch (prop.propType) {
             case PropType.LABEL:
-              validators.push(Validators.maxLength(100));
+              validators.push(Validators.required, Validators.maxLength(3));
               break;
-            // add controls for other props
-            // ignore some props, e.g. placeholder
+            // Props handled thru form based reactivity (no validators):
+            //   LABEL = 'label',
+            //   MAXLENGTHCHAR = 'maxlengthchar',
+            //   MAXLENGTHWORD = 'maxlengthword',
+            //   REQUIRED = 'required',
+            //   OPTIONOTHER = 'optionother',
+            // Props that do not require form based reactivity
             case PropType.PLACEHOLDER:
             case PropType.PATTERNNUMBER:
             case PropType.PATTERNPHONE:
+            case PropType.OPTIONS:
+            case PropType.DATERANGE:
+            case PropType.EMAIL:
               return;
           }
           const control = new FormControl(prop.value, { nonNullable: true, validators });
@@ -87,6 +99,6 @@ export class BuilderForm {
         this.allFormGroups.addControl(f.fieldId, fieldFormGroup); //FormGroup identifier = fieldId
       });
     });
-    console.log(this.allFormGroups);
+    // console.log(this.allFormGroups);
   }
 }

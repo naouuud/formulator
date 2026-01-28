@@ -42,7 +42,7 @@
           @if (field.fieldType === FieldType.RADIO) {
             <app-custom-radio [option]="option"></app-custom-radio>
           } @else if (field.fieldType === FieldType.CHECKBOX) {
-            <app-custom-checkbox [option]="option" [field]="field"></app-custom-checkbox>
+            <app-custom-checkbox [option]="option"></app-custom-checkbox>
           } @else {
             <span>{{ option }}</span>
           }

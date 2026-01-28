@@ -5,7 +5,7 @@ import { BuilderService } from '../../services/builder-service';
 import { BuilderField } from '../builder-field/builder-field';
 import { BuilderGroupDelete } from '../builder-group-delete/builder-group-delete';
 import { OptionListsFloat } from '../option-lists-float/option-lists-float';
-import { Option } from '../../models/field-types';
+import { Option } from '../../models/prop-types';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 const GroupLabels = {

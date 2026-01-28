@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Field, Option } from '../../models/field-types';
+import { Option } from '../../models/prop-types';
 
 @Component({
   selector: 'app-custom-radio',
