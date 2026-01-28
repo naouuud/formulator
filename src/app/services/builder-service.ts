@@ -53,8 +53,8 @@ export class BuilderService {
     this.formModel$().groups.forEach((g) => {
       if (![GroupType.CHECKBOX, GroupType.RADIO, GroupType.SELECT].includes(g.groupType)) return;
       g.fields.forEach((f) => {
-        if (!f.options.length) return;
-        optionLists.push([...f.options]);
+        if (!f.getOptions().length) return;
+        optionLists.push([...f.getOptions()]);
       });
     });
     if (optionLists.length < 2) return optionLists;
@@ -75,7 +75,7 @@ export class BuilderService {
   replaceOptions_S(group: Group, optionList: Option[]): void {
     if (![GroupType.CHECKBOX, GroupType.RADIO, GroupType.SELECT].includes(group.groupType)) return;
     const field = group.fields[0];
-    field.replaceOptions(optionList);
+    field.setOptions(optionList);
     this.saveFormSb.next();
   }
 
@@ -146,6 +146,7 @@ export class BuilderService {
     [PropType.PATTERNNUMBER]: { type: 'boolean' },
     [PropType.DATERANGE]: { type: 'object' },
     [PropType.OPTIONOTHER]: { type: 'boolean' },
+    [PropType.OPTIONS]: { type: 'object' },
   } as const;
 
   #isValidPropValue<K extends PropType>(propType: K, value: unknown): value is PropValueMap[K] {

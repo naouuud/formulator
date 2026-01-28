@@ -4,7 +4,7 @@ export type FieldDto = {
   fieldType: FieldType;
   fieldId: ReturnType<typeof crypto.randomUUID>;
   props: Prop[];
-  options: Option[];
+  // options: Option[];
 };
 
 export type FieldFactory = () => Field;
@@ -27,33 +27,40 @@ export class Field {
   fieldType: FieldType = FieldType.NONE;
   fieldId = crypto.randomUUID();
   props: Prop[] = [];
-  options: Option[] = [];
+
+  // returns ref, can mutate directly
+  getOptions(): Option[] {
+    return this.getPropValue(PropType.OPTIONS) ?? [];
+  }
+
+  // always sets new array, never reference
+  setOptions(newArray: Option[]): void {
+    this.setProp(PropType.OPTIONS, [...newArray]);
+  }
 
   addOption(optionIn: Option) {
     if (!optionIn.trim()) {
       throw new EmptyOptionError('Invalid option, must contain at least one character');
     }
-    for (let option of this.options) {
+    const options = this.getOptions();
+    // check if duplicate
+    for (let option of options) {
       if (optionIn === option) {
         throw new DuplicateOptionError(`Duplicate option '${optionIn}'`);
       }
     }
-    this.options.push(optionIn);
+    options.push(optionIn); // direct mutation
   }
 
   reorderOption(fromIndex: number, toIndex: number): void {
-    const newArray = [...this.options];
-    const [movedItem] = newArray.splice(fromIndex, 1);
-    newArray.splice(toIndex, 0, movedItem);
-    this.options = newArray;
+    const options = this.getOptions();
+    const [movedItem] = options.splice(fromIndex, 1);
+    options.splice(toIndex, 0, movedItem);
   }
 
   deleteOption(idx: number) {
-    this.options.splice(idx, 1);
-  }
-
-  replaceOptions(optionList: Option[]): void {
-    this.options = [...optionList];
+    const options = this.getOptions();
+    options.splice(idx, 1);
   }
 
   getProp<K extends PropType>(propTypeIn: K): Extract<Prop, { propType: K }> | undefined {
@@ -148,6 +155,7 @@ function createSelectField(): Field {
   field.fieldType = FieldType.SELECT;
   field.setProp(PropType.LABEL, '');
   field.setProp(PropType.REQUIRED, true);
+  field.setProp(PropType.OPTIONS, []);
   return field;
 }
 
@@ -157,7 +165,7 @@ function createRadioField(): Field {
   field.setProp(PropType.LABEL, '');
   field.setProp(PropType.REQUIRED, true);
   field.setProp(PropType.OPTIONOTHER, false);
-
+  field.setProp(PropType.OPTIONS, []);
   return field;
 }
 
@@ -167,6 +175,7 @@ function createCheckboxField(): Field {
   field.setProp(PropType.LABEL, '');
   field.setProp(PropType.REQUIRED, true);
   field.setProp(PropType.OPTIONOTHER, false);
+  field.setProp(PropType.OPTIONS, []);
   return field;
 }
 

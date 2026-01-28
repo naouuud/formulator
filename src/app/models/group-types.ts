@@ -169,7 +169,7 @@ function createBooleanGroup(): Group {
   group.groupType = GroupType.BOOLEAN;
 
   const field = Field.create(FieldType.RADIO);
-  field.options = ['Yes', 'No', 'Unsure'];
+  field.setProp(PropType.OPTIONS, ['Yes', 'No', 'Unsure']);
 
   group.fields.push(field);
   return group;
@@ -181,7 +181,7 @@ function createGenderGroup(): Group {
 
   const field = Field.create(FieldType.RADIO);
   field.setProp(PropType.LABEL, 'Gender', false);
-  field.options = ['Female', 'Male', 'Non-binary', 'Prefer not to say'];
+  field.setProp(PropType.OPTIONS, ['Female', 'Male', 'Non-binary', 'Prefer not to say']);
 
   group.fields.push(field);
   return group;
@@ -258,7 +258,10 @@ function createAddressGroup(): Group {
   const governorate = Field.create(FieldType.SELECT);
   governorate.setProp(PropType.LABEL, 'Governorate');
   governorate.setProp(PropType.PLACEHOLDER, 'Select governorate');
-  governorate.options = leb_governorates.map((g) => g.name);
+  governorate.setProp(
+    PropType.OPTIONS,
+    leb_governorates.map((g) => g.name),
+  );
 
   const district = Field.create(FieldType.SELECT);
   district.setProp(PropType.LABEL, 'District');

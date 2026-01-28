@@ -1,3 +1,5 @@
+import { Option } from './field-types';
+
 export class InvalidDateError extends Error {}
 export class InvalidRangeError extends Error {}
 
@@ -14,6 +16,7 @@ export enum PropType {
   PATTERNNUMBER = 'patternnumber',
   DATERANGE = 'daterange',
   OPTIONOTHER = 'optionother',
+  OPTIONS = 'options',
 }
 
 export const phonePattern = /^\d(?:\s?\d){7}$/;
@@ -73,6 +76,7 @@ export type PropValueMap = {
   [PropType.PATTERNNUMBER]: boolean;
   [PropType.DATERANGE]: DateRange;
   [PropType.OPTIONOTHER]: boolean;
+  [PropType.OPTIONS]: Option[];
 };
 
 // produces type dynamically using PropValueMap (same as below)
