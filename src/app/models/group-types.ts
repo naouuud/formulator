@@ -122,8 +122,8 @@ function createNumberGroup(): Group {
   const field = Field.create(FieldType.TEXT);
   field.setProp(PropType.PATTERNNUMBER, true);
   field.setProp(PropType.MAXLENGTHCHAR, 20, false);
-  field.setProp(PropType.MAXVALUE, 1_000_000_000);
-  field.setProp(PropType.MINVALUE, -1_000_000_000);
+  // field.setProp(PropType.MAXVALUE, 1_000_000_000);
+  // field.setProp(PropType.MINVALUE, -1_000_000_000);
   field.setProp(PropType.PLACEHOLDER, 'Enter number...');
 
   group.fields.push(field);
@@ -257,7 +257,7 @@ function createAddressGroup(): Group {
 
   const governorate = Field.create(FieldType.SELECT);
   governorate.setProp(PropType.LABEL, 'Governorate');
-  governorate.setProp(PropType.PLACEHOLDER, 'Select governorate');
+  // governorate.setProp(PropType.PLACEHOLDER, 'Select governorate');
   governorate.setProp(
     PropType.OPTIONS,
     leb_governorates.map((g) => g.name),

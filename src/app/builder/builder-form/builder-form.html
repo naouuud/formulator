@@ -1,4 +1,4 @@
-<div class="max-w-2xl mb-[200px]">
+<div class="max-w-2xl mb-[200px] flex flex-col gap-6">
   <div
     cdkDropList
     id="form-drop"
@@ -37,4 +37,14 @@
       </div>
     }
   </div>
+  <!-- Submit Button -->
+  @if (formModel$().groups.length > 0) {
+    <div class="flex justify-center">
+      <div
+        class="w-[50%] flex justify-center bg-gray-200 rounded-full p-2 border-2 border-gray-500 text-gray-700"
+      >
+        <button (click)="submitForm()" class="py-2 font-semibold">Generate Form</button>
+      </div>
+    </div>
+  }
 </div>

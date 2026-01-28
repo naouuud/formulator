@@ -9,7 +9,7 @@
       (mouseleave)="dragDisabled$.set(false)"
     >
       <option class="text-gray-400">Selection preview</option>
-      @for (option of field.options; track $index) {
+      @for (option of field.getOptions(); track $index) {
         <option class="text-gray-700">{{ option }}</option>
       }
     </select>

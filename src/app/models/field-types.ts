@@ -1,16 +1,14 @@
-import { createDateRange, Prop, PropType, PropValueMap, todayString } from './prop-types';
+import { createDateRange, Option, Prop, PropType, PropValueMap, todayString } from './prop-types';
 
 export type FieldDto = {
   fieldType: FieldType;
   fieldId: ReturnType<typeof crypto.randomUUID>;
   props: Prop[];
-  // options: Option[];
 };
 
 export type FieldFactory = () => Field;
 export class EmptyOptionError extends Error {}
 export class DuplicateOptionError extends Error {}
-export type Option = string;
 export const OptionOtherText = 'Other (please specify)';
 
 export enum FieldType {
@@ -136,7 +134,7 @@ function createTextField(): Field {
   field.setProp(PropType.LABEL, '');
   field.setProp(PropType.REQUIRED, true);
   field.setProp(PropType.MAXLENGTHCHAR, 100);
-  field.setProp(PropType.PLACEHOLDER, '');
+  field.setProp(PropType.PLACEHOLDER, 'Enter response here...');
   return field;
 }
 
@@ -146,7 +144,7 @@ function createTextareaField(): Field {
   field.setProp(PropType.LABEL, '');
   field.setProp(PropType.REQUIRED, true);
   field.setProp(PropType.MAXLENGTHWORD, 500);
-  field.setProp(PropType.PLACEHOLDER, 'Enter your text...');
+  field.setProp(PropType.PLACEHOLDER, 'Enter response here...');
   return field;
 }
 
