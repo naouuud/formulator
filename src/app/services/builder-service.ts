@@ -19,6 +19,7 @@ export class BuilderService {
   formModel$;
   saveFormSb;
   dragDisabled$; // prevents group drag
+  showAllErrorMessages$;
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel$ = this.localStorage.has('formModel')
@@ -30,6 +31,7 @@ export class BuilderService {
       .pipe(debounceTime(1000))
       .subscribe(() => this.#saveToLocalStorage_S());
     this.dragDisabled$ = signal(false);
+    this.showAllErrorMessages$ = signal(false);
   }
 
   addOption_S(field: Field, option: Option): void {

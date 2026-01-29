@@ -9,7 +9,9 @@ export type FieldDto = {
 export type FieldFactory = () => Field;
 export class EmptyOptionError extends Error {}
 export class DuplicateOptionError extends Error {}
-export const OptionOtherText = 'Other (please specify)';
+export const OPTION_OTHER_TEXT = 'Other (please specify)';
+export const LABEL_MAX_LENGTH = 200;
+export const OPTION_MAX_LENGTH = 50;
 
 export enum FieldType {
   NONE = 'none',

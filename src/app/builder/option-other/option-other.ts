@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FieldType, OptionOtherText } from '../../models/field-types';
+import { FieldType, OPTION_OTHER_TEXT } from '../../models/field-types';
 
 @Component({
   selector: 'app-option-other',
@@ -9,6 +9,6 @@ import { FieldType, OptionOtherText } from '../../models/field-types';
 })
 export class OptionOther {
   @Input() fieldType!: FieldType;
-  OptionOtherText = OptionOtherText;
+  OptionOtherText = OPTION_OTHER_TEXT;
   FieldType = FieldType;
 }

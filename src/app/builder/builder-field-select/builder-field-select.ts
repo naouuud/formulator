@@ -18,4 +18,8 @@ export class BuilderFieldSelect {
   constructor(private builderService: BuilderService) {
     this.dragDisabled$ = this.builderService.dragDisabled$;
   }
+
+  log(event: any) {
+    console.log(event);
+  }
 }

@@ -31,25 +31,31 @@ export class BuilderField implements OnInit {
   constructor(private builderService: BuilderService) {}
 
   ngOnInit(): void {
-    this.formGroupIn.get('label')?.valueChanges.subscribe((value: unknown) => {
+    const labelControl = this.formGroupIn.get('label');
+    labelControl?.valueChanges.subscribe((value: unknown) => {
+      // if (labelControl?.errors) return;
       this.setProp_C({ propType: PropType.LABEL, value });
     });
-    this.formGroupIn.get('required')?.valueChanges.subscribe((value: unknown) => {
+    const requiredControl = this.formGroupIn.get('required');
+    requiredControl?.valueChanges.subscribe((value: unknown) => {
+      // if (requiredControl?.errors) return;
       this.setProp_C({ propType: PropType.REQUIRED, value });
     });
-    this.formGroupIn.get('maxlengthchar')?.valueChanges.subscribe((value: unknown) => {
+    const maxLengthCharControl = this.formGroupIn.get('maxlengthchar');
+    maxLengthCharControl?.valueChanges.subscribe((value: unknown) => {
+      // if (this.formGroupIn.get('label')?.errors) return;
       this.setProp_C({ propType: PropType.MAXLENGTHCHAR, value: Number(value) });
     });
-    this.formGroupIn.get('maxlengthword')?.valueChanges.subscribe((value: unknown) => {
+    const maxLengthWordControl = this.formGroupIn.get('maxlengthword');
+    maxLengthWordControl?.valueChanges.subscribe((value: unknown) => {
+      // if (maxLengthWordControl?.errors) return;
       this.setProp_C({ propType: PropType.MAXLENGTHWORD, value: Number(value) });
     });
-    this.formGroupIn.get('optionother')?.valueChanges.subscribe((value: unknown) => {
+    const optionOtherControl = this.formGroupIn.get('optionother');
+    optionOtherControl?.valueChanges.subscribe((value: unknown) => {
+      // if (optionOtherControl.errors) return;
       this.setProp_C({ propType: PropType.OPTIONOTHER, value });
     });
-    // Date range handled in own component due to complexity
-    // this.formGroup.get('daterange')?.valueChanges.subscribe((value: unknown) => {
-    //   this.setProp_C({ propType: PropType.DATERANGE, value });
-    // });
   }
 
   setProp_C(propChangeEvent: PropChangeEvent) {

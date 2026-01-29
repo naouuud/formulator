@@ -13,10 +13,8 @@ import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angu
 export class BuilderValidation {
   @Input() field!: Field;
   PropType = PropType;
-  charMax = this._arrayRange(1, 100, 1);
-  charMin = this._arrayRange(0, 100, 1);
+  charMax = this._arrayRange(10, 100, 10);
   wordMax = this._arrayRange(50, 1000, 50);
-  wordMin = this._arrayRange(0, 1000, 100);
   isValidationOpen = true;
 
   constructor(public controlContainer: ControlContainer) {}
