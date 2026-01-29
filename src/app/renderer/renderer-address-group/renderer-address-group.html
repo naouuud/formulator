@@ -24,7 +24,7 @@
           {{ field.getPropValue(PropType.LABEL) }}
         </label>
         <!-- GOVERNORATE (FIXED OPTIONS) -->
-        @if (field.options.length > 0) {
+        @if (field.getOptions().length > 0) {
           <!-- <select
       (input)="toggleDistrict($event)"
       class="w-full mt-1 block bg-gray-50 p-2 border-1 border-gray-300 rounded-md focus:ring-gray-500 focus:border-gray-500 placeholder:text-gray-400"

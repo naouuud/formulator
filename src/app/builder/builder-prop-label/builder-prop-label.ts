@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, computed, Input } from '@angular/core';
 import {
   AbstractControl,
   ControlContainer,
@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import { BuilderService } from '../../services/builder-service';
 import { CommonModule } from '@angular/common';
+import { LABEL_MAX_LENGTH } from '../../models/field-types';
 
 @Component({
   selector: 'app-builder-prop-label',
@@ -17,6 +18,12 @@ import { CommonModule } from '@angular/common';
 })
 export class BuilderPropLabel {
   dragDisabled$;
+  controlDisabled;
+  showAllErrorMessages$;
+  showRequiredError$;
+  requiredErrorMessage = 'Cannot submit a blank question';
+  maxCount = LABEL_MAX_LENGTH;
+  currentCount;
   @Input() labelMessage!: string;
 
   constructor(
@@ -24,10 +31,15 @@ export class BuilderPropLabel {
     private builderService: BuilderService,
   ) {
     this.dragDisabled$ = this.builderService.dragDisabled$;
-  }
-
-  getControl(): AbstractControl | null {
-    return this.controlContainer?.control?.get('label') ?? null;
+    this.showAllErrorMessages$ = this.builderService.showAllErrorMessages$;
+    this.showRequiredError$ = computed(() => {
+      if (this.showAllErrorMessages$()) return this.#getControl()?.getError('required');
+    });
+    this.currentCount = this.#getControl()?.value.length;
+    this.#getControl()?.valueChanges.subscribe((value) => {
+      this.currentCount = value.length;
+    });
+    this.controlDisabled = !!this.#getControl()?.disabled;
   }
 
   endEdit(event: Partial<KeyboardEvent>) {
@@ -35,12 +47,7 @@ export class BuilderPropLabel {
     (event.target as HTMLInputElement).blur();
   }
 
-  getErrorMessage(): string {
-    if (this.getControl()?.getError('required')) return 'This field is required';
-    if (this.getControl()?.getError('maxlength')) {
-      const requiredLength = this.getControl()?.getError('maxlength').requiredLength;
-      return `Label exceeds maximum length (${requiredLength} characters)`;
-    }
-    return '';
+  #getControl(): AbstractControl | null {
+    return this.controlContainer?.control?.get('label') ?? null;
   }
 }

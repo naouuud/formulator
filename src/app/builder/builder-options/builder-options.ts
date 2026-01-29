@@ -4,7 +4,7 @@ import {
   EmptyOptionError,
   Field,
   FieldType,
-  OptionOtherText,
+  OPTION_OTHER_TEXT,
 } from '../../models/field-types';
 import { BuilderService } from '../../services/builder-service';
 import { CdkDropList, CdkDrag, CdkDragDrop, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
@@ -13,6 +13,7 @@ import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
 import { PropType } from '../../models/prop-types';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { OptionOther } from '../option-other/option-other';
+import { CustomSelect } from '../custom-select/custom-select';
 
 @Component({
   selector: 'app-builder-options',
@@ -24,6 +25,7 @@ import { OptionOther } from '../option-other/option-other';
     CustomCheckbox,
     ReactiveFormsModule,
     OptionOther,
+    CustomSelect,
   ],
   templateUrl: './builder-options.html',
   styleUrl: './builder-options.css',
@@ -35,7 +37,7 @@ export class BuilderOptions implements OnInit {
   dragDisabled$;
   optionOtherProp = false;
   optionOtherValue = false; // fallback value
-  OptionOtherText = OptionOtherText;
+  OptionOtherText = OPTION_OTHER_TEXT;
   PropType = PropType;
 
   constructor(private builderService: BuilderService) {

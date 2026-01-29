@@ -28,7 +28,7 @@
     {{ field.getPropValue(PropType.LABEL) }}
   </label>
   <div class="flex gap-2">
-    @for (option of field.options; track $index) {
+    @for (option of field.getOptions(); track $index) {
       <label
         class="cursor-pointer select-none flex items-center px-3 py-2 border rounded-full text-gray-700 bg-gray-100 hover:bg-gray-300 transition-all duration-75"
       >
@@ -53,7 +53,7 @@
     {{ field.getPropValue(PropType.LABEL) }}
   </label>
   <div class="grid grid-cols-2 gap-2">
-    @for (option of field.options; track $index) {
+    @for (option of field.getOptions(); track $index) {
       <label
         class="flex items-center gap-3 px-3 p-2 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-50 transition select-none"
       >
@@ -96,7 +96,7 @@
         field.getPropValue(PropType.PLACEHOLDER) ? field.getPropValue(PropType.PLACEHOLDER) : '---'
       }}
     </option>
-    @for (option of field.options; track $index) {
+    @for (option of field.getOptions(); track $index) {
       <option [value]="option" class="text-gray-800">
         {{ option }}
       </option>

@@ -6,6 +6,7 @@ import { Group, GroupType } from '../../models/group-types';
 import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
 import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Prop, PropType } from '../../models/prop-types';
+import { LABEL_MAX_LENGTH } from '../../models/field-types';
 
 @Component({
   selector: 'app-builder-form',
@@ -56,17 +57,15 @@ export class BuilderForm {
 
   submitForm(): void {
     if (this.allFormGroups.valid) {
-      console.log('Form Valid');
+      // proceed
     } else {
-      console.log('Not valid');
-      this.allFormGroups.markAllAsTouched();
+      this.builderService.showAllErrorMessages$.set(true);
       setTimeout(() => {
-        this.allFormGroups.markAsUntouched();
-      }, 5_000);
+        this.builderService.showAllErrorMessages$.set(false);
+      }, 8_000);
     }
   }
 
-  // handle date validation
   #addFormGroup(...groups: Group[]): void {
     groups.forEach((g) => {
       g.fields.forEach((f) => {
@@ -75,15 +74,15 @@ export class BuilderForm {
           const validators: ValidatorFn[] = [];
           switch (prop.propType) {
             case PropType.LABEL:
-              validators.push(Validators.required, Validators.maxLength(3));
+              validators.push(Validators.required, Validators.maxLength(LABEL_MAX_LENGTH));
               break;
-            // Props handled thru form based reactivity (no validators):
+            // Props set thru form based reactivity (no validators):
             //   LABEL = 'label',
             //   MAXLENGTHCHAR = 'maxlengthchar',
             //   MAXLENGTHWORD = 'maxlengthword',
             //   REQUIRED = 'required',
             //   OPTIONOTHER = 'optionother',
-            // Props that do not require form based reactivity
+            // Non-editable Props (no controls)
             case PropType.PLACEHOLDER:
             case PropType.PATTERNNUMBER:
             case PropType.PATTERNPHONE:
