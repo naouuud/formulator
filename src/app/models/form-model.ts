@@ -1,3 +1,4 @@
+import { P } from '@angular/cdk/keycodes';
 import { Group, GroupDto, GroupType } from './group-types';
 
 export type FormModelDto = {
@@ -38,8 +39,10 @@ export class FormModel {
   }
 
   // Apply domain checks here!
-  static serialize(formModel: FormModel): FormModelDto {
-    return { ...formModel };
+  static serialize(formModel: FormModel) {
+    const formModelDto: FormModelDto = { ...formModel };
+    formModelDto.groups = (formModel.groups ?? []).map((g: Group) => Group.serialize(g));
+    return formModelDto;
   }
 
   static deserialize(formModelDto: FormModelDto): FormModel {
