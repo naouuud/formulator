@@ -131,7 +131,7 @@ export class BuilderService {
     const formModel = this.formModel$();
     const serializedFormModel = this.#serializeFormModel_S(formModel);
     this.localStorage.set('formModel', serializedFormModel);
-    console.log(serializedFormModel);
+    console.log('Form Schema Saved', serializedFormModel);
   }
 
   // runtime prop validation
