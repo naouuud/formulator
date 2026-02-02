@@ -13,7 +13,7 @@ import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
 import { PropType } from '../../models/prop-types';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { OptionOther } from '../option-other/option-other';
-import { CustomSelect } from '../custom-select/custom-select';
+// import { CustomSelect } from '../custom-select/custom-select';
 
 @Component({
   selector: 'app-builder-options',
@@ -25,7 +25,7 @@ import { CustomSelect } from '../custom-select/custom-select';
     CustomCheckbox,
     ReactiveFormsModule,
     OptionOther,
-    CustomSelect,
+    // CustomSelect,
   ],
   templateUrl: './builder-options.html',
   styleUrl: './builder-options.css',

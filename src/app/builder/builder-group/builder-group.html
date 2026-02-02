@@ -16,7 +16,7 @@
           (click)="toggleRadioCheckbox_C()"
           class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
         >
-          Switch to Checkbox
+          Toggle
         </div>
       }
       @if (group.groupType === GroupType.CHECKBOX) {
@@ -24,7 +24,7 @@
           (click)="toggleRadioCheckbox_C()"
           class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
         >
-          Switch to Radio
+          Toggle
         </div>
       }
       @if (
@@ -38,7 +38,7 @@
             (click)="floatVisible = !floatVisible"
             class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
           >
-            <span>Import Options</span>
+            <span>Use Options</span>
           </div>
           <!-- Float -->
           @if (floatVisible) {

@@ -8,20 +8,19 @@
       <app-builder-options [field]="field" />
     </div>
     <!-- Preview -->
-    <div class="flex-1 flex flex-col gap-2">
-      <span class="px-4 py-1 text-xs uppercase text-gray-400">Preview</span>
-      <div class="relative flex-1">
+    <div class="flex-1 flex flex-col">
+      <span class="px-4 py-1 text-xs uppercase text-gray-400 mb-2">Preview</span>
+      <div class="relative">
         <select
           class="appearance-none pr-10 pl-3 py-2 rounded-full border border-gray-300 bg-white text-sm focus:outline-none w-full text-gray-700"
           (mouseenter)="dragDisabled$.set(true)"
           (mouseleave)="dragDisabled$.set(false)"
-          (click)="log($event)"
-          [autofocus]="true"
+          disabled
         >
-          <option class="text-gray-400" disabled>Select an option</option>
-          @for (option of field.getOptions(); track $index) {
+          <option class="text-gray-400">Select an option</option>
+          <!-- @for (option of field.getOptions(); track $index) {
             <option class="text-gray-700">{{ option }}</option>
-          }
+          } -->
         </select>
         <svg
           class="pointer-events-none absolute right-3 top-5 -translate-y-1/2 h-4 w-4 text-gray-500"
@@ -30,6 +29,13 @@
         >
           <path d="M5.25 7.5L10 12.25L14.75 7.5" />
         </svg>
+      </div>
+      <!-- Fake Select -->
+      <div class="w-full bg-white">
+        <div class="bg-blue-600 px-2 py-1 text-white">Select an option</div>
+        @for (option of field.getOptions(); track $index) {
+          <div class="text-gray-700 px-2 py-1">{{ option }}</div>
+        }
       </div>
     </div>
   </div>
