@@ -5,6 +5,7 @@ import { LocalStorageService } from './local-storage';
 import { Field } from '../models/field-types';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
 import { debounceTime, Subject } from 'rxjs';
+import { createNameNode, Node } from '../models/node';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -32,6 +33,13 @@ export class BuilderService {
       .subscribe(() => this.#saveToLocalStorage_S());
     this.dragDisabled$ = signal(false);
     this.showAllErrorMessages$ = signal(false);
+
+    // Node test
+    const nameNode = createNameNode();
+    const serializedNameNode = Node.serialize(nameNode);
+    console.log(serializedNameNode);
+    const deserializedNameNode = Node.deserialize(serializedNameNode);
+    console.log(deserializedNameNode);
   }
 
   addOption_S(field: Field, option: Option): void {

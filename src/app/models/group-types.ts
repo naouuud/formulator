@@ -58,6 +58,12 @@ export class Group {
     return factory();
   }
 
+  static serialize(group: Group): GroupDto {
+    const groupDto: GroupDto = { ...group };
+    groupDto.fields = (group.fields ?? []).map((f: Field) => Field.serialize(f));
+    return groupDto;
+  }
+
   static deserialize(groupDto: GroupDto): Group {
     const groupType = groupDto.groupType;
     if (groupType == null) {

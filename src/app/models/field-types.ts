@@ -106,6 +106,10 @@ export class Field {
     return factory();
   }
 
+  static serialize(field: Field): FieldDto {
+    return { ...field };
+  }
+
   static deserialize(fieldDto: FieldDto): Field {
     const fieldType = fieldDto.fieldType;
     if (fieldType == null) {
