@@ -1,19 +1,15 @@
-import { trustedHTMLFromString } from '@angular/cdk/private';
 import { Prop, PropType, PropValueMap } from './prop-types';
 
 type NodeFactory = () => Node;
-type NodeDto = {
+export type NodeDto = {
   nodeType: NodeType;
   nodeId: ReturnType<typeof crypto.randomUUID>;
   props: Prop[];
   nodes: NodeDto[];
 };
 
-export enum GroupType {
-  NONE = 'none',
-}
-
 export enum NodeType {
+  // Simple
   NONE = 'none',
   TEXT = 'text',
   TEXTAREA = 'textarea',
@@ -21,15 +17,6 @@ export enum NodeType {
   CHECKBOX = 'checkbox',
   RADIO = 'radio',
   DATE = 'date',
-  // Complex
-  BIRTHDAY = 'birthday',
-  GENDER = 'gender',
-  PHONE = 'phone',
-  EMAIL = 'email',
-  NUMBER = 'number',
-  BOOLEAN = 'boolean',
-  NAME = 'name',
-  ADDRESS = 'address',
 }
 
 export class Node {
@@ -48,36 +35,6 @@ export class Node {
   addNode(nodeType: NodeType) {
     const node = Node.create(nodeType);
     this.nodes.push(node);
-  }
-
-  static create(nodeType: NodeType): Node {
-    const factory = nodeMap.get(nodeType);
-    if (!factory) {
-      throw new Error(
-        `Internal Error: No factory registered for NodeType '${nodeType}'. Did you forget to add it to nodeMap?`,
-      );
-    }
-    return factory();
-  }
-
-  static serialize(node: Node): NodeDto {
-    const nodeDto: NodeDto = { ...node };
-    nodeDto.nodes = (node.nodes ?? []).map((n: Node) => Node.serialize(n));
-    return nodeDto;
-  }
-
-  static deserialize(nodeDto: NodeDto): Node {
-    // if (nodeType == null) {
-    //   // === undefined || === null
-    //   throw new Error(`No NodeType available on saved model, unable to initialize node`);
-    // }
-    // if (!Object.values(NodeType).includes(nodeType)) {
-    //   throw new Error(`Invalid NodeType '${nodeType}'`);
-    // }
-    const node = new Node();
-    Object.assign(node, nodeDto);
-    if (node.nodes.length) node.nodes = node.nodes.map((n: NodeDto) => Node.deserialize(n));
-    return node;
   }
 
   getProp<K extends PropType>(propTypeIn: K): Extract<Prop, { propType: K }> | undefined {
@@ -112,6 +69,36 @@ export class Node {
   ): Extract<Prop, { propType: K }> {
     return { propType, value, editable } as Extract<Prop, { propType: K }>;
   }
+
+  static create(nodeType: NodeType): Node {
+    const factory = nodeMap.get(nodeType);
+    if (!factory) {
+      throw new Error(
+        `Internal Error: No factory registered for NodeType '${nodeType}'. Did you forget to add it to nodeMap?`,
+      );
+    }
+    return factory();
+  }
+
+  static serialize(node: Node): NodeDto {
+    const nodeDto: NodeDto = { ...node };
+    nodeDto.nodes = (node.nodes ?? []).map((n: Node) => Node.serialize(n));
+    return nodeDto;
+  }
+
+  static deserialize(nodeDto: NodeDto): Node {
+    if (nodeDto.nodeType == null) {
+      // === undefined || === null
+      throw new Error(`No NodeType available on saved model, unable to initialize node`);
+    }
+    if (!Object.values(NodeType).includes(nodeDto.nodeType)) {
+      throw new Error(`Invalid NodeType '${nodeDto.nodeType}'`);
+    }
+    const node = new Node();
+    Object.assign(node, nodeDto);
+    node.nodes = (node.nodes ?? []).map((n: NodeDto) => Node.deserialize(n));
+    return node;
+  }
 }
 
 const nodeMap = new Map<NodeType, NodeFactory>([
@@ -123,7 +110,7 @@ const nodeMap = new Map<NodeType, NodeFactory>([
   [NodeType.DATE, createDateNode],
 ]);
 
-// BASICS
+// SIMPLE
 function createTextNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.TEXT;
@@ -150,23 +137,23 @@ function createDateNode(): Node {
   return new Node();
 }
 
-//COMPLEX
+// COMPLEX
 export function createNameNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.NAME;
+  const node0 = new Node();
+  node0.setProp(PropType.LABEL, 'Full Name');
 
-  const firstName = Node.create(NodeType.TEXT);
-  firstName.setProp(PropType.LABEL, 'First Name', false);
-  firstName.setProp(PropType.PLACEHOLDER, 'Enter first name...');
-  firstName.setProp(PropType.REQUIRED, true);
-  firstName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+  const node1a = Node.create(NodeType.TEXT);
+  node1a.setProp(PropType.LABEL, 'First Name', false);
+  node1a.setProp(PropType.PLACEHOLDER, 'Enter first name...');
+  node1a.setProp(PropType.REQUIRED, true);
+  node1a.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  const lastName = Node.create(NodeType.TEXT);
-  lastName.setProp(PropType.LABEL, 'Last Name', false);
-  lastName.setProp(PropType.PLACEHOLDER, 'Enter last name...');
-  lastName.setProp(PropType.REQUIRED, true);
-  lastName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+  const node1b = Node.create(NodeType.TEXT);
+  node1b.setProp(PropType.LABEL, 'Last Name', false);
+  node1b.setProp(PropType.PLACEHOLDER, 'Enter last name...');
+  node1b.setProp(PropType.REQUIRED, true);
+  node1b.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  node.nodes.push(firstName, lastName);
-  return node;
+  node0.nodes.push(node1a, node1b);
+  return node0;
 }

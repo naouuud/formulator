@@ -6,6 +6,9 @@
     @case (FieldType.TEXTAREA) {
       <app-builder-field-textarea [field]="field" />
     }
+    @case (FieldType.NUMBER) {
+      <app-builder-field-number [field]="field" />
+    }
     @case (FieldType.SELECT) {
       <app-builder-field-select [field]="field" />
     }

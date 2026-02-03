@@ -1,25 +1,45 @@
 import { P } from '@angular/cdk/keycodes';
 import { Group, GroupDto, GroupType } from './group-types';
+import { Node, NodeDto, NodeType } from './node';
+import { PropType } from './prop-types';
 
 export type FormModelDto = {
   formId: ReturnType<typeof crypto.randomUUID>;
   formName: string;
   groups: GroupDto[];
+  nodes: NodeDto[];
 };
 
 export class FormModel {
-  formId = crypto.randomUUID();
-  formName: string = '';
-  groups: Group[] = [];
+  formId: ReturnType<typeof crypto.randomUUID>;
+  formName: string;
+  groups: Group[];
+  nodes: Node[];
+
+  constructor() {
+    this.formId = crypto.randomUUID();
+    this.formName = '';
+    this.groups = [];
+    this.nodes = [];
+  }
 
   setFormName(value: string): void {
     this.formName = value.trim();
   }
 
   addGroup(groupType: GroupType): Group {
+    if (groupType === GroupType.NAME) {
+      addNameFields(this);
+    }
     const group = Group.create(groupType);
     this.groups.push(group);
     return group;
+  }
+
+  addNode(nodeType: NodeType): Node {
+    const node = Node.create(nodeType);
+    this.nodes.push(node);
+    return node;
   }
 
   reorderGroup(fromIndex: number, toIndex: number): void {
@@ -51,4 +71,25 @@ export class FormModel {
     formModel.groups = (formModelDto.groups ?? []).map((g: GroupDto) => Group.deserialize(g)); // initialize new groups
     return formModel;
   }
+}
+
+function addNameFields(formModel: FormModel): void {
+  // const group = new Group();
+  // group.groupType = GroupType.NAME;
+
+  const firstName = Group.create(GroupType.TEXT);
+  const firstNameField = firstName.fields[0];
+  firstNameField.setProp(PropType.LABEL, 'First Name', false);
+  firstNameField.setProp(PropType.PLACEHOLDER, 'Enter first name...');
+  firstNameField.setProp(PropType.REQUIRED, true);
+  firstNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  const lastName = Group.create(GroupType.TEXT);
+  const lastNameField = lastName.fields[0];
+  lastNameField.setProp(PropType.LABEL, 'Last Name', false);
+  lastNameField.setProp(PropType.PLACEHOLDER, 'Enter last name...');
+  lastNameField.setProp(PropType.REQUIRED, true);
+  lastNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  formModel.groups.push(firstName, lastName);
 }

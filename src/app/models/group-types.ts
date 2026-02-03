@@ -1,8 +1,10 @@
 import { leb_governorates } from './lebanon';
 import { Field, FieldDto, FieldType } from './field-types';
 import { createDateRange, PropType, todayString } from './prop-types';
+import { FormModel } from './form-model';
 
 export type GroupDto = {
+  groupLabel: string;
   groupType: GroupType;
   groupId: ReturnType<typeof crypto.randomUUID>;
   fields: FieldDto[];
@@ -29,9 +31,17 @@ export enum GroupType {
 }
 
 export class Group {
-  groupType: GroupType = GroupType.NONE;
-  groupId = crypto.randomUUID();
-  fields: Field[] = [];
+  groupLabel: string;
+  groupType: GroupType;
+  groupId: ReturnType<typeof crypto.randomUUID>;
+  fields: Field[];
+
+  constructor() {
+    this.groupLabel = '';
+    this.groupType = GroupType.NONE;
+    this.groupId = crypto.randomUUID();
+    this.fields = [];
+  }
 
   toggleRadioCheckbox(): void {
     if (this.groupType === GroupType.RADIO) {
@@ -49,7 +59,7 @@ export class Group {
   }
 
   static create(groupType: GroupType): Group {
-    const factory = groupMap.get(groupType);
+    const factory = createMap.get(groupType);
     if (!factory) {
       throw new Error(
         `Internal Error: No factory registered for groupType '${groupType}'. Did you forget to add it to groupMap?`,
@@ -73,14 +83,14 @@ export class Group {
     if (!Object.values(GroupType).includes(groupType)) {
       throw new Error(`Invalid groupType '${groupType}'`);
     }
-    const group = Group.create(groupType); // create new group
+    const group = new Group(); // create new group
     Object.assign(group, groupDto); // copy enumerable properties
     group.fields = (groupDto.fields ?? []).map((f: FieldDto) => Field.deserialize(f)); // initialize new fields
     return group;
   }
 }
 
-const groupMap = new Map<GroupType, GroupFactory>([
+const createMap = new Map<GroupType, GroupFactory>([
   [GroupType.TEXT, createTextGroup],
   [GroupType.TEXTAREA, createTextareaGroup],
   [GroupType.SELECT, createSelectGroup],
@@ -108,7 +118,7 @@ function createTextGroup() {
 
 function createEmailGroup(): Group {
   const group = new Group();
-  group.groupType = GroupType.EMAIL;
+  // group.groupType = GroupType.EMAIL;
 
   const field = Field.create(FieldType.TEXT);
   field.setProp(PropType.EMAIL, true);
@@ -138,7 +148,7 @@ function createNumberGroup(): Group {
 
 function createPhoneGroup(): Group {
   const group = new Group();
-  group.groupType = GroupType.PHONE;
+  // group.groupType = GroupType.PHONE;
 
   const field = Field.create(FieldType.TEXT);
   field.setProp(PropType.PATTERNPHONE, true);
@@ -172,7 +182,7 @@ function createRadioGroup(): Group {
 
 function createBooleanGroup(): Group {
   const group = new Group();
-  group.groupType = GroupType.BOOLEAN;
+  // group.groupType = GroupType.BOOLEAN;
 
   const field = Field.create(FieldType.RADIO);
   field.setProp(PropType.OPTIONS, ['Yes', 'No', 'Unsure']);
@@ -183,7 +193,7 @@ function createBooleanGroup(): Group {
 
 function createGenderGroup(): Group {
   const group = new Group();
-  group.groupType = GroupType.GENDER;
+  // group.groupType = GroupType.GENDER;
 
   const field = Field.create(FieldType.RADIO);
   field.setProp(PropType.LABEL, 'Gender', false);
@@ -224,7 +234,7 @@ function createDateGroup(): Group {
 
 function createBirthdayGroup(): Group {
   const group = new Group();
-  group.groupType = GroupType.BIRTHDAY;
+  // group.groupType = GroupType.BIRTHDAY;
 
   const field = Field.create(FieldType.DATE);
   field.setProp(PropType.LABEL, 'Date of Birth', false);
@@ -239,7 +249,7 @@ function createBirthdayGroup(): Group {
 
 function createNameGroup(): Group {
   const group = new Group();
-  group.groupType = GroupType.NAME;
+  // group.groupType = GroupType.NAME;
 
   const firstName = Field.create(FieldType.TEXT);
   firstName.setProp(PropType.LABEL, 'First Name', false);
@@ -259,7 +269,7 @@ function createNameGroup(): Group {
 
 function createAddressGroup(): Group {
   const group = new Group();
-  group.groupType = GroupType.ADDRESS;
+  // group.groupType = GroupType.ADDRESS;
 
   const governorate = Field.create(FieldType.SELECT);
   governorate.setProp(PropType.LABEL, 'Governorate');

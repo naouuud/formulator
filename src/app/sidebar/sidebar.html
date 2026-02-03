@@ -6,16 +6,16 @@
   cdkDropListHasAnchor
   class="text-white flex flex-col gap-4"
 >
-  <div>Basic Fields</div>
-  @for (uiType of uiTypesBasic; track uiType) {
-  <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.groupType">
-    <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
-  </app-ui-type-icon>
+  <div>Field Types</div>
+  @for (uiType of uiTypesCustom; track uiType) {
+    <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.groupType">
+      <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
+    </app-ui-type-icon>
   }
   <div>Custom Fields</div>
-  @for (uiType of uiTypesCustom; track uiType) {
-  <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.groupType">
-    <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
-  </app-ui-type-icon>
+  @for (uiType of uiTypesBasic; track uiType) {
+    <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.groupType">
+      <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
+    </app-ui-type-icon>
   }
 </aside>
