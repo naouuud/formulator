@@ -31,13 +31,14 @@ export const uiTypesCustom: UiType[] = [
     attribution: 'Fathema Khanom',
   },
   {
-    label: 'Any Date',
+    label: 'Date',
     groupType: GroupType.DATE,
     img: 'calendar.png',
     attribution: 'Freepik',
   },
   {
     label: 'Dropdown',
+    description: 'Select an option.',
     groupType: GroupType.SELECT,
     img: 'dropdown.png',
     attribution: 'Royyan Wijaya',
@@ -55,12 +56,6 @@ export const uiTypesCustom: UiType[] = [
     groupType: GroupType.RADIO,
     img: 'radio.png',
     attribution: 'Bharat Icons',
-  },
-  {
-    label: 'Yes/No',
-    groupType: GroupType.BOOLEAN,
-    img: 'yes.png',
-    attribution: 'Freepik',
   },
 ];
 
@@ -96,5 +91,11 @@ export const uiTypesBasic: UiType[] = [
     groupType: GroupType.ADDRESS,
     img: 'house.png',
     attribution: 'KP Arts',
+  },
+  {
+    label: 'Yes/No',
+    groupType: GroupType.BOOLEAN,
+    img: 'yes.png',
+    attribution: 'Freepik',
   },
 ];

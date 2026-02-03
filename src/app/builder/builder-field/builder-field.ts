@@ -8,6 +8,7 @@ import { BuilderService } from '../../services/builder-service';
 import { Prop, PropChangeEvent, PropType } from '../../models/prop-types';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { BuilderFieldTextarea } from '../builder-field-textarea/builder-field-textarea';
+import { BuilderFieldNumber } from '../../builder-field-number/builder-field-number';
 
 @Component({
   selector: 'app-builder-field',
@@ -18,6 +19,7 @@ import { BuilderFieldTextarea } from '../builder-field-textarea/builder-field-te
     BuilderFieldOption,
     BuilderFieldDate,
     ReactiveFormsModule,
+    BuilderFieldNumber,
   ],
   templateUrl: './builder-field.html',
   styleUrl: './builder-field.css',

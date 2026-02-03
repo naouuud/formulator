@@ -16,6 +16,7 @@ export const OPTION_MAX_LENGTH = 50;
 export enum FieldType {
   NONE = 'none',
   TEXT = 'text',
+  NUMBER = 'number',
   TEXTAREA = 'textarea',
   SELECT = 'select',
   CHECKBOX = 'checkbox',
@@ -24,9 +25,15 @@ export enum FieldType {
 }
 
 export class Field {
-  fieldType: FieldType = FieldType.NONE;
-  fieldId = crypto.randomUUID();
-  props: Prop[] = [];
+  fieldType: FieldType;
+  fieldId: ReturnType<typeof crypto.randomUUID>;
+  props: Prop[];
+
+  constructor() {
+    this.fieldType = FieldType.NONE;
+    this.fieldId = crypto.randomUUID();
+    this.props = [];
+  }
 
   // returns ref, can mutate directly
   getOptions(): Option[] {
@@ -119,7 +126,7 @@ export class Field {
     if (!Object.values(FieldType).includes(fieldType)) {
       throw new Error(`Invalid groupType '${fieldType}'`);
     }
-    const field = Field.create(fieldType);
+    const field = new Field();
     Object.assign(field, fieldDto);
     return field;
   }
@@ -128,6 +135,7 @@ export class Field {
 const fieldMap = new Map<FieldType, FieldFactory>([
   [FieldType.TEXT, createTextField],
   [FieldType.TEXTAREA, createTextareaField],
+  [FieldType.NUMBER, createNumberField],
   [FieldType.SELECT, createSelectField],
   [FieldType.CHECKBOX, createCheckboxField],
   [FieldType.RADIO, createRadioField],
@@ -151,6 +159,17 @@ function createTextareaField(): Field {
   field.setProp(PropType.REQUIRED, true);
   field.setProp(PropType.MAXLENGTHWORD, 500);
   field.setProp(PropType.PLACEHOLDER, 'Enter response here...');
+  return field;
+}
+
+function createNumberField(): Field {
+  const field = new Field();
+  field.fieldType = FieldType.NUMBER;
+  field.setProp(PropType.PATTERNNUMBER, true);
+  field.setProp(PropType.MAXLENGTHCHAR, 20, false);
+  // field.setProp(PropType.MAXVALUE, 1_000_000_000);
+  // field.setProp(PropType.MINVALUE, -1_000_000_000);
+  field.setProp(PropType.PLACEHOLDER, 'Enter number...');
   return field;
 }
 
