@@ -12,15 +12,7 @@ import { BuilderFieldNumber } from '../../builder-field-number/builder-field-num
 
 @Component({
   selector: 'app-builder-field',
-  imports: [
-    BuilderFieldText,
-    BuilderFieldTextarea,
-    BuilderFieldSelect,
-    BuilderFieldOption,
-    BuilderFieldDate,
-    ReactiveFormsModule,
-    BuilderFieldNumber,
-  ],
+  imports: [ReactiveFormsModule],
   templateUrl: './builder-field.html',
   styleUrl: './builder-field.css',
 })
@@ -62,6 +54,6 @@ export class BuilderField implements OnInit {
 
   setProp_C(propChangeEvent: PropChangeEvent) {
     const { propType, value } = propChangeEvent;
-    this.builderService.setProp_S(this.field, propType, value);
+    // this.builderService.setProp_S(this.field, propType, value);
   }
 }

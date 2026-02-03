@@ -21,7 +21,7 @@ export class BuilderPropLabel {
   controlDisabled;
   showAllErrorMessages$;
   showRequiredError$;
-  requiredErrorMessage = 'Cannot submit a blank question';
+  requiredErrorMessage = 'Blank question';
   maxCount = LABEL_MAX_LENGTH;
   currentCount;
   @Input() labelMessage!: string;

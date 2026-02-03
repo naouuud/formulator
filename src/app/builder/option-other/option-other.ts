@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { FieldType, OPTION_OTHER_TEXT } from '../../models/field-types';
+import { OPTION_OTHER_TEXT } from '../../models/field-types';
+import { NodeType } from '../../models/node';
 
 @Component({
   selector: 'app-option-other',
@@ -8,7 +9,8 @@ import { FieldType, OPTION_OTHER_TEXT } from '../../models/field-types';
   styleUrl: './option-other.css',
 })
 export class OptionOther {
-  @Input() fieldType!: FieldType;
+  @Input() nodeType!: NodeType;
   OptionOtherText = OPTION_OTHER_TEXT;
-  FieldType = FieldType;
+  // FieldType = FieldType;
+  NodeType = NodeType;
 }

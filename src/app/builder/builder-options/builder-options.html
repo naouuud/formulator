@@ -30,18 +30,18 @@
       (cdkDropListDropped)="reorderOption_C($event)"
       cdkDropListOrientation="mixed"
     >
-      @if (!field.getOptions().length) {
+      @if (!node.getOptions().length) {
         <div class="px-4 py-1 text-gray-500">No options to display</div>
       }
-      @for (option of field.getOptions(); track $index) {
+      @for (option of node.getOptions(); track $index) {
         <div
           cdkDrag
           class="flex justify-between items-center gap-2 px-4 py-1.5 rounded-full border border-gray-200 text-sm text-gray-700 hover:cursor-pointer hover:bg-white"
         >
           <!-- List type (radio, checkbox or basic) -->
-          @if (field.fieldType === FieldType.RADIO) {
+          @if (node.nodeType === NodeType.RADIO) {
             <app-custom-radio [option]="option"></app-custom-radio>
-          } @else if (field.fieldType === FieldType.CHECKBOX) {
+          } @else if (node.nodeType === NodeType.CHECKBOX) {
             <app-custom-checkbox [option]="option"></app-custom-checkbox>
           } @else {
             <span>{{ option }}</span>
@@ -72,7 +72,7 @@
       }
       <!-- Other Option (visual) -->
       @if (optionOtherValue) {
-        <app-option-other [fieldType]="field.fieldType" />
+        <app-option-other [nodeType]="node.nodeType" />
       }
     </div>
     <!-- Other Option Prop -->

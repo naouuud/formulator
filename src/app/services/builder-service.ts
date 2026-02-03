@@ -1,11 +1,11 @@
 import { Injectable, signal } from '@angular/core';
 import { FormModel, FormModelDto } from '../models/form-model';
-import { Group, GroupType } from '../models/group-types';
+// import { Node, GroupType } from '../models/group-types';
 import { LocalStorageService } from './local-storage';
-import { Field } from '../models/field-types';
+// import { Field } from '../models/field-types';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
 import { debounceTime, Subject } from 'rxjs';
-import { createNameNode, Node } from '../models/node';
+import { Node, createNameNode, NodeType } from '../models/node';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -42,33 +42,72 @@ export class BuilderService {
     console.log(deserializedNameNode);
   }
 
-  addOption_S(field: Field, option: Option): void {
-    field.addOption(option);
+  // addOption_S(field: Field, option: Option): void {
+  //   field.addOption(option);
+  //   this.saveFormSb.next();
+  // }
+
+  addOption_S(node: Node, option: Option): void {
+    node.addOption(option);
     this.saveFormSb.next();
   }
 
-  deleteOption_S(field: Field, idx: number): void {
-    field.deleteOption(idx);
+  // deleteOption_S(field: Field, idx: number): void {
+  //   field.deleteOption(idx);
+  //   this.saveFormSb.next();
+  // }
+
+  deleteOption_S(node: Node, idx: number): void {
+    node.deleteOption(idx);
     this.saveFormSb.next();
   }
 
-  reorderOption_S(field: Field, fromIndex: number, toIndex: number): void {
-    field.reorderOption(fromIndex, toIndex);
+  // reorderOption_S(field: Field, fromIndex: number, toIndex: number): void {
+  //   field.reorderOption(fromIndex, toIndex);
+  //   this.saveFormSb.next();
+  // }
+
+  reorderOption_S(node: Node, fromIndex: number, toIndex: number): void {
+    node.reorderOption(fromIndex, toIndex);
     this.saveFormSb.next();
   }
 
   // application level ds
+  // getOptionLists_S(): Option[][] {
+  //   const optionLists: Option[][] = [];
+  //   this.formModel$().groups.forEach((g) => {
+  //     if (![GroupType.CHECKBOX, GroupType.RADIO, GroupType.SELECT].includes(g.groupType)) return;
+  //     g.fields.forEach((f) => {
+  //       if (!f.getOptions().length) return;
+  //       optionLists.push([...f.getOptions()]);
+  //     });
+  //   });
+  //   if (optionLists.length < 2) return optionLists;
+  //   // remove duplicates (brute)
+  //   for (let i = 0; i < optionLists.length - 1; i++) {
+  //     let j = i + 1;
+  //     while (j < optionLists.length) {
+  //       if (this.#arraysEqual(optionLists[i], optionLists[j])) {
+  //         optionLists.splice(j, 1);
+  //       } else {
+  //         j++;
+  //       }
+  //     }
+  //   }
+  //   return optionLists;
+  // }
+
   getOptionLists_S(): Option[][] {
     const optionLists: Option[][] = [];
-    this.formModel$().groups.forEach((g) => {
-      if (![GroupType.CHECKBOX, GroupType.RADIO, GroupType.SELECT].includes(g.groupType)) return;
-      g.fields.forEach((f) => {
-        if (!f.getOptions().length) return;
-        optionLists.push([...f.getOptions()]);
+    this.formModel$()
+      .getNodes()
+      .forEach((n) => {
+        if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(n.nodeType)) return;
+        if (!n.getOptions().length) return;
+        optionLists.push([...n.getOptions()]);
       });
-    });
     if (optionLists.length < 2) return optionLists;
-    // remove duplicates (brute)
+    // Remove duplicate lists
     for (let i = 0; i < optionLists.length - 1; i++) {
       let j = i + 1;
       while (j < optionLists.length) {
@@ -82,14 +121,32 @@ export class BuilderService {
     return optionLists;
   }
 
-  replaceOptions_S(group: Group, optionList: Option[]): void {
-    if (![GroupType.CHECKBOX, GroupType.RADIO, GroupType.SELECT].includes(group.groupType)) return;
-    const field = group.fields[0];
-    field.setOptions(optionList);
+  // replaceOptions_S(group: Group, optionList: Option[]): void {
+  //   if (![GroupType.CHECKBOX, GroupType.RADIO, GroupType.SELECT].includes(group.groupType)) return;
+  //   const field = group.fields[0];
+  //   field.setOptions(optionList);
+  //   this.saveFormSb.next();
+  // }
+
+  replaceOptions_S(node: Node, optionList: Option[]): void {
+    if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(node.nodeType)) return;
+    node.setOptions(optionList);
     this.saveFormSb.next();
   }
 
-  setProp_S(field: Field, propType: PropType, value: unknown) {
+  // setProp_S(field: Field, propType: PropType, value: unknown) {
+  //   if (!this.#isValidPropValue(propType, value)) {
+  //     throw new Error(
+  //       `Invalid value for propType '${propType}'. ` +
+  //         `Expected ${this.#propSchema[propType].type}, ` +
+  //         `received ${this.#describeValue(value)}.`,
+  //     );
+  //   }
+  //   field.setProp(propType, value);
+  //   this.saveFormSb.next();
+  // }
+
+  setProp_S(node: Node, propType: PropType, value: unknown) {
     if (!this.#isValidPropValue(propType, value)) {
       throw new Error(
         `Invalid value for propType '${propType}'. ` +
@@ -97,7 +154,7 @@ export class BuilderService {
           `received ${this.#describeValue(value)}.`,
       );
     }
-    field.setProp(propType, value);
+    node.setProp(propType, value);
     this.saveFormSb.next();
   }
 
@@ -106,24 +163,45 @@ export class BuilderService {
     this.saveFormSb.next();
   }
 
-  toggleRadioCheckbox_S(group: Group): void {
-    group.toggleRadioCheckbox();
+  // toggleRadioCheckbox_S(group: Group): void {
+  //   group.toggleRadioCheckbox();
+  //   this.saveFormSb.next();
+  // }
+
+  toggleRadioCheckbox_S(node: Node): void {
+    node.toggleRadioCheckbox();
     this.saveFormSb.next();
   }
 
-  addGroup_S(groupType: GroupType): Group {
-    const group = this.formModel$().addGroup(groupType);
+  // addGroup_S(groupType: GroupType): Node {
+  //   const group = this.formModel$().addGroup(groupType);
+  //   this.saveFormSb.next();
+  //   return group;
+  // }
+
+  addNode_S(nodeType: NodeType): Node {
+    const node = this.formModel$().addNode(nodeType);
     this.saveFormSb.next();
-    return group;
+    return node;
   }
 
-  reorderGroup_S(fromIndex: number, toIndex: number): void {
-    this.formModel$().reorderGroup(fromIndex, toIndex);
+  // reorderGroup_S(fromIndex: number, toIndex: number): void {
+  //   this.formModel$().reorderGroup(fromIndex, toIndex);
+  //   this.saveFormSb.next();
+  // }
+
+  reorderNode_S(fromIndex: number, toIndex: number): void {
+    this.formModel$().reorderNode(fromIndex, toIndex);
     this.saveFormSb.next();
   }
 
-  deleteGroup_S(groupId: string): void {
-    this.formModel$().deleteGroup(groupId);
+  // deleteGroup_S(groupId: string): void {
+  //   this.formModel$().deleteGroup(groupId);
+  //   this.saveFormSb.next();
+  // }
+
+  deleteNode_S(nodeId: string): void {
+    this.formModel$().deleteNode(nodeId);
     this.saveFormSb.next();
   }
 

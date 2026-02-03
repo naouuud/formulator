@@ -11,7 +11,7 @@
     <!-- Form Title -->
     <app-builder-form-title [formName]="formModel$().formName" />
     <!-- Form Groups -->
-    <div class="flex flex-col gap-4">
+    <!-- <div class="flex flex-col gap-4">
       @for (group of formModel$().groups; track group) {
         <div
           class="animation-container"
@@ -26,9 +26,23 @@
           </app-builder-group>
         </div>
       }
+    </div> -->
+    <!-- Form Nodes -->
+    <div class="flex flex-col gap-4">
+      @for (node of formModel$().nodes; track $index) {
+        @if (node.nodeType === NodeType.GROUP) {
+          <app-builder-group-node [node]="node" [formGroupIn]="allFormGroups" />
+        } @else {
+          <app-builder-node
+            [node]="node"
+            [formGroupIn]="getFormGroup(node.nodeId)"
+            (nodeDeletedEM)="nodeDeleteCleanup($event)"
+          ></app-builder-node>
+        }
+      }
     </div>
     <!-- Empty form message -->
-    @if (formModel$().groups.length === 0 && !hideMessage()) {
+    @if (formModel$().nodes.length === 0 && !hideMessage()) {
       <div
         class="flex justify-center items-center min-h-[300px] w-full text-xl font-[500] text-gray-400 mb-4 p-2 border-2 border-gray-300 rounded-md border-dashed"
         animate.enter="message-enter-animation"
@@ -38,7 +52,7 @@
     }
   </div>
   <!-- Submit Button -->
-  @if (formModel$().groups.length > 0) {
+  @if (formModel$().nodes.length > 0) {
     <div class="flex justify-center">
       <button
         type="button"

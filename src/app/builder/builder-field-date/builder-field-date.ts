@@ -4,6 +4,7 @@ import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { PropType } from '../../models/prop-types';
 import { BuilderValidationDaterange } from '../builder-validation-daterange/builder-validation-daterange';
 import { BuilderValidation } from '../builder-validation/builder-validation';
+import { Node } from '../../models/node';
 
 @Component({
   selector: 'app-builder-field-date',
@@ -12,7 +13,7 @@ import { BuilderValidation } from '../builder-validation/builder-validation';
   styleUrl: './builder-field-date.css',
 })
 export class BuilderFieldDate implements OnInit {
-  @Input() field!: Field;
+  @Input() node!: Node;
   PropType = PropType;
   currentDate = new Date();
 
@@ -52,7 +53,7 @@ export class BuilderFieldDate implements OnInit {
   }
 
   setYearOptions(): void {
-    const dateRange = this.field.getPropValue(PropType.DATERANGE);
+    const dateRange = this.node.getPropValue(PropType.DATERANGE);
     const maxYear = dateRange
       ? dateRange.max === 'today'
         ? this.currentYear()
