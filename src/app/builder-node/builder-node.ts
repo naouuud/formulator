@@ -11,6 +11,7 @@ import { BuilderFieldNumber } from '../builder-field-number/builder-field-number
 import { BuilderFieldOption } from '../builder/builder-field-option/builder-field-option';
 import { BuilderFieldDate } from '../builder/builder-field-date/builder-field-date';
 import { BuilderGroupDelete } from '../builder/builder-group-delete/builder-group-delete';
+import { OptionListsFloat } from '../builder/option-lists-float/option-lists-float';
 
 const NodeLabels = {
   [NodeType.NONE]: 'none',
@@ -36,6 +37,7 @@ const NodeLabels = {
     CdkDrag,
     ReactiveFormsModule,
     BuilderGroupDelete,
+    OptionListsFloat,
   ],
   templateUrl: './builder-node.html',
   styleUrl: './builder-node.css',
@@ -92,12 +94,11 @@ export class BuilderNode implements OnInit {
   }
 
   replaceOptions_C(optionList: Option[] | null) {
-    // if (optionList) this.builderService.replaceOptions_S(this.group, optionList);
-    // this.floatVisible = false;
+    if (optionList) this.builderService.replaceOptions_S(this.node, optionList);
+    this.floatVisible = false;
   }
 
   getOptionLists_C(): Option[][] {
-    // return this.builderService.getOptionLists_S();
-    return [];
+    return this.builderService.getOptionLists_S();
   }
 }
