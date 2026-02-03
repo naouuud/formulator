@@ -4,7 +4,7 @@
   (mouseleave)="dragDisabled$.set(false)"
 >
   <span class="px-4 py-1 text-xs uppercase text-gray-400">Options </span>
-  <div class="flex flex-col gap-3 px-2 py-3 rounded-[24px] border border-gray-300 bg-gray-100">
+  <div class="flex flex-col gap-1 px-2 py-3 rounded-[24px] border border-gray-300 bg-gray-100">
     <!-- Input -->
     <div class="flex items-center gap-2">
       <input
@@ -23,20 +23,42 @@
         Add
       </button>
     </div>
+    <!-- Other Option Prop -->
+    @if (optionOtherProp) {
+      <div class="px-4 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+        <label class="flex items-center justify-between min-h-8 cursor-pointer">
+          <span class="text-gray-500">Allow option 'Other (please specify)'</span>
+          <div class="relative">
+            <input
+              type="checkbox"
+              [formControlName]="PropType.OPTIONOTHER"
+              (change)="updateOptionOtherValue($event)"
+              class="sr-only peer"
+            />
+            <div
+              class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
+            ></div>
+            <div
+              class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"
+            ></div>
+          </div>
+        </label>
+      </div>
+    }
     <!-- Options list -->
     <div
-      class="flex flex-col gap-2"
+      class="flex flex-col gap-1"
       cdkDropList
       (cdkDropListDropped)="reorderOption_C($event)"
       cdkDropListOrientation="mixed"
     >
       @if (!node.getOptions().length) {
-        <div class="px-4 py-1 text-gray-500">No options to display</div>
+        <div class="px-4 pb-1 text-gray-500">No options to display</div>
       }
       @for (option of node.getOptions(); track $index) {
         <div
           cdkDrag
-          class="flex justify-between items-center gap-2 px-4 py-1.5 rounded-full border border-gray-200 text-sm text-gray-700 hover:cursor-pointer hover:bg-white"
+          class="flex justify-between items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 text-sm text-gray-700 hover:cursor-pointer hover:bg-white"
         >
           <!-- List type (radio, checkbox or basic) -->
           @if (node.nodeType === NodeType.RADIO) {
@@ -75,27 +97,5 @@
         <app-option-other [nodeType]="node.nodeType" />
       }
     </div>
-    <!-- Other Option Prop -->
-    @if (optionOtherProp) {
-      <div class="px-4 py-1 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
-        <label class="flex items-center justify-between min-h-8 cursor-pointer">
-          <span class="text-gray-500 text-xs uppercase">Include option 'Other'</span>
-          <div class="relative">
-            <input
-              type="checkbox"
-              [formControlName]="PropType.OPTIONOTHER"
-              (change)="updateOptionOtherValue($event)"
-              class="sr-only peer"
-            />
-            <div
-              class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
-            ></div>
-            <div
-              class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"
-            ></div>
-          </div>
-        </label>
-      </div>
-    }
   </div>
 </div>

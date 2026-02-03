@@ -1,11 +1,5 @@
 import { Component, computed, effect, Input, OnInit, signal } from '@angular/core';
-import {
-  DuplicateOptionError,
-  EmptyOptionError,
-  Field,
-  FieldType,
-  OPTION_OTHER_TEXT,
-} from '../../models/field-types';
+import { Field, FieldType, OPTION_OTHER_TEXT } from '../../models/field-types';
 import { BuilderService } from '../../services/builder-service';
 import { CdkDropList, CdkDrag, CdkDragDrop, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
 import { CustomRadio } from '../custom-radio/custom-radio';
@@ -13,7 +7,7 @@ import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
 import { PropType } from '../../models/prop-types';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { OptionOther } from '../option-other/option-other';
-import { Node, NodeType } from '../../models/node';
+import { Node, NodeType, DuplicateOptionError, EmptyOptionError } from '../../models/node';
 // import { CustomSelect } from '../custom-select/custom-select';
 
 @Component({
@@ -62,23 +56,23 @@ export class BuilderOptions implements OnInit {
   addOption_C(optionInput: HTMLInputElement) {
     const option = optionInput.value;
     try {
-      // this.builderService.addOption_S(this.field, option);
+      this.builderService.addOption_S(this.node, option);
       optionInput.value = '';
     } catch (err) {
       if (err instanceof DuplicateOptionError) {
-        console.warn(err);
+        console.warn(err.message);
       }
       if (err instanceof EmptyOptionError) {
-        console.warn(err);
+        console.warn(err.message);
       }
     }
   }
 
   reorderOption_C(event: CdkDragDrop<unknown>) {
-    // this.builderService.reorderOption_S(this.field, event.previousIndex, event.currentIndex);
+    this.builderService.reorderOption_S(this.node, event.previousIndex, event.currentIndex);
   }
 
   deleteOption_C(idx: number) {
-    // this.builderService.deleteOption_S(this.field, idx);
+    this.builderService.deleteOption_S(this.node, idx);
   }
 }

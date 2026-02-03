@@ -89,13 +89,13 @@ export class Node {
 
   addOption(optionIn: Option) {
     if (!optionIn.trim()) {
-      throw new EmptyOptionError('Invalid option, must contain at least one character');
+      throw new EmptyOptionError('Option cannot be empty');
     }
     const options = this.getOptions();
     // check if duplicate
     for (let option of options) {
       if (optionIn === option) {
-        throw new DuplicateOptionError(`Duplicate option '${optionIn}'`);
+        throw new DuplicateOptionError(`Option '${optionIn} already exists'`);
       }
     }
     options.push(optionIn); // direct mutation
