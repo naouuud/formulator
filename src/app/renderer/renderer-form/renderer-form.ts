@@ -6,7 +6,6 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { Group } from '../../models/group-types';
 import { RendererGroup } from '../renderer-group/renderer-group';
 import { Field } from '../../models/field-types';
 import { Prop, PropType, phonePattern, numberPattern } from '../../models/prop-types';
@@ -15,7 +14,7 @@ import { LocalStorageService } from '../../services/local-storage';
 
 @Component({
   selector: 'app-renderer-form',
-  imports: [RendererGroup, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './renderer-form.html',
   styleUrl: './renderer-form.css',
 })
@@ -30,35 +29,35 @@ export class RendererForm {
   }
 
   private _buildFormGroup(): void {
-    this.formModel.groups.forEach((group: Group) => {
-      group.fields.forEach((field: Field) => {
-        const validators: ValidatorFn[] = [];
-        field.props.forEach((prop: Prop) => {
-          switch (prop.propType) {
-            case PropType.REQUIRED:
-              if (prop.value) validators.push(Validators.required);
-              break;
-            case PropType.MAXLENGTHCHAR:
-              validators.push(Validators.maxLength(prop.value));
-              break;
-            // case PropType.MINLENGTHCHAR:
-            //   if (prop.value > 1) validators.push(Validators.minLength(prop.value));
-            //   break;
-            case PropType.PATTERNPHONE:
-              validators.push(Validators.pattern(phonePattern));
-              break;
-            case PropType.PATTERNNUMBER:
-              validators.push(Validators.pattern(numberPattern));
-              break;
-            case PropType.EMAIL:
-              if (prop.value) validators.push(Validators.email);
-              break;
-            // MINVALUE, MAXVALUE, MINDATE, MAXDATE
-          }
-        });
-        this.formGroup.addControl(field.fieldId, new FormControl<string | null>(null, validators));
-      });
-    });
+    // this.formModel.groups.forEach((group: Node) => {
+    //   group.fields.forEach((field: Field) => {
+    //     const validators: ValidatorFn[] = [];
+    //     field.props.forEach((prop: Prop) => {
+    //       switch (prop.propType) {
+    //         case PropType.REQUIRED:
+    //           if (prop.value) validators.push(Validators.required);
+    //           break;
+    //         case PropType.MAXLENGTHCHAR:
+    //           validators.push(Validators.maxLength(prop.value));
+    //           break;
+    //         // case PropType.MINLENGTHCHAR:
+    //         //   if (prop.value > 1) validators.push(Validators.minLength(prop.value));
+    //         //   break;
+    //         case PropType.PATTERNPHONE:
+    //           validators.push(Validators.pattern(phonePattern));
+    //           break;
+    //         case PropType.PATTERNNUMBER:
+    //           validators.push(Validators.pattern(numberPattern));
+    //           break;
+    //         case PropType.EMAIL:
+    //           if (prop.value) validators.push(Validators.email);
+    //           break;
+    //         // MINVALUE, MAXVALUE, MINDATE, MAXDATE
+    //       }
+    //     });
+    //     this.formGroup.addControl(field.fieldId, new FormControl<string | null>(null, validators));
+    //   });
+    // });
   }
 
   // private _extractFields(): void {

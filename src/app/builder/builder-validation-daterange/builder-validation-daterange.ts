@@ -19,6 +19,7 @@ import {
   PropType,
   todayString,
 } from '../../models/prop-types';
+import { Node } from '../../models/node';
 
 type SelectOptions = 'mixed' | 'past' | 'future';
 
@@ -31,7 +32,7 @@ type SelectOptions = 'mixed' | 'past' | 'future';
 })
 export class BuilderValidationDaterange implements OnInit {
   dragDisabled$;
-  @Input() field!: Field;
+  @Input() node!: Node;
   #fallBackDateRange;
   maxDate$;
   minDate$;
@@ -113,14 +114,14 @@ export class BuilderValidationDaterange implements OnInit {
 
   ngOnInit(): void {
     // console.log('Run init');
-    this.editable = this.field.getProp(PropType.DATERANGE)?.editable ?? true;
+    this.editable = this.node.getProp(PropType.DATERANGE)?.editable ?? true;
     this.#initializeDateRangeAndSelect();
     this.blockSelectEffectOnce = true;
   }
 
   setDateRange_C(maxDateString: string, minDateString: string) {
     const dateRange = createDateRange(maxDateString, minDateString); // factory enforces type correctness and throws error
-    this.builderService.setProp_S(this.field, PropType.DATERANGE, dateRange);
+    // this.builderService.setProp_S(this.field, PropType.DATERANGE, dateRange);
     this.triggerChangeEMIT.emit();
   }
 
@@ -131,7 +132,7 @@ export class BuilderValidationDaterange implements OnInit {
   }
 
   #initializeDateRangeAndSelect(): void {
-    const existingDateRange = this.field.getPropValue(PropType.DATERANGE);
+    const existingDateRange = this.node.getPropValue(PropType.DATERANGE);
     if (!existingDateRange) return; // should not happen but ok because we have initialized signals
     const existingMaxDate = existingDateRange.max;
     const existingMinDate = existingDateRange.min;

@@ -5,7 +5,7 @@
   <div class="flex gap-2 w-full">
     <!-- Options Panel  -->
     <div class="flex-1">
-      <app-builder-options [field]="field" />
+      <app-builder-options [node]="node" />
     </div>
     <!-- Preview -->
     <div class="flex-1 flex flex-col">
@@ -33,12 +33,12 @@
       <!-- Fake Select -->
       <div class="w-full bg-white">
         <div class="bg-blue-600 px-2 py-1 text-white">Select an option</div>
-        @for (option of field.getOptions(); track $index) {
+        @for (option of node.getOptions(); track $index) {
           <div class="text-gray-700 px-2 py-1">{{ option }}</div>
         }
       </div>
     </div>
   </div>
   <!-- Validation -->
-  <app-builder-validation [field]="field" />
+  <app-builder-validation [node]="node" />
 </div>

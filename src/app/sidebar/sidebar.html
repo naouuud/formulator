@@ -8,13 +8,13 @@
 >
   <div>Field Types</div>
   @for (uiType of uiTypesCustom; track uiType) {
-    <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.groupType">
+    <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.nodeType">
       <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
     </app-ui-type-icon>
   }
   <div>Custom Fields</div>
   @for (uiType of uiTypesBasic; track uiType) {
-    <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.groupType">
+    <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.nodeType">
       <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
     </app-ui-type-icon>
   }

@@ -71,6 +71,6 @@
     </div>
   </div>
   <!-- Validation -->
-  <app-builder-validation [field]="field" />
-  <app-builder-validation-daterange [field]="field" (triggerChangeEMIT)="setYearOptions()" />
+  <app-builder-validation [node]="node" />
+  <app-builder-validation-daterange [node]="node" (triggerChangeEMIT)="setYearOptions()" />
 </div>

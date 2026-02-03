@@ -4,6 +4,7 @@ import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderValidation } from '../builder-validation/builder-validation';
 import { BuilderService } from '../../services/builder-service';
 import { BuilderOptions } from '../builder-options/builder-options';
+import { Node } from '../../models/node';
 
 @Component({
   selector: 'app-builder-field-select',
@@ -12,7 +13,7 @@ import { BuilderOptions } from '../builder-options/builder-options';
   styleUrl: './builder-field-select.css',
 })
 export class BuilderFieldSelect {
-  @Input() field!: Field;
+  @Input() node!: Node;
   dragDisabled$;
 
   constructor(private builderService: BuilderService) {

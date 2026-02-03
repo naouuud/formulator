@@ -13,6 +13,7 @@ import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
 import { PropType } from '../../models/prop-types';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { OptionOther } from '../option-other/option-other';
+import { Node, NodeType } from '../../models/node';
 // import { CustomSelect } from '../custom-select/custom-select';
 
 @Component({
@@ -32,8 +33,9 @@ import { OptionOther } from '../option-other/option-other';
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class BuilderOptions implements OnInit {
-  FieldType = FieldType;
-  @Input() field!: Field;
+  // FieldType = FieldType;
+  NodeType = NodeType;
+  @Input() node!: Node;
   dragDisabled$;
   optionOtherProp = false;
   optionOtherValue = false; // fallback value
@@ -45,10 +47,10 @@ export class BuilderOptions implements OnInit {
   }
 
   ngOnInit(): void {
-    this.optionOtherProp = !!this.field.getProp(PropType.OPTIONOTHER);
+    this.optionOtherProp = !!this.node.getProp(PropType.OPTIONOTHER);
     if (this.optionOtherProp) {
       // initialize from field
-      this.optionOtherValue = this.field.getPropValue(PropType.OPTIONOTHER)!;
+      this.optionOtherValue = this.node.getPropValue(PropType.OPTIONOTHER)!;
     }
   }
 
@@ -60,7 +62,7 @@ export class BuilderOptions implements OnInit {
   addOption_C(optionInput: HTMLInputElement) {
     const option = optionInput.value;
     try {
-      this.builderService.addOption_S(this.field, option);
+      // this.builderService.addOption_S(this.field, option);
       optionInput.value = '';
     } catch (err) {
       if (err instanceof DuplicateOptionError) {
@@ -73,10 +75,10 @@ export class BuilderOptions implements OnInit {
   }
 
   reorderOption_C(event: CdkDragDrop<unknown>) {
-    this.builderService.reorderOption_S(this.field, event.previousIndex, event.currentIndex);
+    // this.builderService.reorderOption_S(this.field, event.previousIndex, event.currentIndex);
   }
 
   deleteOption_C(idx: number) {
-    this.builderService.deleteOption_S(this.field, idx);
+    // this.builderService.deleteOption_S(this.field, idx);
   }
 }

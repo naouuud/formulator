@@ -1,4 +1,10 @@
-import { Prop, PropType, PropValueMap } from './prop-types';
+import { createDateRange, Option, Prop, PropType, PropValueMap, todayString } from './prop-types';
+
+export class EmptyOptionError extends Error {}
+export class DuplicateOptionError extends Error {}
+export const OPTION_OTHER_TEXT = 'Other (please specify)';
+export const LABEL_MAX_LENGTH = 200;
+export const OPTION_MAX_LENGTH = 50;
 
 type NodeFactory = () => Node;
 export type NodeDto = {
@@ -9,14 +15,15 @@ export type NodeDto = {
 };
 
 export enum NodeType {
-  // Simple
   NONE = 'none',
   TEXT = 'text',
   TEXTAREA = 'textarea',
+  NUMBER = 'number',
   SELECT = 'select',
   CHECKBOX = 'checkbox',
   RADIO = 'radio',
   DATE = 'date',
+  GROUP = 'group',
 }
 
 export class Node {
@@ -70,6 +77,54 @@ export class Node {
     return { propType, value, editable } as Extract<Prop, { propType: K }>;
   }
 
+  // returns ref, can mutate directly
+  getOptions(): Option[] {
+    return this.getPropValue(PropType.OPTIONS) ?? [];
+  }
+
+  // always sets new array, never reference
+  setOptions(newArray: Option[]): void {
+    this.setProp(PropType.OPTIONS, [...newArray]);
+  }
+
+  addOption(optionIn: Option) {
+    if (!optionIn.trim()) {
+      throw new EmptyOptionError('Invalid option, must contain at least one character');
+    }
+    const options = this.getOptions();
+    // check if duplicate
+    for (let option of options) {
+      if (optionIn === option) {
+        throw new DuplicateOptionError(`Duplicate option '${optionIn}'`);
+      }
+    }
+    options.push(optionIn); // direct mutation
+  }
+
+  reorderOption(fromIndex: number, toIndex: number): void {
+    const options = this.getOptions();
+    const [movedItem] = options.splice(fromIndex, 1);
+    options.splice(toIndex, 0, movedItem);
+  }
+
+  deleteOption(idx: number) {
+    const options = this.getOptions();
+    options.splice(idx, 1);
+  }
+
+  toggleRadioCheckbox(): void {
+    if (this.nodeType === NodeType.RADIO) {
+      this.nodeType = NodeType.CHECKBOX;
+      return;
+      // this.fields[0].fieldType = FieldType.CHECKBOX;
+    }
+    if (this.nodeType === NodeType.CHECKBOX) {
+      this.nodeType = NodeType.RADIO;
+      return;
+      // this.fields[0].fieldType = FieldType.RADIO;
+    }
+  }
+
   static create(nodeType: NodeType): Node {
     const factory = nodeMap.get(nodeType);
     if (!factory) {
@@ -104,10 +159,12 @@ export class Node {
 const nodeMap = new Map<NodeType, NodeFactory>([
   [NodeType.TEXT, createTextNode],
   [NodeType.TEXTAREA, createTextareaNode],
+  [NodeType.NUMBER, createNumberNode],
   [NodeType.SELECT, createSelectNode],
   [NodeType.CHECKBOX, createCheckboxNode],
   [NodeType.RADIO, createRadioNode],
   [NodeType.DATE, createDateNode],
+  [NodeType.GROUP, createGroupNode],
 ]);
 
 // SIMPLE
@@ -122,19 +179,74 @@ function createTextNode(): Node {
 }
 
 function createTextareaNode(): Node {
-  return new Node();
+  const node = new Node();
+  node.nodeType = NodeType.TEXTAREA;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.MAXLENGTHWORD, 500);
+  node.setProp(PropType.PLACEHOLDER, 'Enter response here...');
+  return node;
 }
+
+function createNumberNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.NUMBER;
+  node.setProp(PropType.LABEL, '', true);
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.PATTERNNUMBER, true);
+  node.setProp(PropType.MAXLENGTHCHAR, 20, false);
+  // node.setProp(PropType.MAXVALUE, 1_000_000_000);
+  // node.setProp(PropType.MINVALUE, -1_000_000_000);
+  node.setProp(PropType.PLACEHOLDER, 'Enter number...');
+  return node;
+}
+
 function createSelectNode(): Node {
-  return new Node();
+  const node = new Node();
+  node.nodeType = NodeType.SELECT;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.OPTIONS, []);
+  return node;
 }
-function createCheckboxNode(): Node {
-  return new Node();
-}
+
 function createRadioNode(): Node {
-  return new Node();
+  const node = new Node();
+  node.nodeType = NodeType.RADIO;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.OPTIONOTHER, false);
+  node.setProp(PropType.OPTIONS, []);
+  return node;
 }
+
+function createCheckboxNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.CHECKBOX;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.OPTIONOTHER, false);
+  node.setProp(PropType.OPTIONS, []);
+  return node;
+}
+
 function createDateNode(): Node {
-  return new Node();
+  const node = new Node();
+  node.nodeType = NodeType.DATE;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  const maxDateString = todayString();
+  const minDateString = todayString(-100);
+  const dateRange = createDateRange(maxDateString, minDateString); // use factory
+  node.setProp(PropType.DATERANGE, dateRange);
+  return node;
+}
+
+function createGroupNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.GROUP;
+  node.setProp(PropType.LABEL, 'Group Label');
+  return node;
 }
 
 // COMPLEX

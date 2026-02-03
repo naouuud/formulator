@@ -22,6 +22,7 @@ export enum FieldType {
   CHECKBOX = 'checkbox',
   RADIO = 'radio',
   DATE = 'date',
+  GROUP = 'group',
 }
 
 export class Field {

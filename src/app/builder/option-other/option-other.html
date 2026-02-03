@@ -1,7 +1,7 @@
 <div class="px-4 py-1.5 rounded-full border border-gray-200 text-sm text-gray-700 hover:bg-white">
   <div class="flex items-center gap-3">
     <!-- Radio / Checkbox -->
-    @if (fieldType === FieldType.RADIO) {
+    @if (nodeType === NodeType.RADIO) {
       <span
         class="relative flex items-center justify-center w-4 h-4 shrink-0 rounded-full border-2 border-gray-300 peer-checked:border-blue-500"
       >
@@ -10,7 +10,7 @@
         ></span>
       </span>
     }
-    @if (fieldType === FieldType.CHECKBOX) {
+    @if (nodeType === NodeType.CHECKBOX) {
       <span
         class="relative flex items-center justify-center w-4 h-4 shrink-0 rounded border-2 border-gray-300 peer-checked:border-blue-500 peer-checked:bg-blue-500"
       ></span>

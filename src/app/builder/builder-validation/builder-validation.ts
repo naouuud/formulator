@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { PropType } from '../../models/prop-types';
 import { Field } from '../../models/field-types';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+import { Node } from '../../models/node';
 
 @Component({
   selector: 'app-builder-validation',
@@ -11,7 +12,7 @@ import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angu
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class BuilderValidation {
-  @Input() field!: Field;
+  @Input() node!: Node;
   PropType = PropType;
   charMax = this._arrayRange(10, 100, 10);
   wordMax = this._arrayRange(50, 1000, 50);

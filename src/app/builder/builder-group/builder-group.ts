@@ -48,17 +48,17 @@ export class BuilderGroup {
   }
 
   toggleRadioCheckbox_C(): void {
-    this.builderService.toggleRadioCheckbox_S(this.group);
+    // this.builderService.toggleRadioCheckbox_S(this.group);
   }
 
   deleteGroup_C(groupId: string): void {
     const fieldIds = this.group.fields.map((f) => f.fieldId); // save fieldIds before deleting to delete formcontrols
-    this.builderService.deleteGroup_S(groupId);
+    this.builderService.deleteNode_S(groupId);
     this.groupDeletedEM.emit(fieldIds); // emit to delete formcontrols
   }
 
   replaceOptions_C(optionList: Option[] | null) {
-    if (optionList) this.builderService.replaceOptions_S(this.group, optionList);
+    // if (optionList) this.builderService.replaceOptions_S(this.group, optionList);
     this.floatVisible = false;
   }
 
