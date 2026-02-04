@@ -3,7 +3,7 @@ import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderValidation } from '../builder-validation/builder-validation';
 import { Field } from '../../models/field-types';
 import { PropType } from '../../models/prop-types';
-import { Node } from '../../models/node';
+import { Node } from '../../models/node-types';
 
 @Component({
   selector: 'app-builder-field-textarea',

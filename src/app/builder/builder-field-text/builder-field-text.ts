@@ -3,7 +3,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderValidation } from '../builder-validation/builder-validation';
 import { CommonModule } from '@angular/common';
-import { Node } from '../../models/node';
+import { Node } from '../../models/node-types';
 
 @Component({
   selector: 'app-builder-field-text',

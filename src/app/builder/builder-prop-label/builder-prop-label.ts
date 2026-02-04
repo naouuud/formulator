@@ -21,7 +21,7 @@ export class BuilderPropLabel {
   controlDisabled;
   showAllErrorMessages$;
   showRequiredError$;
-  requiredErrorMessage = 'Blank question';
+  requiredErrorMessage = 'Blank question detected';
   maxCount = LABEL_MAX_LENGTH;
   currentCount;
   @Input() labelMessage!: string;

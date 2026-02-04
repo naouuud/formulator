@@ -5,7 +5,7 @@ import { LocalStorageService } from './local-storage';
 // import { Field } from '../models/field-types';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
 import { debounceTime, Subject } from 'rxjs';
-import { Node, createNameNode, NodeType } from '../models/node';
+import { Node, NodeType } from '../models/node-types';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -35,11 +35,11 @@ export class BuilderService {
     this.showAllErrorMessages$ = signal(false);
 
     // Node test
-    const nameNode = createNameNode();
-    const serializedNameNode = Node.serialize(nameNode);
-    console.log(serializedNameNode);
-    const deserializedNameNode = Node.deserialize(serializedNameNode);
-    console.log(deserializedNameNode);
+    // const nameNode = createNameNode();
+    // const serializedNameNode = Node.serialize(nameNode);
+    // console.log(serializedNameNode);
+    // const deserializedNameNode = Node.deserialize(serializedNameNode);
+    // console.log(deserializedNameNode);
   }
 
   // addOption_S(field: Field, option: Option): void {

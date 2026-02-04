@@ -2,13 +2,13 @@ import { Component, effect, signal } from '@angular/core';
 import { BuilderService } from '../../services/builder-service';
 import { BuilderGroup } from '../builder-group/builder-group';
 import { CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
-import { GroupType } from '../../models/group-types';
+// import { GroupType } from '../../models/group-types';
 import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
 import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Prop, PropType } from '../../models/prop-types';
 import { LABEL_MAX_LENGTH } from '../../models/field-types';
 import { BuilderNode } from '../../builder-node/builder-node';
-import { NodeType, Node } from '../../models/node';
+import { NodeType, Node } from '../../models/node-types';
 import { BuilderGroupNode } from '../../builder-group-node/builder-group-node';
 
 @Component({
@@ -50,7 +50,7 @@ export class BuilderForm {
     this.builderService.reorderNode_S(event.previousIndex, event.currentIndex);
   }
 
-  #addNode_C(event: CdkDragDrop<GroupType>) {
+  #addNode_C(event: CdkDragDrop<NodeType>) {
     const nodeType: NodeType = event.item.data;
     const node = this.builderService.addNode_S(nodeType); // return &Node
     this.builderService.reorderNode_S(this.formModel$().nodes.length - 1, event.currentIndex);
@@ -109,6 +109,6 @@ export class BuilderForm {
         this.allFormGroups.addControl(n.nodeId, nodeFormGroup); // FormGroup identifier = nodeId
       });
     });
-    console.log(this.allFormGroups);
+    // console.log(this.allFormGroups);
   }
 }

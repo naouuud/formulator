@@ -1,5 +1,5 @@
 <div class="flex items-center">
-  <div class="w-full relative mb-2">
+  <div class="w-full relative mb-1">
     <!-- <input
       type="text"
       class="block w-full rounded-full bg-gray-200 px-3 py-2 text-md font-medium text-gray-900 placeholder:text-gray-500 transition-all duration-200 ease-out focus:outline-none focus:bg-white focus:shadow-md focus:ring-2 focus:ring-blue-400"
@@ -15,8 +15,8 @@
     /> -->
     <textarea
       rows="3"
-      class="peer block w-full resize-none rounded-2xl bg-gray-200 px-3 py-2 text-md font-medium text-gray-900 placeholder:text-gray-500 transition-all duration-200 ease-out focus:outline-none focus:bg-gray-100 focus:shadow-md ring-2 focus:ring-blue-400"
-      [ngClass]="{ 'ring-red-400': showRequiredError$() }"
+      class="peer block w-full resize-none rounded-2xl bg-gray-200 px-3 py-2 text-md font-medium text-gray-700 placeholder:text-gray-500 transition-all duration-200 ease-out focus:outline-none focus:bg-gray-100 focus:shadow-md ring-2 focus:ring-blue-400"
+      [ngClass]="{ 'ring-red-300': showRequiredError$() }"
       [placeholder]="labelMessage"
       [maxlength]="maxCount"
       formControlName="label"
@@ -30,7 +30,6 @@
       {{ currentCount }} / {{ maxCount }}
     </div>
   </div>
-
   @if (controlDisabled) {
     <div
       class="ml-2 flex items-center px-2 text-red-400 text-xs uppercase rounded-full whitespace-nowrap"
@@ -45,10 +44,9 @@
     </div>
   }
 </div>
-
 <!-- Required error message -->
 @if (showRequiredError$()) {
-  <div class="px-3 text-sm text-red-600 transition-all duration-200 ease-out">
+  <div class="px-3 text-sm font-medium text-red-400 transition-all duration-200 ease-out">
     {{ requiredErrorMessage }}
   </div>
 }

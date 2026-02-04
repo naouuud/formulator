@@ -4,7 +4,7 @@ import { BuilderService } from '../../services/builder-service';
 import { BuilderValidation } from '../builder-validation/builder-validation';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderOptions } from '../builder-options/builder-options';
-import { Node } from '../../models/node';
+import { Node } from '../../models/node-types';
 
 @Component({
   selector: 'app-builder-field-option',

@@ -59,7 +59,7 @@ export class Group {
   }
 
   static create(groupType: GroupType): Group {
-    const factory = createMap.get(groupType);
+    const factory = groupMap.get(groupType);
     if (!factory) {
       throw new Error(
         `Internal Error: No factory registered for groupType '${groupType}'. Did you forget to add it to groupMap?`,
@@ -90,209 +90,209 @@ export class Group {
   }
 }
 
-const createMap = new Map<GroupType, GroupFactory>([
-  [GroupType.TEXT, createTextGroup],
-  [GroupType.TEXTAREA, createTextareaGroup],
-  [GroupType.SELECT, createSelectGroup],
-  [GroupType.CHECKBOX, createCheckboxGroup],
-  [GroupType.RADIO, createRadioGroup],
-  [GroupType.DATE, createDateGroup],
-  [GroupType.NUMBER, createNumberGroup],
-  [GroupType.BOOLEAN, createBooleanGroup],
-  [GroupType.NAME, createNameGroup],
-  [GroupType.ADDRESS, createAddressGroup],
-  [GroupType.BIRTHDAY, createBirthdayGroup],
-  [GroupType.GENDER, createGenderGroup],
-  [GroupType.PHONE, createPhoneGroup],
-  [GroupType.EMAIL, createEmailGroup],
+const groupMap = new Map<GroupType, GroupFactory>([
+  // [GroupType.TEXT, createTextGroup],
+  // [GroupType.TEXTAREA, createTextareaGroup],
+  // [GroupType.SELECT, createSelectGroup],
+  // [GroupType.CHECKBOX, createCheckboxGroup],
+  // [GroupType.RADIO, createRadioGroup],
+  // [GroupType.DATE, createDateGroup],
+  // [GroupType.NUMBER, createNumberGroup],
+  // [GroupType.BOOLEAN, createBooleanGroup],
+  // [GroupType.NAME, createNameGroup],
+  // [GroupType.ADDRESS, createAddressGroup],
+  // [GroupType.BIRTHDAY, createBirthdayGroup],
+  // [GroupType.GENDER, createGenderGroup],
+  // [GroupType.PHONE, createPhoneGroup],
+  // [GroupType.EMAIL, createEmailGroup],
 ]);
 
-function createTextGroup() {
-  const group = new Group();
-  group.groupType = GroupType.TEXT;
+// function createTextGroup() {
+//   const group = new Group();
+//   group.groupType = GroupType.TEXT;
 
-  const field = Field.create(FieldType.TEXT);
-  group.fields.push(field);
-  return group;
-}
+//   const field = Field.create(FieldType.TEXT);
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createEmailGroup(): Group {
-  const group = new Group();
-  // group.groupType = GroupType.EMAIL;
+// function createEmailGroup(): Group {
+//   const group = new Group();
+//   // group.groupType = GroupType.EMAIL;
 
-  const field = Field.create(FieldType.TEXT);
-  field.setProp(PropType.EMAIL, true);
-  field.setProp(PropType.MAXLENGTHCHAR, 50, false);
-  // field.setProp(PropType.MINLENGTHCHAR, 0, false);
-  field.setProp(PropType.LABEL, 'Email', false);
-  field.setProp(PropType.PLACEHOLDER, 'Enter your email...');
+//   const field = Field.create(FieldType.TEXT);
+//   field.setProp(PropType.EMAIL, true);
+//   field.setProp(PropType.MAXLENGTHCHAR, 50, false);
+//   // field.setProp(PropType.MINLENGTHCHAR, 0, false);
+//   field.setProp(PropType.LABEL, 'Email', false);
+//   field.setProp(PropType.PLACEHOLDER, 'Enter your email...');
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createNumberGroup(): Group {
-  const group = new Group();
-  group.groupType = GroupType.NUMBER;
+// function createNumberGroup(): Group {
+//   const group = new Group();
+//   group.groupType = GroupType.NUMBER;
 
-  const field = Field.create(FieldType.TEXT);
-  field.setProp(PropType.PATTERNNUMBER, true);
-  field.setProp(PropType.MAXLENGTHCHAR, 20, false);
-  // field.setProp(PropType.MAXVALUE, 1_000_000_000);
-  // field.setProp(PropType.MINVALUE, -1_000_000_000);
-  field.setProp(PropType.PLACEHOLDER, 'Enter number...');
+//   const field = Field.create(FieldType.TEXT);
+//   field.setProp(PropType.PATTERNNUMBER, true);
+//   field.setProp(PropType.MAXLENGTHCHAR, 20, false);
+//   // field.setProp(PropType.MAXVALUE, 1_000_000_000);
+//   // field.setProp(PropType.MINVALUE, -1_000_000_000);
+//   field.setProp(PropType.PLACEHOLDER, 'Enter number...');
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createPhoneGroup(): Group {
-  const group = new Group();
-  // group.groupType = GroupType.PHONE;
+// function createPhoneGroup(): Group {
+//   const group = new Group();
+//   // group.groupType = GroupType.PHONE;
 
-  const field = Field.create(FieldType.TEXT);
-  field.setProp(PropType.PATTERNPHONE, true);
-  field.setProp(PropType.MAXLENGTHCHAR, 15, false);
-  field.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
-  field.setProp(PropType.LABEL, 'Phone', false);
+//   const field = Field.create(FieldType.TEXT);
+//   field.setProp(PropType.PATTERNPHONE, true);
+//   field.setProp(PropType.MAXLENGTHCHAR, 15, false);
+//   field.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
+//   field.setProp(PropType.LABEL, 'Phone', false);
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createTextareaGroup(): Group {
-  const group = new Group();
-  group.groupType = GroupType.TEXTAREA;
+// function createTextareaGroup(): Group {
+//   const group = new Group();
+//   group.groupType = GroupType.TEXTAREA;
 
-  const field = Field.create(FieldType.TEXTAREA);
+//   const field = Field.create(FieldType.TEXTAREA);
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createRadioGroup(): Group {
-  const group = new Group();
-  group.groupType = GroupType.RADIO;
+// function createRadioGroup(): Group {
+//   const group = new Group();
+//   group.groupType = GroupType.RADIO;
 
-  const field = Field.create(FieldType.RADIO);
+//   const field = Field.create(FieldType.RADIO);
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createBooleanGroup(): Group {
-  const group = new Group();
-  // group.groupType = GroupType.BOOLEAN;
+// function createBooleanGroup(): Group {
+//   const group = new Group();
+//   // group.groupType = GroupType.BOOLEAN;
 
-  const field = Field.create(FieldType.RADIO);
-  field.setProp(PropType.OPTIONS, ['Yes', 'No', 'Unsure']);
+//   const field = Field.create(FieldType.RADIO);
+//   field.setProp(PropType.OPTIONS, ['Yes', 'No', 'Unsure']);
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createGenderGroup(): Group {
-  const group = new Group();
-  // group.groupType = GroupType.GENDER;
+// function createGenderGroup(): Group {
+//   const group = new Group();
+//   // group.groupType = GroupType.GENDER;
 
-  const field = Field.create(FieldType.RADIO);
-  field.setProp(PropType.LABEL, 'Gender', false);
-  field.setProp(PropType.OPTIONS, ['Female', 'Male', 'Non-binary', 'Prefer not to say']);
+//   const field = Field.create(FieldType.RADIO);
+//   field.setProp(PropType.LABEL, 'Gender', false);
+//   field.setProp(PropType.OPTIONS, ['Female', 'Male', 'Non-binary', 'Prefer not to say']);
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createCheckboxGroup(): Group {
-  const group = new Group();
-  group.groupType = GroupType.CHECKBOX;
+// function createCheckboxGroup(): Group {
+//   const group = new Group();
+//   group.groupType = GroupType.CHECKBOX;
 
-  const field = Field.create(FieldType.CHECKBOX);
+//   const field = Field.create(FieldType.CHECKBOX);
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createSelectGroup(): Group {
-  const group = new Group();
-  group.groupType = GroupType.SELECT;
+// function createSelectGroup(): Group {
+//   const group = new Group();
+//   group.groupType = GroupType.SELECT;
 
-  const field = Field.create(FieldType.SELECT);
+//   const field = Field.create(FieldType.SELECT);
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createDateGroup(): Group {
-  const group = new Group();
-  group.groupType = GroupType.DATE;
+// function createDateGroup(): Group {
+//   const group = new Group();
+//   group.groupType = GroupType.DATE;
 
-  const field = Field.create(FieldType.DATE);
-  group.fields.push(field);
-  return group;
-}
+//   const field = Field.create(FieldType.DATE);
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createBirthdayGroup(): Group {
-  const group = new Group();
-  // group.groupType = GroupType.BIRTHDAY;
+// function createBirthdayGroup(): Group {
+//   const group = new Group();
+//   // group.groupType = GroupType.BIRTHDAY;
 
-  const field = Field.create(FieldType.DATE);
-  field.setProp(PropType.LABEL, 'Date of Birth', false);
-  const maxDateString = 'today';
-  const minDateString = todayString(-120);
-  const dateRange = createDateRange(maxDateString, minDateString); // use factory
-  field.setProp(PropType.DATERANGE, dateRange, false);
+//   const field = Field.create(FieldType.DATE);
+//   field.setProp(PropType.LABEL, 'Date of Birth', false);
+//   const maxDateString = 'today';
+//   const minDateString = todayString(-120);
+//   const dateRange = createDateRange(maxDateString, minDateString); // use factory
+//   field.setProp(PropType.DATERANGE, dateRange, false);
 
-  group.fields.push(field);
-  return group;
-}
+//   group.fields.push(field);
+//   return group;
+// }
 
-function createNameGroup(): Group {
-  const group = new Group();
-  // group.groupType = GroupType.NAME;
+// function createNameGroup(): Group {
+//   const group = new Group();
+//   // group.groupType = GroupType.NAME;
 
-  const firstName = Field.create(FieldType.TEXT);
-  firstName.setProp(PropType.LABEL, 'First Name', false);
-  firstName.setProp(PropType.PLACEHOLDER, 'Enter first name...');
-  firstName.setProp(PropType.REQUIRED, true);
-  firstName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+//   const firstName = Field.create(FieldType.TEXT);
+//   firstName.setProp(PropType.LABEL, 'First Name', false);
+//   firstName.setProp(PropType.PLACEHOLDER, 'Enter first name...');
+//   firstName.setProp(PropType.REQUIRED, true);
+//   firstName.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  const lastName = Field.create(FieldType.TEXT);
-  lastName.setProp(PropType.LABEL, 'Last Name', false);
-  lastName.setProp(PropType.PLACEHOLDER, 'Enter last name...');
-  lastName.setProp(PropType.REQUIRED, true);
-  lastName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+//   const lastName = Field.create(FieldType.TEXT);
+//   lastName.setProp(PropType.LABEL, 'Last Name', false);
+//   lastName.setProp(PropType.PLACEHOLDER, 'Enter last name...');
+//   lastName.setProp(PropType.REQUIRED, true);
+//   lastName.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  group.fields.push(firstName, lastName);
-  return group;
-}
+//   group.fields.push(firstName, lastName);
+//   return group;
+// }
 
-function createAddressGroup(): Group {
-  const group = new Group();
-  // group.groupType = GroupType.ADDRESS;
+// function createAddressGroup(): Group {
+//   const group = new Group();
+//   // group.groupType = GroupType.ADDRESS;
 
-  const governorate = Field.create(FieldType.SELECT);
-  governorate.setProp(PropType.LABEL, 'Governorate');
-  // governorate.setProp(PropType.PLACEHOLDER, 'Select governorate');
-  governorate.setProp(
-    PropType.OPTIONS,
-    leb_governorates.map((g) => g.name),
-  );
+//   const governorate = Field.create(FieldType.SELECT);
+//   governorate.setProp(PropType.LABEL, 'Governorate');
+//   // governorate.setProp(PropType.PLACEHOLDER, 'Select governorate');
+//   governorate.setProp(
+//     PropType.OPTIONS,
+//     leb_governorates.map((g) => g.name),
+//   );
 
-  const district = Field.create(FieldType.SELECT);
-  district.setProp(PropType.LABEL, 'District');
-  district.setProp(PropType.PLACEHOLDER, 'Select district');
+//   const district = Field.create(FieldType.SELECT);
+//   district.setProp(PropType.LABEL, 'District');
+//   district.setProp(PropType.PLACEHOLDER, 'Select district');
 
-  const street = Field.create(FieldType.TEXT);
-  street.setProp(PropType.LABEL, 'Street and building', false);
-  street.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
-  street.setProp(PropType.MAXLENGTHCHAR, 100, false);
+//   const street = Field.create(FieldType.TEXT);
+//   street.setProp(PropType.LABEL, 'Street and building', false);
+//   street.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
+//   street.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  const city = Field.create(FieldType.TEXT);
-  city.setProp(PropType.LABEL, 'City', false);
-  city.setProp(PropType.PLACEHOLDER, 'Enter city...');
-  city.setProp(PropType.MAXLENGTHCHAR, 100, false);
+//   const city = Field.create(FieldType.TEXT);
+//   city.setProp(PropType.LABEL, 'City', false);
+//   city.setProp(PropType.PLACEHOLDER, 'Enter city...');
+//   city.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  group.fields.push(governorate, district, street, city);
-  return group;
-}
+//   group.fields.push(governorate, district, street, city);
+//   return group;
+// }
