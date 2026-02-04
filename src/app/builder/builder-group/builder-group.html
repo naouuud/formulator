@@ -1,12 +1,12 @@
-<div
+<!-- <div
   class="flex flex-col gap-4 p-4 border-2 border-dashed border-gray-400/50 rounded-2xl bg-gray-200"
   cdkDrag
   cdkDragBoundary=".main-component"
   [cdkDragDisabled]="dragDisabled$()"
 >
-  <div class="flex justify-between items-center">
-    <!-- <div class="text-gray-400 hover:cursor-pointer pl-1">Drag to move</div> -->
-    <div class="flex gap-2">
+  <div class="flex justify-between items-center"> -->
+<!-- <div class="text-gray-400 hover:cursor-pointer pl-1">Drag to move</div> -->
+<!-- <div class="flex gap-2">
       <div
         class="text-blue-500 hover:cursor-pointer border border-blue-500 px-4 py-2 rounded-full"
         [innerHTML]="GroupLabels[group.groupType]"
@@ -32,16 +32,16 @@
         group.groupType === GroupType.CHECKBOX ||
         group.groupType === GroupType.SELECT
       ) {
-        <div class="relative flex">
-          <!-- Button -->
-          <div
+        <div class="relative flex"> -->
+<!-- Button -->
+<!-- <div
             (click)="floatVisible = !floatVisible"
             class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
           >
             <span>Use Options</span>
-          </div>
-          <!-- Float -->
-          @if (floatVisible) {
+          </div> -->
+<!-- Float -->
+<!-- @if (floatVisible) {
             <app-option-lists-float
               class="absolute top-full left-0 mt-2 z-50"
               [optionLists]="getOptionLists_C()"
@@ -54,9 +54,9 @@
     <button type="button" class="flex" (click)="deleteGroup_C(group.groupId)">
       <app-builder-group-delete />
     </button>
-  </div>
-  <!-- Fields -->
-  @for (field of group.fields; track $index) {
+  </div> -->
+<!-- Fields -->
+<!-- @for (field of group.fields; track $index) {
     <app-builder-field [field]="field" [formGroupIn]="getFormGroup(field.fieldId)" />
   }
-</div>
+</div> -->

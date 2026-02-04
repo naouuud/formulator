@@ -7,7 +7,7 @@ import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
 import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Prop, PropType } from '../../models/prop-types';
 import { LABEL_MAX_LENGTH } from '../../models/field-types';
-import { BuilderNode } from '../../builder-node/builder-node';
+import { BuilderNode } from '../builder-node/builder-node';
 import { NodeType, Node } from '../../models/node-types';
 import { FactoryType } from '../../models/factory-types';
 

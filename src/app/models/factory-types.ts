@@ -245,10 +245,10 @@ function createGroupNode(): Node[] {
 function createEmailNode(): Node[] {
   const node = new Node();
   node.nodeType = NodeType.EMAIL;
+  node.setProp(PropType.LABEL, 'Email');
+  node.setProp(PropType.REQUIRED, true);
   node.setProp(PropType.EMAIL, true);
   node.setProp(PropType.MAXLENGTHCHAR, 50, false);
-  // node.setProp(PropType.MINLENGTHCHAR, 0, false);
-  node.setProp(PropType.LABEL, 'Email');
   node.setProp(PropType.PLACEHOLDER, 'Enter your email...');
   return [node];
 }
@@ -256,10 +256,12 @@ function createEmailNode(): Node[] {
 function createPhoneNode(): Node[] {
   const node = new Node();
   node.nodeType = NodeType.PHONE;
+  node.setProp(PropType.LABEL, 'Phone number');
+  node.setProp(PropType.REQUIRED, true);
   node.setProp(PropType.PATTERNPHONE, true);
   node.setProp(PropType.MAXLENGTHCHAR, 15, false);
   node.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
-  node.setProp(PropType.LABEL, 'Phone number');
+
   return [node];
 }
 
