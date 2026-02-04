@@ -10,6 +10,7 @@ import { LABEL_MAX_LENGTH } from '../../models/field-types';
 import { BuilderNode } from '../../builder-node/builder-node';
 import { NodeType, Node } from '../../models/node-types';
 import { BuilderGroupNode } from '../../builder-group-node/builder-group-node';
+import { FactoryType } from '../../models/factory-types';
 
 @Component({
   selector: 'app-builder-form',
@@ -30,7 +31,7 @@ export class BuilderForm {
     this.hideMessage = signal(false);
     effect(() => {
       const formModel = this.formModel$(); // only set once in service
-      this.#addFormGroup(...formModel.getNodes());
+      this.#addFormGroup(formModel.getNodes());
     });
   }
 
@@ -50,11 +51,11 @@ export class BuilderForm {
     this.builderService.reorderNode_S(event.previousIndex, event.currentIndex);
   }
 
-  #addNode_C(event: CdkDragDrop<NodeType>) {
-    const nodeType: NodeType = event.item.data;
-    const node = this.builderService.addNode_S(nodeType); // return &Node
+  #addNode_C(event: CdkDragDrop<FactoryType>) {
+    const factoryType: FactoryType = event.item.data;
+    const nodes = this.builderService.addNode_S(factoryType); // return &Node
     this.builderService.reorderNode_S(this.formModel$().nodes.length - 1, event.currentIndex);
-    this.#addFormGroup(node);
+    this.#addFormGroup(nodes);
   }
 
   nodeDeleteCleanup(nodeId: string) {
@@ -79,7 +80,7 @@ export class BuilderForm {
     return this.allFormGroups.get(nodeId) as FormGroup;
   }
 
-  #addFormGroup(...nodes: Node[]): void {
+  #addFormGroup(nodes: Node[]): void {
     nodes.forEach((n) => {
       const nodeFormGroup = new FormGroup({});
       n.props.forEach((prop: Prop) => {

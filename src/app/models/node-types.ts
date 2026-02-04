@@ -6,7 +6,6 @@ export const OPTION_OTHER_TEXT = 'Other (please specify)';
 export const LABEL_MAX_LENGTH = 200;
 export const OPTION_MAX_LENGTH = 50;
 
-type NodeFactory = () => Node;
 export type NodeDto = {
   nodeType: NodeType;
   nodeId: ReturnType<typeof crypto.randomUUID>;
@@ -41,10 +40,10 @@ export class Node {
     this.nodes = [];
   }
 
-  addNode(nodeType: NodeType) {
-    const node = Node.create(nodeType);
-    this.nodes.push(node);
-  }
+  // addNode(nodeType: NodeType) {
+  //   const node = Node.create(nodeType);
+  //   this.nodes.push(node);
+  // }
 
   getProp<K extends PropType>(propTypeIn: K): Extract<Prop, { propType: K }> | undefined {
     const prop = this.props.find((p) => p.propType === propTypeIn);
@@ -127,15 +126,15 @@ export class Node {
     }
   }
 
-  static create(nodeType: NodeType): Node {
-    const factory = nodeMap.get(nodeType);
-    if (!factory) {
-      throw new Error(
-        `Internal Error: No factory registered for NodeType '${nodeType}'. Did you forget to add it to nodeMap?`,
-      );
-    }
-    return factory();
-  }
+  // static create(nodeType: NodeType): Node {
+  //   const factory = nodeMap.get(nodeType);
+  //   if (!factory) {
+  //     throw new Error(
+  //       `Internal Error: No factory registered for NodeType '${nodeType}'. Did you forget to add it to nodeMap?`,
+  //     );
+  //   }
+  //   return factory();
+  // }
 
   static serialize(node: Node): NodeDto {
     const nodeDto: NodeDto = { ...node };
@@ -156,142 +155,4 @@ export class Node {
     node.nodes = (node.nodes ?? []).map((n: NodeDto) => Node.deserialize(n));
     return node;
   }
-}
-
-const nodeMap = new Map<NodeType, NodeFactory>([
-  [NodeType.TEXT, createTextNode],
-  [NodeType.TEXTAREA, createTextareaNode],
-  [NodeType.NUMBER, createNumberNode],
-  [NodeType.SELECT, createSelectNode],
-  [NodeType.CHECKBOX, createCheckboxNode],
-  [NodeType.RADIO, createRadioNode],
-  [NodeType.DATE, createDateNode],
-  [NodeType.GROUP, createGroupNode],
-  [NodeType.EMAIL, createEmailNode],
-  [NodeType.PHONE, createPhoneNode],
-]);
-
-// SIMPLE
-function createTextNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.TEXT;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.MAXLENGTHCHAR, 100);
-  node.setProp(PropType.PLACEHOLDER, 'Enter response here...');
-  return node;
-}
-
-function createTextareaNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.TEXTAREA;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.MAXLENGTHWORD, 500);
-  node.setProp(PropType.PLACEHOLDER, 'Enter response here...');
-  return node;
-}
-
-function createNumberNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.NUMBER;
-  node.setProp(PropType.LABEL, '', true);
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.PATTERNNUMBER, true);
-  node.setProp(PropType.MAXLENGTHCHAR, 20, false);
-  // node.setProp(PropType.MAXVALUE, 1_000_000_000);
-  // node.setProp(PropType.MINVALUE, -1_000_000_000);
-  node.setProp(PropType.PLACEHOLDER, 'Enter number...');
-  return node;
-}
-
-function createSelectNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.SELECT;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.OPTIONS, []);
-  return node;
-}
-
-function createRadioNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.RADIO;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.OPTIONOTHER, false);
-  node.setProp(PropType.OPTIONS, []);
-  return node;
-}
-
-function createCheckboxNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.CHECKBOX;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.OPTIONOTHER, false);
-  node.setProp(PropType.OPTIONS, []);
-  return node;
-}
-
-function createDateNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.DATE;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  const maxDateString = todayString();
-  const minDateString = todayString(-100);
-  const dateRange = createDateRange(maxDateString, minDateString); // use factory
-  node.setProp(PropType.DATERANGE, dateRange);
-  return node;
-}
-
-function createGroupNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.GROUP;
-  node.setProp(PropType.LABEL, 'Group Label');
-  return node;
-}
-
-function createEmailNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.EMAIL;
-  node.setProp(PropType.EMAIL, true);
-  node.setProp(PropType.MAXLENGTHCHAR, 50, false);
-  // node.setProp(PropType.MINLENGTHCHAR, 0, false);
-  node.setProp(PropType.LABEL, 'Email');
-  node.setProp(PropType.PLACEHOLDER, 'Enter your email...');
-  return node;
-}
-
-function createPhoneNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.PHONE;
-  node.setProp(PropType.PATTERNPHONE, true);
-  node.setProp(PropType.MAXLENGTHCHAR, 15, false);
-  node.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
-  node.setProp(PropType.LABEL, 'Phone number');
-  return node;
-}
-
-// COMPLEX
-export function createName(): Node[] {
-  // const node0 = new Node();
-  // node0.nodeType = NodeType.GROUP;
-  // node0.setProp(PropType.LABEL, 'Full Name');
-
-  const node0 = Node.create(NodeType.TEXT);
-  node0.setProp(PropType.LABEL, 'First Name', false);
-  node0.setProp(PropType.PLACEHOLDER, 'Enter first name...');
-  node0.setProp(PropType.REQUIRED, true);
-  node0.setProp(PropType.MAXLENGTHCHAR, 100, false);
-
-  const node1 = Node.create(NodeType.TEXT);
-  node1.setProp(PropType.LABEL, 'Last Name', false);
-  node1.setProp(PropType.PLACEHOLDER, 'Enter last name...');
-  node1.setProp(PropType.REQUIRED, true);
-  node1.setProp(PropType.MAXLENGTHCHAR, 100, false);
-
-  node0.nodes.push(node0, node1);
-  return [node0, node1];
 }

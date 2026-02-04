@@ -6,6 +6,7 @@ import { LocalStorageService } from './local-storage';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
 import { debounceTime, Subject } from 'rxjs';
 import { Node, NodeType } from '../models/node-types';
+import { FactoryType } from '../models/factory-types';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -179,10 +180,10 @@ export class BuilderService {
   //   return group;
   // }
 
-  addNode_S(nodeType: NodeType): Node {
-    const node = this.formModel$().addNode(nodeType);
+  addNode_S(factoryType: FactoryType): Node[] {
+    const nodes = this.formModel$().add(factoryType);
     this.saveFormSb.next();
-    return node;
+    return nodes;
   }
 
   // reorderGroup_S(fromIndex: number, toIndex: number): void {

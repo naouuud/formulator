@@ -4,17 +4,17 @@
   [cdkDropListConnectedTo]="['form-drop']"
   cdkDropListSortingDisabled
   cdkDropListHasAnchor
-  class="text-white flex flex-col gap-4"
+  class="text-white flex flex-col gap-3"
 >
-  <div>Field Types</div>
-  @for (uiType of uiTypesCustom; track uiType) {
-    <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.nodeType">
+  <div class="ml-3">Field Types</div>
+  @for (icon of factoryIconsBasic; track icon) {
+    <app-ui-type-icon [factoryIcon]="icon" cdkDrag [cdkDragData]="icon.factoryType">
       <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
     </app-ui-type-icon>
   }
-  <div>Custom Fields</div>
-  @for (uiType of uiTypesBasic; track uiType) {
-    <app-ui-type-icon [uiType]="uiType" cdkDrag [cdkDragData]="uiType.nodeType">
+  <div class="ml-3">Quick Picks</div>
+  @for (icon of factoryIconsComplex; track icon) {
+    <app-ui-type-icon [factoryIcon]="icon" cdkDrag [cdkDragData]="icon.factoryType">
       <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
     </app-ui-type-icon>
   }

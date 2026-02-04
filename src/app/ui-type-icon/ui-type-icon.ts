@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { UiType } from '../models/ui-types';
+import { FactoryIcon } from '../models/factory-types';
 
 @Component({
   selector: 'app-ui-type-icon',
@@ -7,5 +7,5 @@ import { UiType } from '../models/ui-types';
   styleUrl: './ui-type-icon.css',
 })
 export class UiTypeIcon {
-  @Input() uiType!: UiType;
+  @Input() factoryIcon!: FactoryIcon;
 }
