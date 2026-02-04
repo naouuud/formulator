@@ -79,6 +79,12 @@
       @case (NodeType.DATE) {
         <app-builder-field-date [node]="node" />
       }
+      @case (NodeType.EMAIL) {
+        <app-builder-node-email [node]="node" />
+      }
+      @case (NodeType.PHONE) {
+        <app-builder-node-phone [node]="node" />
+      }
       @default {}
     }
   </div>

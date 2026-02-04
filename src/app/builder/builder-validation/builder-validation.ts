@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { PropType } from '../../models/prop-types';
 import { Field } from '../../models/field-types';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
-import { Node } from '../../models/node';
+import { Node } from '../../models/node-types';
 
 @Component({
   selector: 'app-builder-validation',

@@ -19,7 +19,7 @@ import {
   PropType,
   todayString,
 } from '../../models/prop-types';
-import { Node } from '../../models/node';
+import { Node } from '../../models/node-types';
 
 type SelectOptions = 'mixed' | 'past' | 'future';
 

@@ -24,6 +24,8 @@ export enum NodeType {
   RADIO = 'radio',
   DATE = 'date',
   GROUP = 'group',
+  EMAIL = 'email',
+  PHONE = 'phone',
 }
 
 export class Node {
@@ -116,12 +118,12 @@ export class Node {
     if (this.nodeType === NodeType.RADIO) {
       this.nodeType = NodeType.CHECKBOX;
       return;
-      // this.fields[0].fieldType = FieldType.CHECKBOX;
+      // this.nodes[0].nodeType = FieldType.CHECKBOX;
     }
     if (this.nodeType === NodeType.CHECKBOX) {
       this.nodeType = NodeType.RADIO;
       return;
-      // this.fields[0].fieldType = FieldType.RADIO;
+      // this.nodes[0].nodeType = FieldType.RADIO;
     }
   }
 
@@ -165,6 +167,8 @@ const nodeMap = new Map<NodeType, NodeFactory>([
   [NodeType.RADIO, createRadioNode],
   [NodeType.DATE, createDateNode],
   [NodeType.GROUP, createGroupNode],
+  [NodeType.EMAIL, createEmailNode],
+  [NodeType.PHONE, createPhoneNode],
 ]);
 
 // SIMPLE
@@ -249,23 +253,45 @@ function createGroupNode(): Node {
   return node;
 }
 
+function createEmailNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.EMAIL;
+  node.setProp(PropType.EMAIL, true);
+  node.setProp(PropType.MAXLENGTHCHAR, 50, false);
+  // node.setProp(PropType.MINLENGTHCHAR, 0, false);
+  node.setProp(PropType.LABEL, 'Email');
+  node.setProp(PropType.PLACEHOLDER, 'Enter your email...');
+  return node;
+}
+
+function createPhoneNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.PHONE;
+  node.setProp(PropType.PATTERNPHONE, true);
+  node.setProp(PropType.MAXLENGTHCHAR, 15, false);
+  node.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
+  node.setProp(PropType.LABEL, 'Phone number');
+  return node;
+}
+
 // COMPLEX
-export function createNameNode(): Node {
-  const node0 = new Node();
-  node0.setProp(PropType.LABEL, 'Full Name');
+export function createName(): Node[] {
+  // const node0 = new Node();
+  // node0.nodeType = NodeType.GROUP;
+  // node0.setProp(PropType.LABEL, 'Full Name');
 
-  const node1a = Node.create(NodeType.TEXT);
-  node1a.setProp(PropType.LABEL, 'First Name', false);
-  node1a.setProp(PropType.PLACEHOLDER, 'Enter first name...');
-  node1a.setProp(PropType.REQUIRED, true);
-  node1a.setProp(PropType.MAXLENGTHCHAR, 100, false);
+  const node0 = Node.create(NodeType.TEXT);
+  node0.setProp(PropType.LABEL, 'First Name', false);
+  node0.setProp(PropType.PLACEHOLDER, 'Enter first name...');
+  node0.setProp(PropType.REQUIRED, true);
+  node0.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  const node1b = Node.create(NodeType.TEXT);
-  node1b.setProp(PropType.LABEL, 'Last Name', false);
-  node1b.setProp(PropType.PLACEHOLDER, 'Enter last name...');
-  node1b.setProp(PropType.REQUIRED, true);
-  node1b.setProp(PropType.MAXLENGTHCHAR, 100, false);
+  const node1 = Node.create(NodeType.TEXT);
+  node1.setProp(PropType.LABEL, 'Last Name', false);
+  node1.setProp(PropType.PLACEHOLDER, 'Enter last name...');
+  node1.setProp(PropType.REQUIRED, true);
+  node1.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  node0.nodes.push(node1a, node1b);
-  return node0;
+  node0.nodes.push(node0, node1);
+  return [node0, node1];
 }

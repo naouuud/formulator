@@ -7,7 +7,7 @@ import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
 import { PropType } from '../../models/prop-types';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { OptionOther } from '../option-other/option-other';
-import { Node, DuplicateOptionError, EmptyOptionError, NodeType } from '../../models/node';
+import { Node, DuplicateOptionError, EmptyOptionError, NodeType } from '../../models/node-types';
 // import { CustomSelect } from '../custom-select/custom-select';
 
 @Component({

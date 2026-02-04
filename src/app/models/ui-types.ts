@@ -1,8 +1,6 @@
-import { GroupType } from './group-types';
-import { NodeType } from './node';
+import { NodeType } from './node-types';
 
 export type UiType = {
-  groupType: GroupType;
   nodeType: NodeType;
   label: string;
   description?: string;
@@ -14,7 +12,6 @@ export const uiTypesCustom: UiType[] = [
   {
     label: 'Short Text',
     description: 'Maximum length 100 characters.',
-    groupType: GroupType.TEXT,
     nodeType: NodeType.TEXT,
     img: 'font.png',
     attribution: 'Freepik',
@@ -23,21 +20,31 @@ export const uiTypesCustom: UiType[] = [
     label: 'Long Text',
     description:
       'Ideal for comments, descriptions and essays. Set a word limit to keep answers concise.',
-    groupType: GroupType.TEXTAREA,
     nodeType: NodeType.TEXTAREA,
     img: 'comment.png',
     attribution: 'Freepik',
   },
   {
     label: 'Number',
-    groupType: GroupType.NUMBER,
     nodeType: NodeType.NUMBER,
     img: 'pin.png',
     attribution: 'Fathema Khanom',
   },
   {
+    label: 'Phone',
+    description: '',
+    nodeType: NodeType.PHONE,
+    img: 'smartphone-call.png',
+    attribution: 'Freepik',
+  },
+  {
+    label: 'Email',
+    nodeType: NodeType.EMAIL,
+    img: 'email.png',
+    attribution: 'Those Icons',
+  },
+  {
     label: 'Date',
-    groupType: GroupType.DATE,
     nodeType: NodeType.DATE,
     img: 'calendar.png',
     attribution: 'Freepik',
@@ -45,7 +52,6 @@ export const uiTypesCustom: UiType[] = [
   {
     label: 'Dropdown',
     description: 'Select an option.',
-    groupType: GroupType.SELECT,
     nodeType: NodeType.SELECT,
     img: 'dropdown.png',
     attribution: 'Royyan Wijaya',
@@ -53,7 +59,6 @@ export const uiTypesCustom: UiType[] = [
   {
     label: 'Checkbox',
     description: 'Check all that apply.',
-    groupType: GroupType.CHECKBOX,
     nodeType: NodeType.CHECKBOX,
     img: 'check.png',
     attribution: 'Picons',
@@ -61,7 +66,6 @@ export const uiTypesCustom: UiType[] = [
   {
     label: 'Radio',
     description: 'Check one option only.',
-    groupType: GroupType.RADIO,
     nodeType: NodeType.RADIO,
     img: 'radio.png',
     attribution: 'Bharat Icons',
@@ -83,18 +87,6 @@ export const uiTypesBasic: UiType[] = [
   //   attribution: 'Aranagraphics',
   // },
   // {
-  //   label: 'Phone',
-  //   description: '',
-  //   groupType: GroupType.PHONE,
-  //   img: 'smartphone-call.png',
-  //   attribution: 'Freepik',
-  // },
-  // {
-  //   label: 'Email',
-  //   groupType: GroupType.EMAIL,
-  //   img: 'email.png',
-  //   attribution: 'Those Icons',
-  // },
   // {
   //   label: 'Address',
   //   groupType: GroupType.ADDRESS,

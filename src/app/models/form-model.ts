@@ -1,4 +1,4 @@
-import { Node, NodeDto, NodeType } from './node';
+import { Node, NodeDto, NodeType } from './node-types';
 
 export type FormModelDto = {
   formId: ReturnType<typeof crypto.randomUUID>;

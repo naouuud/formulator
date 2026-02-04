@@ -4,7 +4,7 @@ import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { PropType } from '../../models/prop-types';
 import { BuilderValidationDaterange } from '../builder-validation-daterange/builder-validation-daterange';
 import { BuilderValidation } from '../builder-validation/builder-validation';
-import { Node } from '../../models/node';
+import { Node } from '../../models/node-types';
 
 @Component({
   selector: 'app-builder-field-date',

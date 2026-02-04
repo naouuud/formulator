@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Node, NodeType } from '../models/node';
+import { Node, NodeType } from '../models/node-types';
 import { Option, PropChangeEvent, PropType } from '../models/prop-types';
 import { BuilderFieldText } from '../builder/builder-field-text/builder-field-text';
 import { BuilderService } from '../services/builder-service';
@@ -12,10 +12,12 @@ import { BuilderFieldOption } from '../builder/builder-field-option/builder-fiel
 import { BuilderFieldDate } from '../builder/builder-field-date/builder-field-date';
 import { BuilderGroupDelete } from '../builder/builder-group-delete/builder-group-delete';
 import { OptionListsFloat } from '../builder/option-lists-float/option-lists-float';
+import { BuilderNodeEmail } from '../builder-node-email/builder-node-email';
+import { BuilderNodePhone } from '../builder-node-phone/builder-node-phone';
 
 const NodeLabels = {
   [NodeType.NONE]: 'none',
-  [NodeType.TEXT]: 'text',
+  [NodeType.TEXT]: 'short text',
   [NodeType.TEXTAREA]: 'long text (e.g. comment, essay)',
   [NodeType.NUMBER]: 'number',
   [NodeType.SELECT]: 'dropdown',
@@ -23,6 +25,8 @@ const NodeLabels = {
   [NodeType.RADIO]: 'single selection',
   [NodeType.DATE]: 'date',
   [NodeType.GROUP]: 'group',
+  [NodeType.EMAIL]: 'email',
+  [NodeType.PHONE]: 'phone',
 };
 
 @Component({
@@ -38,6 +42,8 @@ const NodeLabels = {
     ReactiveFormsModule,
     BuilderGroupDelete,
     OptionListsFloat,
+    BuilderNodeEmail,
+    BuilderNodePhone,
   ],
   templateUrl: './builder-node.html',
   styleUrl: './builder-node.css',

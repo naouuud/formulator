@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { OPTION_OTHER_TEXT } from '../../models/field-types';
-import { NodeType } from '../../models/node';
+import { NodeType } from '../../models/node-types';
 
 @Component({
   selector: 'app-option-other',
