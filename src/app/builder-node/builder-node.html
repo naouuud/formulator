@@ -85,6 +85,9 @@
       @case (NodeType.PHONE) {
         <app-builder-node-phone [node]="node" />
       }
+      @case (NodeType.GROUP) {
+        <app-builder-node-group [node]="node" />
+      }
       @default {}
     }
   </div>

@@ -30,15 +30,11 @@
     <!-- Form Nodes -->
     <div class="flex flex-col gap-4">
       @for (node of formModel$().nodes; track $index) {
-        @if (node.nodeType === NodeType.GROUP) {
-          <app-builder-group-node [node]="node" [formGroupIn]="allFormGroups" />
-        } @else {
-          <app-builder-node
-            [node]="node"
-            [formGroupIn]="getFormGroup(node.nodeId)"
-            (nodeDeletedEM)="nodeDeleteCleanup($event)"
-          ></app-builder-node>
-        }
+        <app-builder-node
+          [node]="node"
+          [formGroupIn]="getFormGroup(node.nodeId)"
+          (nodeDeletedEM)="nodeDeleteCleanup($event)"
+        ></app-builder-node>
       }
     </div>
     <!-- Empty form message -->

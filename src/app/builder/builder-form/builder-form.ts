@@ -9,12 +9,11 @@ import { Prop, PropType } from '../../models/prop-types';
 import { LABEL_MAX_LENGTH } from '../../models/field-types';
 import { BuilderNode } from '../../builder-node/builder-node';
 import { NodeType, Node } from '../../models/node-types';
-import { BuilderGroupNode } from '../../builder-group-node/builder-group-node';
 import { FactoryType } from '../../models/factory-types';
 
 @Component({
   selector: 'app-builder-form',
-  imports: [DragDropModule, CdkDropList, BuilderFormTitle, BuilderNode, BuilderGroupNode],
+  imports: [DragDropModule, CdkDropList, BuilderFormTitle, BuilderNode],
   templateUrl: './builder-form.html',
   styleUrl: './builder-form.css',
 })

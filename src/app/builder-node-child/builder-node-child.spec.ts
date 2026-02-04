@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BuilderGroupNode } from './builder-group-node';
+import { BuilderNodeChild } from './builder-node-child';
 
-describe('BuilderGroupNode', () => {
-  let component: BuilderGroupNode;
-  let fixture: ComponentFixture<BuilderGroupNode>;
+describe('BuilderNodeChild', () => {
+  let component: BuilderNodeChild;
+  let fixture: ComponentFixture<BuilderNodeChild>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BuilderGroupNode]
+      imports: [BuilderNodeChild]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(BuilderGroupNode);
+    fixture = TestBed.createComponent(BuilderNodeChild);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

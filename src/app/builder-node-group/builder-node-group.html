@@ -1,0 +1,10 @@
+<div class="flex flex-col gap-2">
+  <!-- Label -->
+  <app-builder-prop-label [labelMessage]="'Give your group a name...'" />
+  <!-- Validation -->
+  <app-builder-validation [node]="node" />
+  <!-- Children -->
+  @for (node of node.nodes; track $index) {
+    <app-builder-node-child [node]="node" />
+  }
+</div>
