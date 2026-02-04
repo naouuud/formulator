@@ -25,7 +25,7 @@
     </div>
     <!-- Other Option Prop -->
     @if (optionOtherProp) {
-      <div class="px-4 text-sm rounded-[20px] bg-gray-100/75 border border-gray-300">
+      <div class="px-4 text-sm rounded-[20px] bg-gray-300 border border-white">
         <label class="flex items-center justify-between min-h-8 cursor-pointer">
           <span class="text-gray-500">Allow option 'Other (please specify)'</span>
           <div class="relative">
@@ -36,7 +36,7 @@
               class="sr-only peer"
             />
             <div
-              class="w-9 h-5 rounded-full bg-gray-300 peer-checked:bg-gray-700 transition-colors"
+              class="w-9 h-5 rounded-full bg-gray-400 peer-checked:bg-gray-700 transition-colors"
             ></div>
             <div
               class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-4"
@@ -53,7 +53,7 @@
       cdkDropListOrientation="mixed"
     >
       @if (!node.getOptions().length) {
-        <div class="px-4 pb-1 text-gray-500">No options to display</div>
+        <div class="px-4 py-1 text-gray-500">No options to display</div>
       }
       @for (option of node.getOptions(); track $index) {
         <div
