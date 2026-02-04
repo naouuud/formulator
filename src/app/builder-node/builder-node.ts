@@ -14,6 +14,7 @@ import { BuilderGroupDelete } from '../builder/builder-group-delete/builder-grou
 import { OptionListsFloat } from '../builder/option-lists-float/option-lists-float';
 import { BuilderNodeEmail } from '../builder-node-email/builder-node-email';
 import { BuilderNodePhone } from '../builder-node-phone/builder-node-phone';
+import { BuilderNodeGroup } from '../builder-node-group/builder-node-group';
 
 const NodeLabels = {
   [NodeType.NONE]: 'none',
@@ -44,6 +45,7 @@ const NodeLabels = {
     OptionListsFloat,
     BuilderNodeEmail,
     BuilderNodePhone,
+    BuilderNodeGroup,
   ],
   templateUrl: './builder-node.html',
   styleUrl: './builder-node.css',

@@ -89,6 +89,23 @@ export const factoryIconsBasic: FactoryIcon[] = [
     img: 'radio.png',
     attribution: 'Bharat Icons',
   },
+  {
+    factoryType: FactoryType.GROUP,
+    label: 'Make a Group',
+    description: 'Group several questions together',
+    img: 'drop-down-menu3.png',
+    attribution: '',
+  },
+];
+
+export const factoryIconsGroup: FactoryIcon[] = [
+  {
+    factoryType: FactoryType.GROUP,
+    label: 'Group',
+    description: 'Group several questions together',
+    img: 'drop-down-menu.png',
+    attribution: '',
+  },
 ];
 
 export const factoryIconsComplex: FactoryIcon[] = [
@@ -221,7 +238,7 @@ function createDateNode(): Node[] {
 function createGroupNode(): Node[] {
   const node = new Node();
   node.nodeType = NodeType.GROUP;
-  node.setProp(PropType.LABEL, 'Group Label');
+  node.setProp(PropType.LABEL, '');
   return [node];
 }
 
@@ -248,6 +265,10 @@ function createPhoneNode(): Node[] {
 
 // COMPLEX
 export function createName(): Node[] {
+  const groupNode = new Node();
+  groupNode.nodeType = NodeType.GROUP;
+  groupNode.setProp(PropType.LABEL, '');
+
   const node0 = new Node();
   node0.nodeType = NodeType.TEXT;
   node0.setProp(PropType.LABEL, 'First Name', false);
@@ -261,7 +282,9 @@ export function createName(): Node[] {
   node1.setProp(PropType.PLACEHOLDER, 'Enter last name...');
   node1.setProp(PropType.REQUIRED, true);
   node1.setProp(PropType.MAXLENGTHCHAR, 100, false);
-  return [node0, node1];
+
+  groupNode.nodes.push(node0, node1);
+  return [groupNode];
 }
 
 function createAddress() {
