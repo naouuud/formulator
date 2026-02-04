@@ -1,4 +1,6 @@
+import { factoryMap, FactoryType } from './factory-types';
 import { Node, NodeDto, NodeType } from './node-types';
+import { createDateRange, PropType, todayString } from './prop-types';
 
 export type FormModelDto = {
   formId: ReturnType<typeof crypto.randomUUID>;
@@ -50,10 +52,16 @@ export class FormModel {
     return iter(queue);
   }
 
-  addNode(nodeType: NodeType): Node {
-    const node = Node.create(nodeType);
-    this.nodes.push(node);
-    return node;
+  add(factoryType: FactoryType): Node[] {
+    const factory = factoryMap.get(factoryType);
+    if (!factory) {
+      throw new Error(
+        `Internal Error: No factory registered for factoryType '${factoryType}'. Did you forget to add it to factoryMap?`,
+      );
+    }
+    const nodes = factory();
+    this.nodes.push(...nodes);
+    return nodes;
   }
 
   // reorderGroup(fromIndex: number, toIndex: number): void {
@@ -115,24 +123,3 @@ export class FormModel {
     return formModel;
   }
 }
-
-// function addNameFields(formModel: FormModel): void {
-//   // const group = new Group();
-//   // group.groupType = GroupType.NAME;
-
-//   const firstName = Group.create(GroupType.TEXT);
-//   const firstNameField = firstName.fields[0];
-//   firstNameField.setProp(PropType.LABEL, 'First Name', false);
-//   firstNameField.setProp(PropType.PLACEHOLDER, 'Enter first name...');
-//   firstNameField.setProp(PropType.REQUIRED, true);
-//   firstNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-
-//   const lastName = Group.create(GroupType.TEXT);
-//   const lastNameField = lastName.fields[0];
-//   lastNameField.setProp(PropType.LABEL, 'Last Name', false);
-//   lastNameField.setProp(PropType.PLACEHOLDER, 'Enter last name...');
-//   lastNameField.setProp(PropType.REQUIRED, true);
-//   lastNameField.setProp(PropType.MAXLENGTHCHAR, 100, false);
-
-//   formModel.groups.push(firstName, lastName);
-// }
