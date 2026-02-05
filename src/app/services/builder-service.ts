@@ -101,7 +101,7 @@ export class BuilderService {
   getOptionLists_S(): Option[][] {
     const optionLists: Option[][] = [];
     this.formModel$()
-      .getNodes()
+      .flatNodeList()
       .forEach((n) => {
         if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(n.nodeType)) return;
         if (!n.getOptions().length) return;
@@ -180,10 +180,10 @@ export class BuilderService {
   //   return group;
   // }
 
-  addNode_S(factoryType: FactoryType): Node[] {
-    const nodes = this.formModel$().add(factoryType);
+  addNode_S(factoryType: FactoryType): Node {
+    const node = this.formModel$().addNode(factoryType);
     this.saveFormSb.next();
-    return nodes;
+    return node;
   }
 
   // reorderGroup_S(fromIndex: number, toIndex: number): void {

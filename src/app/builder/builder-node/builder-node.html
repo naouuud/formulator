@@ -56,39 +56,37 @@
     </button>
   </div>
   <!-- "Fields" -->
-  <div [formGroup]="formGroupIn">
-    @switch (node.nodeType) {
-      @case (NodeType.TEXT) {
-        <app-builder-node-text [node]="node" />
-      }
-      @case (NodeType.TEXTAREA) {
-        <app-builder-node-textarea [node]="node" />
-      }
-      @case (NodeType.NUMBER) {
-        <app-builder-node-number [node]="node" />
-      }
-      @case (NodeType.SELECT) {
-        <app-builder-node-select [node]="node" />
-      }
-      @case (NodeType.RADIO) {
-        <app-builder-node-option [node]="node" />
-      }
-      @case (NodeType.CHECKBOX) {
-        <app-builder-node-option [node]="node" />
-      }
-      @case (NodeType.DATE) {
-        <app-builder-node-date [node]="node" />
-      }
-      @case (NodeType.EMAIL) {
-        <app-builder-node-email [node]="node" />
-      }
-      @case (NodeType.PHONE) {
-        <app-builder-node-phone [node]="node" />
-      }
-      @case (NodeType.GROUP) {
-        <app-builder-node-group [node]="node" />
-      }
-      @default {}
+  @switch (node.nodeType) {
+    @case (NodeType.TEXT) {
+      <app-builder-node-text [node]="node" />
     }
-  </div>
+    @case (NodeType.TEXTAREA) {
+      <app-builder-node-textarea [node]="node" />
+    }
+    @case (NodeType.NUMBER) {
+      <app-builder-node-number [node]="node" />
+    }
+    @case (NodeType.SELECT) {
+      <app-builder-node-select [node]="node" />
+    }
+    @case (NodeType.RADIO) {
+      <app-builder-node-option [node]="node" />
+    }
+    @case (NodeType.CHECKBOX) {
+      <app-builder-node-option [node]="node" />
+    }
+    @case (NodeType.DATE) {
+      <app-builder-node-date [node]="node" />
+    }
+    @case (NodeType.EMAIL) {
+      <app-builder-node-email [node]="node" />
+    }
+    @case (NodeType.PHONE) {
+      <app-builder-node-phone [node]="node" />
+    }
+    @case (NodeType.GROUP) {
+      <app-builder-node-group [node]="node" [allFormGroupsIn]="allFormGroupsIn" />
+    }
+    @default {}
+  }
 </div>
