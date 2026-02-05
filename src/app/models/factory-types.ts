@@ -50,10 +50,9 @@ export const factoryIconsBasic: FactoryIcon[] = [
     attribution: 'Fathema Khanom',
   },
   {
-    factoryType: FactoryType.PHONE,
-    label: 'Phone',
-    description: '',
-    img: 'smartphone-call.png',
+    factoryType: FactoryType.DATE,
+    label: 'Date',
+    img: 'calendar.png',
     attribution: 'Freepik',
   },
   {
@@ -63,9 +62,10 @@ export const factoryIconsBasic: FactoryIcon[] = [
     attribution: 'Those Icons',
   },
   {
-    factoryType: FactoryType.DATE,
-    label: 'Date',
-    img: 'calendar.png',
+    factoryType: FactoryType.PHONE,
+    label: 'Phone',
+    description: '',
+    img: 'smartphone-call.png',
     attribution: 'Freepik',
   },
   {
@@ -93,7 +93,7 @@ export const factoryIconsBasic: FactoryIcon[] = [
     factoryType: FactoryType.GROUP,
     label: 'Make a Group',
     description: 'Group several questions together',
-    img: 'drop-down-menu3.png',
+    img: 'drop-down-menu4.png',
     attribution: '',
   },
 ];
@@ -269,7 +269,7 @@ function createPhoneNode(): Node[] {
 export function createName(): Node[] {
   const groupNode = new Node();
   groupNode.nodeType = NodeType.GROUP;
-  groupNode.setProp(PropType.LABEL, '');
+  groupNode.setProp(PropType.LABEL, 'Name');
 
   const node0 = new Node();
   node0.nodeType = NodeType.TEXT;
