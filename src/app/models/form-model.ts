@@ -26,42 +26,21 @@ export class FormModel {
     this.formName = value.trim();
   }
 
-  // addGroup(groupType: GroupType): Group {
-  //   const group = Group.create(groupType);
-  //   this.groups.push(group);
-  //   return group;
-  // }
-
-  getNodes(): Node[] {
-    const allNodes: Node[] = [];
-    const queue: Node[] = [];
-    allNodes.push(...this.nodes);
-    queue.push(...this.nodes);
-
-    const iter = (queueRef: Node[]) => {
-      const originalLength = queueRef.length;
-      for (let i = 0; i < originalLength; i++) {
-        const nextNode = queueRef.shift()!;
-        allNodes.push(...nextNode.nodes);
-        queueRef.push(...nextNode.nodes);
-      }
-      if (!queueRef.length) return allNodes;
-      return iter(queueRef);
-    };
-
-    return iter(queue);
+  // Array (un-nested)
+  flatNodeList(): Node[] {
+    return Node.flatten(...this.nodes);
   }
 
-  add(factoryType: FactoryType): Node[] {
+  addNode(factoryType: FactoryType): Node {
     const factory = factoryMap.get(factoryType);
     if (!factory) {
       throw new Error(
         `Internal Error: No factory registered for factoryType '${factoryType}'. Did you forget to add it to factoryMap?`,
       );
     }
-    const nodes = factory();
-    this.nodes.push(...nodes);
-    return nodes;
+    const node = factory();
+    this.nodes.push(node);
+    return node;
   }
 
   // reorderGroup(fromIndex: number, toIndex: number): void {
@@ -88,12 +67,15 @@ export class FormModel {
   // }
 
   deleteNode(nodeId: string): void {
-    const deleteGroup = this.nodes.find((n) => n.nodeId === nodeId);
-    if (deleteGroup === undefined) {
+    const deleteNode = this.flatNodeList().find((n) => n.nodeId === nodeId);
+    if (deleteNode === undefined) {
       throw Error(`No node with nodeId '${nodeId}' found to delete`);
     }
-    const deleteIdx = this.nodes.indexOf(deleteGroup);
+    const deleteIdx = this.nodes.indexOf(deleteNode);
     this.nodes.splice(deleteIdx, 1);
+    // const node1 = this.flatNodeList()[0];
+    // const node2 = this.nodes[0];
+    // console.log(node1, node2);
   }
 
   // Apply domain checks here!

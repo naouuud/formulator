@@ -102,7 +102,7 @@ export const factoryIconsGroup: FactoryIcon[] = [
   {
     factoryType: FactoryType.GROUP,
     label: 'Group',
-    description: 'Group several questions together',
+    description: 'Group several questions together.',
     img: 'drop-down-menu.png',
     attribution: '',
   },
@@ -141,8 +141,8 @@ export const factoryIconsComplex: FactoryIcon[] = [
   },
 ];
 
-type Factory = () => Node[];
-export const factoryMap = new Map<FactoryType, Factory>([
+type NodeFactory = () => Node;
+export const factoryMap = new Map<FactoryType, NodeFactory>([
   [FactoryType.TEXT, createTextNode],
   [FactoryType.TEXTAREA, createTextareaNode],
   [FactoryType.NUMBER, createNumberNode],
@@ -161,27 +161,27 @@ export const factoryMap = new Map<FactoryType, Factory>([
 ]);
 
 // SIMPLE
-function createTextNode(): Node[] {
+function createTextNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.TEXT;
   node.setProp(PropType.LABEL, '');
   node.setProp(PropType.REQUIRED, true);
   node.setProp(PropType.MAXLENGTHCHAR, 100);
   node.setProp(PropType.PLACEHOLDER, 'Enter response here...');
-  return [node];
+  return node;
 }
 
-function createTextareaNode(): Node[] {
+function createTextareaNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.TEXTAREA;
   node.setProp(PropType.LABEL, '');
   node.setProp(PropType.REQUIRED, true);
   node.setProp(PropType.MAXLENGTHWORD, 500);
   node.setProp(PropType.PLACEHOLDER, 'Enter response here...');
-  return [node];
+  return node;
 }
 
-function createNumberNode(): Node[] {
+function createNumberNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.NUMBER;
   node.setProp(PropType.LABEL, '', true);
@@ -191,39 +191,39 @@ function createNumberNode(): Node[] {
   // node.setProp(PropType.MAXVALUE, 1_000_000_000);
   // node.setProp(PropType.MINVALUE, -1_000_000_000);
   node.setProp(PropType.PLACEHOLDER, 'Enter number...');
-  return [node];
+  return node;
 }
 
-function createSelectNode(): Node[] {
+function createSelectNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.SELECT;
   node.setProp(PropType.LABEL, '');
   node.setProp(PropType.REQUIRED, true);
   node.setProp(PropType.OPTIONS, []);
-  return [node];
+  return node;
 }
 
-function createRadioNode(): Node[] {
+function createRadioNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.RADIO;
   node.setProp(PropType.LABEL, '');
   node.setProp(PropType.REQUIRED, true);
   node.setProp(PropType.OPTIONOTHER, false);
   node.setProp(PropType.OPTIONS, []);
-  return [node];
+  return node;
 }
 
-function createCheckboxNode(): Node[] {
+function createCheckboxNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.CHECKBOX;
   node.setProp(PropType.LABEL, '');
   node.setProp(PropType.REQUIRED, true);
   node.setProp(PropType.OPTIONOTHER, false);
   node.setProp(PropType.OPTIONS, []);
-  return [node];
+  return node;
 }
 
-function createDateNode(): Node[] {
+function createDateNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.DATE;
   node.setProp(PropType.LABEL, '');
@@ -232,17 +232,17 @@ function createDateNode(): Node[] {
   const minDateString = todayString(-100);
   const dateRange = createDateRange(maxDateString, minDateString); // use factory
   node.setProp(PropType.DATERANGE, dateRange);
-  return [node];
+  return node;
 }
 
-function createGroupNode(): Node[] {
+function createGroupNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.GROUP;
   node.setProp(PropType.LABEL, '');
-  return [node];
+  return node;
 }
 
-function createEmailNode(): Node[] {
+function createEmailNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.EMAIL;
   node.setProp(PropType.LABEL, 'Email');
@@ -250,10 +250,10 @@ function createEmailNode(): Node[] {
   node.setProp(PropType.EMAIL, true);
   node.setProp(PropType.MAXLENGTHCHAR, 50, false);
   node.setProp(PropType.PLACEHOLDER, 'Enter your email...');
-  return [node];
+  return node;
 }
 
-function createPhoneNode(): Node[] {
+function createPhoneNode(): Node {
   const node = new Node();
   node.nodeType = NodeType.PHONE;
   node.setProp(PropType.LABEL, 'Phone number');
@@ -262,42 +262,42 @@ function createPhoneNode(): Node[] {
   node.setProp(PropType.MAXLENGTHCHAR, 15, false);
   node.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
 
-  return [node];
+  return node;
 }
 
 // COMPLEX
-export function createName(): Node[] {
+export function createName(): Node {
   const groupNode = new Node();
   groupNode.nodeType = NodeType.GROUP;
   groupNode.setProp(PropType.LABEL, 'Name');
 
   const node0 = new Node();
   node0.nodeType = NodeType.TEXT;
-  node0.setProp(PropType.LABEL, 'First Name', false);
+  node0.setProp(PropType.LABEL, 'First Name');
   node0.setProp(PropType.PLACEHOLDER, 'Enter first name...');
   node0.setProp(PropType.REQUIRED, true);
   node0.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
   const node1 = new Node();
   node1.nodeType = NodeType.TEXT;
-  node1.setProp(PropType.LABEL, 'Last Name', false);
+  node1.setProp(PropType.LABEL, 'Last Name');
   node1.setProp(PropType.PLACEHOLDER, 'Enter last name...');
   node1.setProp(PropType.REQUIRED, true);
   node1.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  groupNode.nodes.push(node0, node1);
-  return [groupNode];
+  groupNode.children.push(node0, node1);
+  return groupNode;
 }
 
-function createAddress() {
-  return [new Node()];
+function createAddress(): Node {
+  return new Node();
 }
-function createGender() {
-  return [new Node()];
+function createGender(): Node {
+  return new Node();
 }
-function createBirthday() {
-  return [new Node()];
+function createBirthday(): Node {
+  return new Node();
 }
-function createBoolean() {
-  return [new Node()];
+function createBoolean(): Node {
+  return new Node();
 }

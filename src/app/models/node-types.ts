@@ -10,7 +10,7 @@ export type NodeDto = {
   nodeType: NodeType;
   nodeId: ReturnType<typeof crypto.randomUUID>;
   props: Prop[];
-  nodes: NodeDto[];
+  children: NodeDto[];
 };
 
 export enum NodeType {
@@ -31,13 +31,13 @@ export class Node {
   nodeType: NodeType;
   nodeId: ReturnType<typeof crypto.randomUUID>;
   props: Prop[];
-  nodes: Node[];
+  children: Node[];
 
   constructor() {
     this.nodeType = NodeType.NONE;
     this.nodeId = crypto.randomUUID();
     this.props = [];
-    this.nodes = [];
+    this.children = [];
   }
 
   // addNode(nodeType: NodeType) {
@@ -138,7 +138,7 @@ export class Node {
 
   static serialize(node: Node): NodeDto {
     const nodeDto: NodeDto = { ...node };
-    nodeDto.nodes = (node.nodes ?? []).map((n: Node) => Node.serialize(n));
+    nodeDto.children = (node.children ?? []).map((n: Node) => Node.serialize(n));
     return nodeDto;
   }
 
@@ -152,7 +152,27 @@ export class Node {
     }
     const node = new Node();
     Object.assign(node, nodeDto);
-    node.nodes = (node.nodes ?? []).map((n: NodeDto) => Node.deserialize(n));
+    node.children = (node.children ?? []).map((n: NodeDto) => Node.deserialize(n));
     return node;
+  }
+
+  static flatten(...nodes: Node[]): Node[] {
+    const allNodes: Node[] = [];
+    const queue: Node[] = [];
+    allNodes.push(...nodes);
+    queue.push(...nodes);
+
+    const iter = (queueRef: Node[]) => {
+      const originalLength = queueRef.length;
+      for (let i = 0; i < originalLength; i++) {
+        const nextNode = queueRef.shift()!;
+        allNodes.push(...nextNode.children);
+        queueRef.push(...nextNode.children);
+      }
+      if (!queueRef.length) return allNodes;
+      return iter(queueRef);
+    };
+
+    return iter(queue);
   }
 }

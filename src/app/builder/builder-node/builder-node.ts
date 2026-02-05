@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
 import { Node, NodeType } from '../../models/node-types';
 import { Option, PropChangeEvent, PropType } from '../../models/prop-types';
 import { BuilderNodeText } from '../builder-node-text/builder-node-text';
@@ -45,6 +45,7 @@ const NodeLabels = {
     OptionListsFloat,
     BuilderNodeEmail,
     BuilderNodePhone,
+    // forwardRef(() => BuilderNodeGroup),
     BuilderNodeGroup,
   ],
   templateUrl: './builder-node.html',
@@ -53,35 +54,36 @@ const NodeLabels = {
 export class BuilderNode implements OnInit {
   NodeType = NodeType;
   PropType = PropType;
-  @Input() formGroupIn!: FormGroup;
+  @Input() nodeFormGroup!: FormGroup;
   @Input() node!: Node;
   @Output() nodeDeletedEM = new EventEmitter<string>();
   dragDisabled$;
   floatVisible = false;
   NodeLabels = NodeLabels;
+  @Input() allFormGroupsIn!: FormGroup; // to pass to group node
 
   constructor(private builderService: BuilderService) {
     this.dragDisabled$ = this.builderService.dragDisabled$;
   }
 
   ngOnInit(): void {
-    const labelControl = this.formGroupIn.get('label');
+    const labelControl = this.nodeFormGroup.get('label');
     labelControl?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.LABEL, value });
     });
-    const requiredControl = this.formGroupIn.get('required');
+    const requiredControl = this.nodeFormGroup.get('required');
     requiredControl?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.REQUIRED, value });
     });
-    const maxLengthCharControl = this.formGroupIn.get('maxlengthchar');
+    const maxLengthCharControl = this.nodeFormGroup.get('maxlengthchar');
     maxLengthCharControl?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.MAXLENGTHCHAR, value: Number(value) });
     });
-    const maxLengthWordControl = this.formGroupIn.get('maxlengthword');
+    const maxLengthWordControl = this.nodeFormGroup.get('maxlengthword');
     maxLengthWordControl?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.MAXLENGTHWORD, value: Number(value) });
     });
-    const optionOtherControl = this.formGroupIn.get('optionother');
+    const optionOtherControl = this.nodeFormGroup.get('optionother');
     optionOtherControl?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.OPTIONOTHER, value });
     });

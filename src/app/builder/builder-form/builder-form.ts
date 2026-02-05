@@ -4,7 +4,13 @@ import { BuilderGroup } from '../builder-group/builder-group';
 import { CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 // import { GroupType } from '../../models/group-types';
 import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
-import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { Prop, PropType } from '../../models/prop-types';
 import { LABEL_MAX_LENGTH } from '../../models/field-types';
 import { BuilderNode } from '../builder-node/builder-node';
@@ -13,7 +19,7 @@ import { FactoryType } from '../../models/factory-types';
 
 @Component({
   selector: 'app-builder-form',
-  imports: [DragDropModule, CdkDropList, BuilderFormTitle, BuilderNode],
+  imports: [DragDropModule, CdkDropList, BuilderFormTitle, BuilderNode, ReactiveFormsModule],
   templateUrl: './builder-form.html',
   styleUrl: './builder-form.css',
 })
@@ -30,7 +36,10 @@ export class BuilderForm {
     this.hideMessage = signal(false);
     effect(() => {
       const formModel = this.formModel$(); // only set once in service
-      this.#addFormGroup(formModel.getNodes());
+      const nodeList = Node.flatten(...formModel.nodes);
+      for (let node of nodeList) {
+        this.#addFormGroup(node);
+      }
     });
   }
 
@@ -52,9 +61,12 @@ export class BuilderForm {
 
   #addNode_C(event: CdkDragDrop<FactoryType>) {
     const factoryType: FactoryType = event.item.data;
-    const nodes = this.builderService.addNode_S(factoryType); // return &Node
+    const node = this.builderService.addNode_S(factoryType); // return &Node
     this.builderService.reorderNode_S(this.formModel$().nodes.length - 1, event.currentIndex);
-    this.#addFormGroup(nodes);
+    const nodeList = Node.flatten(node);
+    for (let node of nodeList) {
+      this.#addFormGroup(node);
+    }
   }
 
   nodeDeleteCleanup(nodeId: string) {
@@ -79,36 +91,34 @@ export class BuilderForm {
     return this.allFormGroups.get(nodeId) as FormGroup;
   }
 
-  #addFormGroup(nodes: Node[]): void {
-    nodes.forEach((n) => {
-      const nodeFormGroup = new FormGroup({});
-      n.props.forEach((prop: Prop) => {
-        const validators: ValidatorFn[] = [];
-        switch (prop.propType) {
-          case PropType.LABEL:
-            validators.push(Validators.required, Validators.maxLength(LABEL_MAX_LENGTH));
-            break;
-          // Props set thru form based reactivity (no validators):
-          //   LABEL = 'label',
-          //   MAXLENGTHCHAR = 'maxlengthchar',
-          //   MAXLENGTHWORD = 'maxlengthword',
-          //   REQUIRED = 'required',
-          //   OPTIONOTHER = 'optionother',
-          // Non-editable Props (no controls)
-          case PropType.PLACEHOLDER:
-          case PropType.PATTERNNUMBER:
-          case PropType.PATTERNPHONE:
-          case PropType.OPTIONS:
-          case PropType.DATERANGE:
-          case PropType.EMAIL:
-            return;
-        }
-        const control = new FormControl(prop.value, { nonNullable: true, validators });
-        if (!prop.editable) control.disable();
-        nodeFormGroup.addControl(prop.propType, control); // FormControl identifier = propType
-        this.allFormGroups.addControl(n.nodeId, nodeFormGroup); // FormGroup identifier = nodeId
-      });
+  #addFormGroup(node: Node): void {
+    const nodeFormGroup = new FormGroup({});
+    node.props.forEach((prop: Prop) => {
+      const validators: ValidatorFn[] = [];
+      switch (prop.propType) {
+        case PropType.LABEL:
+          validators.push(Validators.required, Validators.maxLength(LABEL_MAX_LENGTH));
+          break;
+        // Props set thru form based reactivity (no validators):
+        //   LABEL = 'label',
+        //   MAXLENGTHCHAR = 'maxlengthchar',
+        //   MAXLENGTHWORD = 'maxlengthword',
+        //   REQUIRED = 'required',
+        //   OPTIONOTHER = 'optionother',
+        // Non-editable Props (no controls)
+        case PropType.PLACEHOLDER:
+        case PropType.PATTERNNUMBER:
+        case PropType.PATTERNPHONE:
+        case PropType.OPTIONS:
+        case PropType.DATERANGE:
+        case PropType.EMAIL:
+          return;
+      }
+      const control = new FormControl(prop.value, { nonNullable: true, validators });
+      if (!prop.editable) control.disable();
+      nodeFormGroup.addControl(prop.propType, control); // FormControl identifier = propType
+      this.allFormGroups.addControl(node.nodeId, nodeFormGroup); // FormGroup identifier = nodeId
     });
-    // console.log(this.allFormGroups);
+    console.log(this.allFormGroups);
   }
 }
