@@ -185,7 +185,7 @@ export class Node {
     return iter(queue);
   }
 
-  static find(nodeId: string, ...nodes: Node[]): Node | null {
+  static findNode(nodeId: string, ...nodes: Node[]): Node | null {
     const iter = (nodes: Node[]): Node | null => {
       const node = nodes.find((n) => n.nodeId === nodeId);
       if (node) return node;
@@ -196,5 +196,24 @@ export class Node {
     };
 
     return iter(nodes);
+  }
+
+  static findNodeList(nodeId: string, ...nodeLists: Node[][]): Node[] | null {
+    const iter = (nodeLists: Node[][]): Node[] | null => {
+      for (const nodeList of nodeLists) {
+        const node = nodeList.find((n) => n.nodeId === nodeId);
+        if (node) return nodeList;
+      }
+      const newList: Node[][] = [];
+      nodeLists.forEach((nodeList) => {
+        nodeList.forEach((n) => {
+          newList.push(n.nodes);
+        });
+      });
+      if (newList.length) return iter(newList);
+      return null;
+    };
+
+    return iter(nodeLists);
   }
 }

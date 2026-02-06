@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
 import { Node } from '../../models/node-types';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderValidation } from '../builder-validation/builder-validation';
@@ -19,6 +19,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 export class BuilderNodeGroup {
   @Input() node!: Node;
   @Input() allFormGroupsIn!: FormGroup;
+  @Output() nodeDeletedEM_G = new EventEmitter<string[]>();
 
   getFormGroup(nodeId: string): FormGroup {
     return this.allFormGroupsIn.get(nodeId) as FormGroup;

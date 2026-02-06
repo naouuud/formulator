@@ -56,7 +56,7 @@ export class BuilderNode implements OnInit {
   PropType = PropType;
   @Input() nodeFormGroup!: FormGroup;
   @Input() node!: Node;
-  @Output() nodeDeletedEM = new EventEmitter<string[]>();
+  @Output() nodeDeletedEM_N = new EventEmitter<string[]>();
   dragDisabled$;
   floatVisible = false;
   NodeLabels = NodeLabels;
@@ -99,9 +99,11 @@ export class BuilderNode implements OnInit {
   }
 
   deleteNode_C(): void {
-    this.builderService.deleteNode_S(this.node.nodeId);
-    const nodeIdsForDelete = Node.flatten(this.node).map((n) => n.nodeId);
-    this.nodeDeletedEM.emit(nodeIdsForDelete); // emit to delete formcontrols
+    const deleteResult = this.builderService.deleteNode_S(this.node.nodeId);
+    if (deleteResult) {
+      const nodeIdsForDelete = Node.flatten(this.node).map((n) => n.nodeId);
+      this.nodeDeletedEM_N.emit(nodeIdsForDelete); // emit to delete formcontrols
+    }
   }
 
   replaceOptions_C(optionList: Option[] | null) {

@@ -3,10 +3,15 @@
   <app-builder-prop-label [labelMessage]="'Give your group a name...'" />
   <!-- Validation -->
   <app-builder-validation [node]="node" />
-  <!-- Children -->
+  <!-- Child nodes -->
+  <!-- This component acts as intermediary for delete emission from child node component to parent node component -->
   @for (child of node.nodes; track $index) {
     <div [formGroup]="getFormGroup(child.nodeId)">
-      <app-builder-node [node]="child" [nodeFormGroup]="getFormGroup(child.nodeId)" />
+      <app-builder-node
+        [node]="child"
+        [nodeFormGroup]="getFormGroup(child.nodeId)"
+        (nodeDeletedEM_N)="nodeDeletedEM_G.emit($event)"
+      />
     </div>
   }
 </div>
