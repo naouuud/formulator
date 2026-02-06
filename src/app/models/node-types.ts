@@ -10,7 +10,7 @@ export type NodeDto = {
   nodeType: NodeType;
   nodeId: ReturnType<typeof crypto.randomUUID>;
   props: Prop[];
-  children: NodeDto[];
+  nodes: NodeDto[];
 };
 
 export enum NodeType {
@@ -31,19 +31,28 @@ export class Node {
   nodeType: NodeType;
   nodeId: ReturnType<typeof crypto.randomUUID>;
   props: Prop[];
-  children: Node[];
+  nodes: Node[];
 
   constructor() {
     this.nodeType = NodeType.NONE;
     this.nodeId = crypto.randomUUID();
     this.props = [];
-    this.children = [];
+    this.nodes = [];
   }
 
   // addNode(nodeType: NodeType) {
   //   const node = Node.create(nodeType);
   //   this.nodes.push(node);
   // }
+
+  deleteNode(nodeId: string): void {
+    const deleteNode = this.nodes.find((n) => n.nodeId === nodeId);
+    if (deleteNode === undefined) {
+      throw Error(`No node with nodeId '${nodeId}' found to delete`);
+    }
+    const deleteIdx = this.nodes.indexOf(deleteNode);
+    this.nodes.splice(deleteIdx, 1);
+  }
 
   getProp<K extends PropType>(propTypeIn: K): Extract<Prop, { propType: K }> | undefined {
     const prop = this.props.find((p) => p.propType === propTypeIn);
@@ -138,7 +147,7 @@ export class Node {
 
   static serialize(node: Node): NodeDto {
     const nodeDto: NodeDto = { ...node };
-    nodeDto.children = (node.children ?? []).map((n: Node) => Node.serialize(n));
+    nodeDto.nodes = (node.nodes ?? []).map((n: Node) => Node.serialize(n));
     return nodeDto;
   }
 
@@ -152,7 +161,7 @@ export class Node {
     }
     const node = new Node();
     Object.assign(node, nodeDto);
-    node.children = (node.children ?? []).map((n: NodeDto) => Node.deserialize(n));
+    node.nodes = (node.nodes ?? []).map((n: NodeDto) => Node.deserialize(n));
     return node;
   }
 
@@ -166,13 +175,26 @@ export class Node {
       const originalLength = queueRef.length;
       for (let i = 0; i < originalLength; i++) {
         const nextNode = queueRef.shift()!;
-        allNodes.push(...nextNode.children);
-        queueRef.push(...nextNode.children);
+        allNodes.push(...nextNode.nodes);
+        queueRef.push(...nextNode.nodes);
       }
       if (!queueRef.length) return allNodes;
       return iter(queueRef);
     };
 
     return iter(queue);
+  }
+
+  static find(nodeId: string, ...nodes: Node[]): Node | null {
+    const iter = (nodes: Node[]): Node | null => {
+      const node = nodes.find((n) => n.nodeId === nodeId);
+      if (node) return node;
+      const newNodes: Node[] = [];
+      nodes.forEach((n) => newNodes.push(...n.nodes));
+      if (newNodes.length) return iter(newNodes);
+      return null;
+    };
+
+    return iter(nodes);
   }
 }

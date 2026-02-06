@@ -285,7 +285,7 @@ export function createName(): Node {
   node1.setProp(PropType.REQUIRED, true);
   node1.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  groupNode.children.push(node0, node1);
+  groupNode.nodes.push(node0, node1);
   return groupNode;
 }
 

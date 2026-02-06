@@ -67,15 +67,14 @@ export class FormModel {
   // }
 
   deleteNode(nodeId: string): void {
-    const deleteNode = this.flatNodeList().find((n) => n.nodeId === nodeId);
-    if (deleteNode === undefined) {
-      throw Error(`No node with nodeId '${nodeId}' found to delete`);
+    const deleteNode = this.nodes.find((n) => n.nodeId === nodeId);
+    if (deleteNode) {
+      const deleteIdx = this.nodes.indexOf(deleteNode);
+      this.nodes.splice(deleteIdx, 1);
+      return;
     }
-    const deleteIdx = this.nodes.indexOf(deleteNode);
-    this.nodes.splice(deleteIdx, 1);
-    // const node1 = this.flatNodeList()[0];
-    // const node2 = this.nodes[0];
-    // console.log(node1, node2);
+    // NEED NEW LOGIC FOR NESTED NODES!
+    console.log(Node.find(nodeId, ...this.nodes));
   }
 
   // Apply domain checks here!
