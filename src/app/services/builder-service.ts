@@ -101,7 +101,7 @@ export class BuilderService {
   getOptionLists_S(): Option[][] {
     const optionLists: Option[][] = [];
     this.formModel$()
-      .flatNodeList()
+      .getFlatNodes()
       .forEach((n) => {
         if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(n.nodeType)) return;
         if (!n.getOptions().length) return;
@@ -201,9 +201,10 @@ export class BuilderService {
   //   this.saveFormSb.next();
   // }
 
-  deleteNode_S(nodeId: string): void {
-    this.formModel$().deleteNode(nodeId);
-    this.saveFormSb.next();
+  deleteNode_S(nodeId: string): boolean {
+    const deleteResult = this.formModel$().deleteNode(nodeId);
+    if (deleteResult) this.saveFormSb.next();
+    return deleteResult;
   }
 
   #deserializeFormModel_S(formModelDto: FormModelDto): FormModel {

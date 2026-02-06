@@ -27,7 +27,7 @@ export class FormModel {
   }
 
   // Array (un-nested)
-  flatNodeList(): Node[] {
+  getFlatNodes(): Node[] {
     return Node.flatten(...this.nodes);
   }
 
@@ -66,15 +66,15 @@ export class FormModel {
   //   this.groups.splice(deleteIdx, 1);
   // }
 
-  deleteNode(nodeId: string): void {
-    const deleteNode = this.nodes.find((n) => n.nodeId === nodeId);
-    if (deleteNode) {
-      const deleteIdx = this.nodes.indexOf(deleteNode);
-      this.nodes.splice(deleteIdx, 1);
-      return;
+  deleteNode(nodeId: string): boolean {
+    const nodeList = Node.findNodeList(nodeId, this.nodes);
+    if (nodeList) {
+      const deleteNode = nodeList.find((n) => n.nodeId === nodeId);
+      const deleteIdx = nodeList.indexOf(deleteNode!);
+      nodeList.splice(deleteIdx, 1);
+      return true;
     }
-    // NEED NEW LOGIC FOR NESTED NODES!
-    console.log(Node.find(nodeId, ...this.nodes));
+    return false;
   }
 
   // Apply domain checks here!

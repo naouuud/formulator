@@ -1,8 +1,6 @@
 import { Component, effect, signal } from '@angular/core';
 import { BuilderService } from '../../services/builder-service';
-import { BuilderGroup } from '../builder-group/builder-group';
 import { CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
-// import { GroupType } from '../../models/group-types';
 import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
 import {
   FormControl,
@@ -40,6 +38,7 @@ export class BuilderForm {
       for (let node of nodeList) {
         this.#addFormGroup(node);
       }
+      console.log(this.allFormGroups);
     });
   }
 
@@ -50,10 +49,6 @@ export class BuilderForm {
       this.#addNode_C(event);
     }
   }
-
-  // private _reorderGroup_C(event: CdkDragDrop<unknown>) {
-  //   this.builderService.reorderGroup_S(event.previousIndex, event.currentIndex);
-  // }
 
   #reorderNode_C(event: CdkDragDrop<unknown>) {
     this.builderService.reorderNode_S(event.previousIndex, event.currentIndex);
@@ -67,6 +62,7 @@ export class BuilderForm {
     for (let node of nodeList) {
       this.#addFormGroup(node);
     }
+    console.log(this.allFormGroups);
   }
 
   nodeDeleteCleanup(nodeIdsForDelete: string[]) {
@@ -119,6 +115,6 @@ export class BuilderForm {
       nodeFormGroup.addControl(prop.propType, control); // FormControl identifier = propType
       this.allFormGroups.addControl(node.nodeId, nodeFormGroup); // FormGroup identifier = nodeId
     });
-    console.log(this.allFormGroups);
+    // console.log(this.allFormGroups);
   }
 }

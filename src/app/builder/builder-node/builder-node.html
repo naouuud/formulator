@@ -84,8 +84,13 @@
     @case (NodeType.PHONE) {
       <app-builder-node-phone [node]="node" />
     }
+    <!-- This component passes delete emission from nested node (group component as intermediary) -->
     @case (NodeType.GROUP) {
-      <app-builder-node-group [node]="node" [allFormGroupsIn]="allFormGroupsIn" />
+      <app-builder-node-group
+        [node]="node"
+        [allFormGroupsIn]="allFormGroupsIn"
+        (nodeDeletedEM_G)="nodeDeletedEM_N.emit($event)"
+      />
     }
     @default {}
   }
