@@ -4,7 +4,7 @@
   <!-- Validation -->
   <app-builder-validation [node]="node" />
   <!-- Children -->
-  @for (child of node.children; track $index) {
+  @for (child of node.nodes; track $index) {
     <div [formGroup]="getFormGroup(child.nodeId)">
       <app-builder-node [node]="child" [nodeFormGroup]="getFormGroup(child.nodeId)" />
     </div>

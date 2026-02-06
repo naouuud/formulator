@@ -69,9 +69,9 @@ export class BuilderForm {
     }
   }
 
-  nodeDeleteCleanup(nodeId: string) {
-    this.hideMessage.set(this.formModel$().nodes.length > 0); // set empty message on if no groups left
-    this.allFormGroups.removeControl(nodeId); // delete control
+  nodeDeleteCleanup(nodeIdsForDelete: string[]) {
+    this.hideMessage.set(this.formModel$().nodes.length > 0); // show empty message if no nodes left
+    nodeIdsForDelete.forEach((nodeId) => this.allFormGroups.removeControl(nodeId));
     console.log(this.allFormGroups);
   }
 
