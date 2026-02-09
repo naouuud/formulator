@@ -51,15 +51,23 @@ export class BuilderForm {
   }
 
   #reorderNode_C(event: CdkDragDrop<unknown>) {
-    this.builderService.reorderNode_S(event.previousIndex, event.currentIndex);
+    this.builderService.reorderNode_S(
+      this.formModel$().nodes,
+      event.previousIndex,
+      event.currentIndex,
+    );
   }
 
   #addNode_C(event: CdkDragDrop<FactoryType>) {
-    const factoryType: FactoryType = event.item.data;
-    const node = this.builderService.addNode_S(factoryType); // return &Node
-    this.builderService.reorderNode_S(this.formModel$().nodes.length - 1, event.currentIndex);
-    const nodeList = Node.flatten(node);
-    for (let node of nodeList) {
+    const factoryType: FactoryType = event.item.data; // extract FactoryType from drag data
+    const node = this.builderService.addNode_S(factoryType); // add & return Node ref
+    this.builderService.reorderNode_S(
+      this.formModel$().nodes,
+      this.formModel$().nodes.length - 1,
+      event.currentIndex,
+    );
+    const flatNodeList = Node.flatten(node); // flatten node to add all necessary form groups
+    for (let node of flatNodeList) {
       this.#addFormGroup(node);
     }
     console.log(this.allFormGroups);

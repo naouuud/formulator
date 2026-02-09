@@ -191,8 +191,8 @@ export class BuilderService {
   //   this.saveFormSb.next();
   // }
 
-  reorderNode_S(fromIndex: number, toIndex: number): void {
-    this.formModel$().reorderNode(fromIndex, toIndex);
+  reorderNode_S(nodeList: Node[], fromIndex: number, toIndex: number): void {
+    Node.reorderNode(nodeList, fromIndex, toIndex);
     this.saveFormSb.next();
   }
 
