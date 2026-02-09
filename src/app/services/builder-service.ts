@@ -237,6 +237,7 @@ export class BuilderService {
     [PropType.DATERANGE]: { type: 'object' },
     [PropType.OPTIONS]: { type: 'object' },
     [PropType.OPTIONOTHER]: { type: 'boolean' },
+    [PropType.ALLOWTOGGLE]: { type: 'boolean' },
   } as const;
 
   #isValidPropValue<K extends PropType>(propType: K, value: unknown): value is PropValueMap[K] {

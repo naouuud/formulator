@@ -22,10 +22,24 @@ export enum NodeType {
   CHECKBOX = 'checkbox',
   RADIO = 'radio',
   DATE = 'date',
-  GROUP = 'group',
   EMAIL = 'email',
   PHONE = 'phone',
+  GROUP = 'group',
 }
+
+export type NodeFactory = () => Node;
+const nodeMap = new Map<NodeType, NodeFactory>([
+  [NodeType.TEXT, createTextNode],
+  [NodeType.TEXTAREA, createTextareaNode],
+  [NodeType.NUMBER, createNumberNode],
+  [NodeType.SELECT, createSelectNode],
+  [NodeType.CHECKBOX, createCheckboxNode],
+  [NodeType.RADIO, createRadioNode],
+  [NodeType.DATE, createDateNode],
+  [NodeType.EMAIL, createEmailNode],
+  [NodeType.PHONE, createPhoneNode],
+  [NodeType.GROUP, createGroupNode],
+]);
 
 export class Node {
   nodeType: NodeType;
@@ -40,10 +54,9 @@ export class Node {
     this.nodes = [];
   }
 
-  // addNode(nodeType: NodeType) {
-  //   const node = Node.create(nodeType);
-  //   this.nodes.push(node);
-  // }
+  addNodes(...node: Node[]) {
+    this.nodes.push(...node);
+  }
 
   deleteNode(nodeId: string): void {
     const deleteNode = this.nodes.find((n) => n.nodeId === nodeId);
@@ -85,6 +98,13 @@ export class Node {
     editable: boolean,
   ): Extract<Prop, { propType: K }> {
     return { propType, value, editable } as Extract<Prop, { propType: K }>;
+  }
+
+  deleteProp(propType: PropType): void {
+    const prop = this.props.find((p) => p.propType === propType);
+    if (prop) {
+      this.props.splice(this.props.indexOf(prop), 1);
+    }
   }
 
   // returns ref, can mutate directly
@@ -135,15 +155,15 @@ export class Node {
     }
   }
 
-  // static create(nodeType: NodeType): Node {
-  //   const factory = nodeMap.get(nodeType);
-  //   if (!factory) {
-  //     throw new Error(
-  //       `Internal Error: No factory registered for NodeType '${nodeType}'. Did you forget to add it to nodeMap?`,
-  //     );
-  //   }
-  //   return factory();
-  // }
+  static create(nodeType: NodeType): Node {
+    const factory = nodeMap.get(nodeType);
+    if (!factory) {
+      throw new Error(
+        `Internal Error: No factory registered for NodeType '${nodeType}'. Did you forget to add it to nodeMap?`,
+      );
+    }
+    return factory();
+  }
 
   static serialize(node: Node): NodeDto {
     const nodeDto: NodeDto = { ...node };
@@ -216,4 +236,110 @@ export class Node {
 
     return iter(nodeLists);
   }
+}
+
+// NODE FACTORIES
+function createTextNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.TEXT;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.MAXLENGTHCHAR, 100);
+  node.setProp(PropType.PLACEHOLDER, 'Enter response here...');
+  return node;
+}
+
+function createTextareaNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.TEXTAREA;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.MAXLENGTHWORD, 500);
+  node.setProp(PropType.PLACEHOLDER, 'Enter response here...');
+  return node;
+}
+
+function createNumberNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.NUMBER;
+  node.setProp(PropType.LABEL, '', true);
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.PATTERNNUMBER, true);
+  node.setProp(PropType.MAXLENGTHCHAR, 20, false);
+  // node.setProp(PropType.MAXVALUE, 1_000_000_000);
+  // node.setProp(PropType.MINVALUE, -1_000_000_000);
+  node.setProp(PropType.PLACEHOLDER, 'Enter number...');
+  return node;
+}
+
+function createSelectNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.SELECT;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.OPTIONS, []);
+  return node;
+}
+
+function createRadioNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.RADIO;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.OPTIONOTHER, false);
+  node.setProp(PropType.OPTIONS, []);
+  node.setProp(PropType.ALLOWTOGGLE, true);
+  return node;
+}
+
+function createCheckboxNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.CHECKBOX;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.OPTIONOTHER, false);
+  node.setProp(PropType.OPTIONS, []);
+  node.setProp(PropType.ALLOWTOGGLE, true);
+  return node;
+}
+
+function createDateNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.DATE;
+  node.setProp(PropType.LABEL, '');
+  node.setProp(PropType.REQUIRED, true);
+  const maxDateString = todayString();
+  const minDateString = todayString(-100);
+  const dateRange = createDateRange(maxDateString, minDateString); // use factory
+  node.setProp(PropType.DATERANGE, dateRange);
+  return node;
+}
+
+function createEmailNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.EMAIL;
+  node.setProp(PropType.LABEL, 'Email');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.EMAIL, true);
+  node.setProp(PropType.MAXLENGTHCHAR, 50, false);
+  node.setProp(PropType.PLACEHOLDER, 'Enter your email...');
+  return node;
+}
+
+function createPhoneNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.PHONE;
+  node.setProp(PropType.LABEL, 'Phone number');
+  node.setProp(PropType.REQUIRED, true);
+  node.setProp(PropType.PATTERNPHONE, true);
+  node.setProp(PropType.MAXLENGTHCHAR, 15, false);
+  node.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
+  return node;
+}
+
+function createGroupNode(): Node {
+  const node = new Node();
+  node.nodeType = NodeType.GROUP;
+  node.setProp(PropType.LABEL, '');
+  return node;
 }
