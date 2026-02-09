@@ -30,7 +30,11 @@
     <!-- Form Nodes -->
     <div class="flex flex-col gap-4">
       @for (node of formModel$().nodes; track $index) {
-        <div [formGroup]="getFormGroup(node.nodeId)">
+        <div
+          [formGroup]="getFormGroup(node.nodeId)"
+          animate.enter="group-enter-animation"
+          animate.leave="group-leave-animation"
+        >
           <app-builder-node
             [node]="node"
             [nodeFormGroup]="getFormGroup(node.nodeId)"

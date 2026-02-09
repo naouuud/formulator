@@ -1,3 +1,4 @@
+import { factoryMap, FactoryType } from './factory-types';
 import { createDateRange, Option, Prop, PropType, PropValueMap, todayString } from './prop-types';
 
 export class EmptyOptionError extends Error {}
