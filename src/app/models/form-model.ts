@@ -40,12 +40,13 @@ export class FormModel {
     return node;
   }
 
-  reorderNode(fromIndex: number, toIndex: number): void {
-    const newArray = [...this.nodes]; // create a shallow copy to avoid mutating original
-    const [movedItem] = newArray.splice(fromIndex, 1); // remove item
-    newArray.splice(toIndex, 0, movedItem); // insert at new index
-    this.nodes = newArray;
-  }
+  // reorderNode(fromIndex: number, toIndex: number): void {
+  //   // const newArray = [...this.nodes]; // create a shallow copy to avoid mutating original
+  //   // const [movedItem] = newArray.splice(fromIndex, 1); // remove item
+  //   // newArray.splice(toIndex, 0, movedItem); // insert at new index
+  //   // this.nodes = newArray;
+  //   Node.reorderNode(this.nodes, fromIndex, toIndex);
+  // }
 
   deleteNode(nodeId: string): boolean {
     const nodeList = Node.findNodeList(nodeId, this.nodes);

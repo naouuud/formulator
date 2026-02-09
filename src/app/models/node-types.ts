@@ -165,6 +165,11 @@ export class Node {
     return factory();
   }
 
+  static reorderNode(nodeList: Node[], fromIndex: number, toIndex: number): void {
+    const [movedItem] = nodeList.splice(fromIndex, 1); // remove item
+    nodeList.splice(toIndex, 0, movedItem); // insert at new index
+  }
+
   static serialize(node: Node): NodeDto {
     const nodeDto: NodeDto = { ...node };
     nodeDto.nodes = (node.nodes ?? []).map((n: Node) => Node.serialize(n));
