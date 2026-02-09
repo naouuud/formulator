@@ -9,8 +9,6 @@ export enum PropType {
   MAXLENGTHWORD = 'maxlengthword',
   REQUIRED = 'required',
   EMAIL = 'email',
-  // MAXVALUE = 'maxvalue',
-  // MINVALUE = 'minvalue',
   PATTERNPHONE = 'patternphone',
   PATTERNNUMBER = 'patternnumber',
   DATERANGE = 'daterange',
@@ -19,10 +17,44 @@ export enum PropType {
   ALLOWTOGGLE = 'allowtoggle',
 }
 
-export const phonePattern = /^\d(?:\s?\d){7}$/;
-export const numberPattern = /^[+-]?\d+(\.\d+)?$/;
+export type PropValueMap = {
+  [PropType.LABEL]: string;
+  [PropType.PLACEHOLDER]: string;
+  [PropType.MAXLENGTHCHAR]: number;
+  [PropType.MAXLENGTHWORD]: number;
+  [PropType.REQUIRED]: boolean;
+  [PropType.EMAIL]: boolean;
+  [PropType.PATTERNPHONE]: boolean;
+  [PropType.PATTERNNUMBER]: boolean;
+  [PropType.DATERANGE]: DateRange;
+  [PropType.OPTIONS]: Option[];
+  [PropType.OPTIONOTHER]: boolean;
+  [PropType.ALLOWTOGGLE]: boolean;
+};
 
-// Dates
+// Produces type dynamically using PropValueMap
+export type Prop = {
+  [K in keyof PropValueMap]: {
+    propType: K;
+    value: PropValueMap[K];
+    editable: boolean;
+  };
+}[keyof PropValueMap];
+
+export interface PropChangeEvent {
+  propType: PropType;
+  value: unknown;
+}
+
+export function createProp<K extends PropType>(
+  propType: K,
+  value: PropValueMap[K],
+  editable: boolean,
+): Extract<Prop, { propType: K }> {
+  return { propType, value, editable } as Extract<Prop, { propType: K }>;
+}
+
+// Date functions
 type DateString = string;
 export type DateRange = { max: DateString; min: DateString };
 
@@ -33,15 +65,7 @@ function isDateString(value: string): value is DateString {
   return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
 }
 
-// function assertIsDateString(value: string): asserts value is DateString {
-//   if (!isDateString(value)) {
-//     throw new InvalidDateError(
-//       'Invalid date provided, use format "YYYY-MM-DD" and ensure date is a valid calendar date.',
-//     );
-//   }
-// }
-
-// factory implements runtime check and throws error
+// Factory implements runtime check and throws error
 export function createDateRange(max: string, min: string): DateRange {
   if (!isDateString(min) || !isDateString(max))
     throw new InvalidDateError(
@@ -63,33 +87,6 @@ export function todayString(yearOffset: number = 0): DateString {
   return todayString;
 }
 
-export type PropValueMap = {
-  [PropType.LABEL]: string;
-  [PropType.PLACEHOLDER]: string;
-  [PropType.MAXLENGTHCHAR]: number;
-  [PropType.MAXLENGTHWORD]: number;
-  [PropType.REQUIRED]: boolean;
-  [PropType.EMAIL]: boolean;
-  // [PropType.MAXVALUE]: number;
-  // [PropType.MINVALUE]: number;
-  [PropType.PATTERNPHONE]: boolean;
-  [PropType.PATTERNNUMBER]: boolean;
-  [PropType.DATERANGE]: DateRange;
-  [PropType.OPTIONS]: Option[];
-  [PropType.OPTIONOTHER]: boolean;
-  [PropType.ALLOWTOGGLE]: boolean;
-};
-
-// produces type dynamically using PropValueMap (same as below)
-export type Prop = {
-  [K in keyof PropValueMap]: {
-    propType: K;
-    value: PropValueMap[K];
-    editable: boolean;
-  };
-}[keyof PropValueMap];
-
-export interface PropChangeEvent {
-  propType: PropType;
-  value: unknown;
-}
+// RegEx
+export const phonePattern = /^\d(?:\s?\d){7}$/;
+export const numberPattern = /^[+-]?\d+(\.\d+)?$/;

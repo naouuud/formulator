@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { factoryIconsComplex, factoryIconsBasic, factoryIconsGroup } from '../models/factory-types';
+import { Factory } from '../models/factory-types';
 import { UiTypeIcon } from '../ui-type-icon/ui-type-icon';
 import { CdkDrag, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
-  factoryIconsBasic = factoryIconsBasic;
-  factoryIconsGroup = factoryIconsGroup;
-  factoryIconsComplex = factoryIconsComplex;
+  factoryIconsBasic = Factory.factoryIconsBasic;
+  factoryIconsComplex = Factory.factoryIconsComplex;
 }

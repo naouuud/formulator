@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { factoryIconsComplex, factoryIconsBasic } from '../models/factory-types';
+import { Factory } from '../models/factory-types';
 
 @Component({
   selector: 'app-footer',
@@ -8,8 +8,8 @@ import { factoryIconsComplex, factoryIconsBasic } from '../models/factory-types'
   styleUrl: './footer.css',
 })
 export class Footer {
-  authors = factoryIconsComplex
-    .concat(factoryIconsBasic)
+  authors = Factory.factoryIconsComplex
+    .concat(Factory.factoryIconsBasic)
     .filter((type) => type.attribution && type.attribution.length > 0)
     .map((type) => type.attribution)
     .filter((value, index, self) => self.indexOf(value) === index)

@@ -28,210 +28,215 @@ export type FactoryIcon = {
   attribution: string;
 };
 
-export const factoryIconsBasic: FactoryIcon[] = [
-  {
-    factoryType: FactoryType.TEXT,
-    label: 'Short Text',
-    description: 'Maximum length 100 characters.',
-    img: 'font.png',
-    attribution: 'Freepik',
-  },
-  {
-    factoryType: FactoryType.TEXTAREA,
-    label: 'Long Text',
-    description:
-      'Ideal for comments, descriptions and essays. Set a word limit to keep answers concise.',
-    img: 'comment.png',
-    attribution: 'Freepik',
-  },
-  {
-    factoryType: FactoryType.NUMBER,
-    label: 'Number',
-    img: 'pin.png',
-    attribution: 'Fathema Khanom',
-  },
-  {
-    factoryType: FactoryType.DATE,
-    label: 'Date',
-    img: 'calendar.png',
-    attribution: 'Freepik',
-  },
-  {
-    factoryType: FactoryType.EMAIL,
-    label: 'Email',
-    img: 'email.png',
-    attribution: 'Those Icons',
-  },
-  {
-    factoryType: FactoryType.PHONE,
-    label: 'Phone',
-    description: '',
-    img: 'smartphone-call.png',
-    attribution: 'Freepik',
-  },
-  {
-    factoryType: FactoryType.SELECT,
-    label: 'Dropdown',
-    description: 'Select an option.',
-    img: 'dropdown.png',
-    attribution: 'Royyan Wijaya',
-  },
-  {
-    factoryType: FactoryType.CHECKBOX,
-    label: 'Checkbox',
-    description: 'Check all that apply.',
-    img: 'check.png',
-    attribution: 'Picons',
-  },
-  {
-    factoryType: FactoryType.RADIO,
-    label: 'Radio',
-    description: 'Check one option only.',
-    img: 'radio.png',
-    attribution: 'Bharat Icons',
-  },
-  {
-    factoryType: FactoryType.GROUP,
-    label: 'Make a Group',
-    description: 'Group several questions together',
-    img: 'drop-down-menu4.png',
-    attribution: '',
-  },
-];
+export class Factory {
+  static factoryIconsBasic: FactoryIcon[] = [
+    {
+      factoryType: FactoryType.TEXT,
+      label: 'Short Text',
+      description: 'Maximum length 100 characters.',
+      img: 'font.png',
+      attribution: 'Freepik',
+    },
+    {
+      factoryType: FactoryType.TEXTAREA,
+      label: 'Long Text',
+      description:
+        'Ideal for comments, descriptions and essays. Set a word limit to keep answers concise.',
+      img: 'comment.png',
+      attribution: 'Freepik',
+    },
+    {
+      factoryType: FactoryType.NUMBER,
+      label: 'Number',
+      img: 'pin.png',
+      attribution: 'Fathema Khanom',
+    },
+    {
+      factoryType: FactoryType.DATE,
+      label: 'Date',
+      img: 'calendar.png',
+      attribution: 'Freepik',
+    },
+    {
+      factoryType: FactoryType.EMAIL,
+      label: 'Email',
+      img: 'email.png',
+      attribution: 'Those Icons',
+    },
+    {
+      factoryType: FactoryType.PHONE,
+      label: 'Phone',
+      description: '',
+      img: 'smartphone-call.png',
+      attribution: 'Freepik',
+    },
+    {
+      factoryType: FactoryType.SELECT,
+      label: 'Dropdown',
+      description: 'Select an option.',
+      img: 'dropdown.png',
+      attribution: 'Royyan Wijaya',
+    },
+    {
+      factoryType: FactoryType.CHECKBOX,
+      label: 'Checkbox',
+      description: 'Check all that apply.',
+      img: 'check.png',
+      attribution: 'Picons',
+    },
+    {
+      factoryType: FactoryType.RADIO,
+      label: 'Radio',
+      description: 'Check one option only.',
+      img: 'radio.png',
+      attribution: 'Bharat Icons',
+    },
+    {
+      factoryType: FactoryType.GROUP,
+      label: 'Make a Group',
+      description: 'Group several questions together',
+      img: 'drop-down-menu4.png',
+      attribution: '',
+    },
+  ];
 
-export const factoryIconsGroup: FactoryIcon[] = [
-  {
-    factoryType: FactoryType.GROUP,
-    label: 'Group',
-    description: 'Group several questions together.',
-    img: 'drop-down-menu.png',
-    attribution: '',
-  },
-];
+  static factoryIconsComplex: FactoryIcon[] = [
+    {
+      factoryType: FactoryType.NAME,
+      label: 'Name',
+      img: 'user.png',
+      attribution: 'Bharat Icons',
+    },
+    {
+      factoryType: FactoryType.BIRTHDAY,
+      label: 'Date of Birth',
+      img: 'date-of-birth.png',
+      attribution: 'Freepik',
+    },
+    {
+      factoryType: FactoryType.GENDER,
+      label: 'Gender',
+      img: 'gender-fluid.png',
+      attribution: 'Aranagraphics',
+    },
+    {
+      factoryType: FactoryType.ADDRESS,
+      label: 'Address',
+      img: 'house.png',
+      attribution: 'KP Arts',
+    },
+    {
+      factoryType: FactoryType.BOOLEAN,
+      label: 'Yes/No',
+      img: 'yes.png',
+      attribution: 'Freepik',
+    },
+  ];
 
-export const factoryIconsComplex: FactoryIcon[] = [
-  {
-    factoryType: FactoryType.NAME,
-    label: 'Name',
-    img: 'user.png',
-    attribution: 'Bharat Icons',
-  },
-  {
-    factoryType: FactoryType.BIRTHDAY,
-    label: 'Date of Birth',
-    img: 'date-of-birth.png',
-    attribution: 'Freepik',
-  },
-  {
-    factoryType: FactoryType.GENDER,
-    label: 'Gender',
-    img: 'gender-fluid.png',
-    attribution: 'Aranagraphics',
-  },
-  {
-    factoryType: FactoryType.ADDRESS,
-    label: 'Address',
-    img: 'house.png',
-    attribution: 'KP Arts',
-  },
-  {
-    factoryType: FactoryType.BOOLEAN,
-    label: 'Yes/No',
-    img: 'yes.png',
-    attribution: 'Freepik',
-  },
-];
+  static make(factoryType: FactoryType): Node {
+    return Factory.#get(factoryType)();
+  }
 
-export const factoryMap = new Map<FactoryType, NodeFactory>([
-  [FactoryType.TEXT, () => Node.create(NodeType.TEXT)],
-  [FactoryType.TEXTAREA, () => Node.create(NodeType.TEXTAREA)],
-  [FactoryType.NUMBER, () => Node.create(NodeType.NUMBER)],
-  [FactoryType.SELECT, () => Node.create(NodeType.SELECT)],
-  [FactoryType.CHECKBOX, () => Node.create(NodeType.CHECKBOX)],
-  [FactoryType.RADIO, () => Node.create(NodeType.RADIO)],
-  [FactoryType.DATE, () => Node.create(NodeType.DATE)],
-  [FactoryType.EMAIL, () => Node.create(NodeType.EMAIL)],
-  [FactoryType.PHONE, () => Node.create(NodeType.PHONE)],
-  [FactoryType.GROUP, () => Node.create(NodeType.GROUP)],
-  [FactoryType.NAME, createNameGroup],
-  [FactoryType.ADDRESS, createAddressGroup],
-  [FactoryType.GENDER, createGenderQuestion],
-  [FactoryType.BOOLEAN, createYesNoQuestion],
-  [FactoryType.BIRTHDAY, createBirthdayQuestion],
-]);
+  static #get(factoryType: FactoryType): NodeFactory {
+    const factory = Factory.#factoryMap.get(factoryType);
+    if (!factory) {
+      throw new Error(
+        `Internal Error: No factory registered for factoryType '${factoryType}'. Did you forget to add it to factoryMap?`,
+      );
+    }
+    return factory;
+  }
 
-// GROUP FACTORIES
-export function createNameGroup(): Node {
-  const group = Node.create(NodeType.GROUP);
-  group.setProp(PropType.LABEL, 'Name');
+  static #factoryMap = new Map<FactoryType, NodeFactory>([
+    [FactoryType.TEXT, () => Node.create(NodeType.TEXT)],
+    [FactoryType.TEXTAREA, () => Node.create(NodeType.TEXTAREA)],
+    [FactoryType.NUMBER, () => Node.create(NodeType.NUMBER)],
+    [FactoryType.SELECT, () => Node.create(NodeType.SELECT)],
+    [FactoryType.CHECKBOX, () => Node.create(NodeType.CHECKBOX)],
+    [FactoryType.RADIO, () => Node.create(NodeType.RADIO)],
+    [FactoryType.DATE, () => Node.create(NodeType.DATE)],
+    [FactoryType.EMAIL, () => Node.create(NodeType.EMAIL)],
+    [FactoryType.PHONE, () => Node.create(NodeType.PHONE)],
+    [FactoryType.GROUP, () => Node.create(NodeType.GROUP)],
+    [FactoryType.NAME, Factory.#createNameGroup],
+    [FactoryType.ADDRESS, Factory.#createAddressGroup],
+    [FactoryType.GENDER, Factory.#createGenderQuestion],
+    [FactoryType.BOOLEAN, Factory.#createYesNoQuestion],
+    [FactoryType.BIRTHDAY, Factory.#createBirthdayQuestion],
+  ]);
 
-  const firstName = Node.create(NodeType.TEXT);
-  firstName.setProp(PropType.LABEL, 'First Name');
-  firstName.setProp(PropType.PLACEHOLDER, 'Enter first name...');
-  firstName.setProp(PropType.REQUIRED, true);
-  firstName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+  static #createNameGroup(): Node {
+    const group = Node.create(NodeType.GROUP);
+    group.setProp(PropType.LABEL, 'Name');
 
-  const lastName = Node.create(NodeType.TEXT);
-  lastName.setProp(PropType.LABEL, 'Last Name');
-  lastName.setProp(PropType.PLACEHOLDER, 'Enter last name...');
-  lastName.setProp(PropType.REQUIRED, true);
-  lastName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    const firstName = Node.create(NodeType.TEXT);
+    firstName.setProp(PropType.LABEL, 'First Name');
+    firstName.setProp(PropType.PLACEHOLDER, 'Enter first name...');
+    firstName.setProp(PropType.REQUIRED, true);
+    firstName.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  group.addNodes(firstName, lastName);
-  return group;
-}
+    const lastName = Node.create(NodeType.TEXT);
+    lastName.setProp(PropType.LABEL, 'Last Name');
+    lastName.setProp(PropType.PLACEHOLDER, 'Enter last name...');
+    lastName.setProp(PropType.REQUIRED, true);
+    lastName.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-function createAddressGroup(): Node {
-  const group = Node.create(NodeType.GROUP);
-  group.setProp(PropType.LABEL, 'Address');
+    group.addNodes(firstName, lastName);
+    return group;
+  }
 
-  const governorate = Node.create(NodeType.SELECT);
-  governorate.setProp(PropType.LABEL, 'Governorate');
-  governorate.setProp(
-    PropType.OPTIONS,
-    leb_governorates.map((g) => g.name),
-  );
+  static #createAddressGroup(): Node {
+    const group = Node.create(NodeType.GROUP);
+    group.setProp(PropType.LABEL, 'Address');
 
-  const district = Node.create(NodeType.SELECT);
-  district.setProp(PropType.LABEL, 'District');
-  district.setProp(PropType.PLACEHOLDER, 'Select district');
+    const governorate = Node.create(NodeType.SELECT);
+    governorate.setProp(PropType.LABEL, 'Governorate');
+    governorate.setProp(
+      PropType.OPTIONS,
+      leb_governorates.map((g) => g.name),
+    );
 
-  const street = Node.create(NodeType.TEXT);
-  street.setProp(PropType.LABEL, 'Street and building', false);
-  street.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
-  street.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    const district = Node.create(NodeType.SELECT);
+    district.setProp(PropType.LABEL, 'District');
+    district.setProp(PropType.PLACEHOLDER, 'Select district');
 
-  const city = Node.create(NodeType.TEXT);
-  city.setProp(PropType.LABEL, 'City', false);
-  city.setProp(PropType.PLACEHOLDER, 'Enter city...');
-  city.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    const street = Node.create(NodeType.TEXT);
+    street.setProp(PropType.LABEL, 'Street and building', false);
+    street.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
+    street.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-  group.addNodes(governorate, district, street, city);
-  return group;
-}
+    const city = Node.create(NodeType.TEXT);
+    city.setProp(PropType.LABEL, 'City', false);
+    city.setProp(PropType.PLACEHOLDER, 'Enter city...');
+    city.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
-function createGenderQuestion(): Node {
-  const node = Node.create(NodeType.RADIO);
-  node.setProp(PropType.LABEL, 'Gender', false);
-  node.setProp(PropType.OPTIONS, ['Female', 'Male', 'Non-binary', 'Prefer not to say']);
-  node.setProp(PropType.ALLOWTOGGLE, false);
-  return node;
-}
+    group.addNodes(governorate, district, street, city);
+    return group;
+  }
 
-function createBirthdayQuestion(): Node {
-  const node = Node.create(NodeType.DATE);
-  node.setProp(PropType.LABEL, 'Date of birth', false);
-  const maxDateString = 'today';
-  const minDateString = todayString(-120);
-  const dateRange = createDateRange(maxDateString, minDateString); // use factory
-  node.setProp(PropType.DATERANGE, dateRange, false);
-  return node;
-}
+  static #createGenderQuestion(): Node {
+    const node = Node.create(NodeType.RADIO);
+    node.setProp(PropType.LABEL, 'Gender', false);
+    node.setProp(PropType.OPTIONS, ['Female', 'Male', 'Non-binary', 'Prefer not to say']);
+    node.setProp(PropType.ALLOWTOGGLE, false);
+    return node;
+  }
 
-function createYesNoQuestion(): Node {
-  const node = Node.create(NodeType.RADIO);
-  node.setProp(PropType.OPTIONS, ['Yes', 'No', 'Unsure']);
-  node.setProp(PropType.ALLOWTOGGLE, false);
-  node.deleteProp(PropType.OPTIONOTHER);
-  return node;
+  static #createBirthdayQuestion(): Node {
+    const node = Node.create(NodeType.DATE);
+    node.setProp(PropType.LABEL, 'Date of birth', false);
+    const maxDateString = 'today';
+    const minDateString = todayString(-120);
+    const dateRange = createDateRange(maxDateString, minDateString); // use factory
+    node.setProp(PropType.DATERANGE, dateRange, false);
+    return node;
+  }
+
+  static #createYesNoQuestion(): Node {
+    const node = Node.create(NodeType.RADIO);
+    node.setProp(PropType.OPTIONS, ['Yes', 'No', 'Unsure']);
+    node.setProp(PropType.ALLOWTOGGLE, false);
+    node.deleteProp(PropType.OPTIONOTHER);
+    return node;
+  }
 }

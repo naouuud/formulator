@@ -4,7 +4,7 @@ import { LocalStorageService } from './local-storage';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
 import { debounceTime, Subject } from 'rxjs';
 import { Node, NodeType } from '../models/node-types';
-import { factoryMap, FactoryType } from '../models/factory-types';
+import { Factory, FactoryType } from '../models/factory-types';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -51,13 +51,12 @@ export class BuilderService {
 
   getOptionLists_S(): Option[][] {
     const optionLists: Option[][] = [];
-    this.formModel$()
-      .getFlatNodes()
-      .forEach((n) => {
-        if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(n.nodeType)) return;
-        if (!n.getOptions().length) return;
-        optionLists.push([...n.getOptions()]);
-      });
+    const flatNodeList = Node.flat(...this.formModel$().nodes);
+    flatNodeList.forEach((n) => {
+      if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(n.nodeType)) return;
+      if (!n.getOptions().length) return;
+      optionLists.push([...n.getOptions()]);
+    });
     if (optionLists.length < 2) return optionLists;
     // Remove duplicate lists
     for (let i = 0; i < optionLists.length - 1; i++) {
@@ -101,34 +100,21 @@ export class BuilderService {
     this.saveFormSb.next();
   }
 
-  addFormNode_S(factoryType: FactoryType): Node {
-    const node = this.formModel$().addNode(factoryType);
-    this.saveFormSb.next();
-    return node;
-  }
-
-  addChildNode_S(nodeList: Node[], factoryType: FactoryType): Node {
-    const factory = factoryMap.get(factoryType);
-    if (!factory) {
-      throw new Error(
-        `Internal Error: No factory registered for factoryType '${factoryType}'. Did you forget to add it to factoryMap?`,
-      );
-    }
-    const node = factory();
-    nodeList.push(node);
+  addNode_S(nodeList: Node[], factoryType: FactoryType): Node {
+    const node = Factory.make(factoryType);
+    Node.append(nodeList, node);
     this.saveFormSb.next();
     return node;
   }
 
   reorderNode_S(nodeList: Node[], fromIndex: number, toIndex: number): void {
-    Node.reorderNode(nodeList, fromIndex, toIndex);
+    Node.reorder(nodeList, fromIndex, toIndex);
     this.saveFormSb.next();
   }
 
-  deleteNode_S(nodeId: string): boolean {
-    const deleteResult = this.formModel$().deleteNode(nodeId);
-    if (deleteResult) this.saveFormSb.next();
-    return deleteResult;
+  deleteNode_S(nodeList: Node[], nodeId: string): void {
+    Node.delete(nodeList, nodeId);
+    this.saveFormSb.next();
   }
 
   #deserializeFormModel_S(formModelDto: FormModelDto): FormModel {
