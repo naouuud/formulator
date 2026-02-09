@@ -34,7 +34,7 @@ export class BuilderForm {
     this.hideMessage = signal(false);
     effect(() => {
       const formModel = this.formModel$(); // only set once in service
-      const nodeList = Node.flatten(...formModel.nodes);
+      const nodeList = Node.flat(...formModel.nodes);
       for (let node of nodeList) {
         this.#addFormGroup(node);
       }
@@ -60,13 +60,13 @@ export class BuilderForm {
 
   #addNode_C(event: CdkDragDrop<FactoryType>) {
     const factoryType: FactoryType = event.item.data; // extract FactoryType from drag data
-    const node = this.builderService.addFormNode_S(factoryType); // add & return Node ref
+    const node = this.builderService.addNode_S(this.formModel$().nodes, factoryType); // add & return Node ref
     this.builderService.reorderNode_S(
       this.formModel$().nodes,
       this.formModel$().nodes.length - 1,
       event.currentIndex,
     );
-    const flatNodeList = Node.flatten(node); // flatten node to add all necessary form groups
+    const flatNodeList = Node.flat(node); // flatten node to add all necessary form groups
     for (let node of flatNodeList) {
       this.#addFormGroup(node);
     }

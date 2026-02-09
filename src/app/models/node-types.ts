@@ -1,5 +1,12 @@
-import { factoryMap, FactoryType } from './factory-types';
-import { createDateRange, Option, Prop, PropType, PropValueMap, todayString } from './prop-types';
+import {
+  createDateRange,
+  createProp,
+  Option,
+  Prop,
+  PropType,
+  PropValueMap,
+  todayString,
+} from './prop-types';
 
 export class EmptyOptionError extends Error {}
 export class DuplicateOptionError extends Error {}
@@ -29,18 +36,6 @@ export enum NodeType {
 }
 
 export type NodeFactory = () => Node;
-const nodeMap = new Map<NodeType, NodeFactory>([
-  [NodeType.TEXT, createTextNode],
-  [NodeType.TEXTAREA, createTextareaNode],
-  [NodeType.NUMBER, createNumberNode],
-  [NodeType.SELECT, createSelectNode],
-  [NodeType.CHECKBOX, createCheckboxNode],
-  [NodeType.RADIO, createRadioNode],
-  [NodeType.DATE, createDateNode],
-  [NodeType.EMAIL, createEmailNode],
-  [NodeType.PHONE, createPhoneNode],
-  [NodeType.GROUP, createGroupNode],
-]);
 
 export class Node {
   nodeType: NodeType;
@@ -55,17 +50,8 @@ export class Node {
     this.nodes = [];
   }
 
-  addNodes(...node: Node[]) {
-    this.nodes.push(...node);
-  }
-
-  deleteNode(nodeId: string): void {
-    const deleteNode = this.nodes.find((n) => n.nodeId === nodeId);
-    if (deleteNode === undefined) {
-      throw Error(`No node with nodeId '${nodeId}' found to delete`);
-    }
-    const deleteIdx = this.nodes.indexOf(deleteNode);
-    this.nodes.splice(deleteIdx, 1);
+  addNodes(...nodes: Node[]): void {
+    this.nodes.push(...nodes);
   }
 
   getProp<K extends PropType>(propTypeIn: K): Extract<Prop, { propType: K }> | undefined {
@@ -89,16 +75,8 @@ export class Node {
       existing.editable = editableIn;
       return;
     }
-    this.props.push(this.#createProp(propTypeIn, valueIn, editableIn));
-  }
-
-  // 'squeeze' function to enforce type correctness during construction
-  #createProp<K extends PropType>(
-    propType: K,
-    value: PropValueMap[K],
-    editable: boolean,
-  ): Extract<Prop, { propType: K }> {
-    return { propType, value, editable } as Extract<Prop, { propType: K }>;
+    const newProp = createProp(propTypeIn, valueIn, editableIn); // Enforces type correctness during construction
+    this.props.push(newProp);
   }
 
   deleteProp(propType: PropType): void {
@@ -108,12 +86,12 @@ export class Node {
     }
   }
 
-  // returns ref, can mutate directly
+  // Returns ref, can mutate directly
   getOptions(): Option[] {
     return this.getPropValue(PropType.OPTIONS) ?? [];
   }
 
-  // always sets new array, never reference
+  // Sets new array, never reference
   setOptions(newArray: Option[]): void {
     this.setProp(PropType.OPTIONS, [...newArray]);
   }
@@ -147,17 +125,29 @@ export class Node {
     if (this.nodeType === NodeType.RADIO) {
       this.nodeType = NodeType.CHECKBOX;
       return;
-      // this.nodes[0].nodeType = FieldType.CHECKBOX;
     }
     if (this.nodeType === NodeType.CHECKBOX) {
       this.nodeType = NodeType.RADIO;
       return;
-      // this.nodes[0].nodeType = FieldType.RADIO;
     }
   }
 
+  // Class methods
+  static nodeMap = new Map<NodeType, NodeFactory>([
+    [NodeType.TEXT, createTextNode],
+    [NodeType.TEXTAREA, createTextareaNode],
+    [NodeType.NUMBER, createNumberNode],
+    [NodeType.SELECT, createSelectNode],
+    [NodeType.CHECKBOX, createCheckboxNode],
+    [NodeType.RADIO, createRadioNode],
+    [NodeType.DATE, createDateNode],
+    [NodeType.EMAIL, createEmailNode],
+    [NodeType.PHONE, createPhoneNode],
+    [NodeType.GROUP, createGroupNode],
+  ]);
+
   static create(nodeType: NodeType): Node {
-    const factory = nodeMap.get(nodeType);
+    const factory = Node.nodeMap.get(nodeType);
     if (!factory) {
       throw new Error(
         `Internal Error: No factory registered for NodeType '${nodeType}'. Did you forget to add it to nodeMap?`,
@@ -166,9 +156,42 @@ export class Node {
     return factory();
   }
 
-  static reorderNode(nodeList: Node[], fromIndex: number, toIndex: number): void {
+  static reorder(nodeList: Node[], fromIndex: number, toIndex: number): void {
     const [movedItem] = nodeList.splice(fromIndex, 1); // remove item
     nodeList.splice(toIndex, 0, movedItem); // insert at new index
+  }
+
+  static delete(nodeList: Node[], nodeId: string): void {
+    const deleteNode = nodeList.find((n) => n.nodeId === nodeId);
+    if (deleteNode === undefined) {
+      throw Error(`No node with nodeId '${nodeId}' found to delete`);
+    }
+    const deleteIdx = nodeList.indexOf(deleteNode);
+    nodeList.splice(deleteIdx, 1);
+  }
+
+  static append(nodeList: Node[], ...nodes: Node[]) {
+    nodeList.push(...nodes);
+  }
+
+  static flat(...nodes: Node[]): Node[] {
+    const allNodes: Node[] = [];
+    const queue: Node[] = [];
+    allNodes.push(...nodes);
+    queue.push(...nodes);
+
+    const iter = (queueRef: Node[]) => {
+      const originalLength = queueRef.length;
+      for (let i = 0; i < originalLength; i++) {
+        const nextNode = queueRef.shift()!;
+        allNodes.push(...nextNode.nodes);
+        queueRef.push(...nextNode.nodes);
+      }
+      if (!queueRef.length) return allNodes;
+      return iter(queueRef);
+    };
+
+    return iter(queue);
   }
 
   static serialize(node: Node): NodeDto {
@@ -191,27 +214,8 @@ export class Node {
     return node;
   }
 
-  static flatten(...nodes: Node[]): Node[] {
-    const allNodes: Node[] = [];
-    const queue: Node[] = [];
-    allNodes.push(...nodes);
-    queue.push(...nodes);
-
-    const iter = (queueRef: Node[]) => {
-      const originalLength = queueRef.length;
-      for (let i = 0; i < originalLength; i++) {
-        const nextNode = queueRef.shift()!;
-        allNodes.push(...nextNode.nodes);
-        queueRef.push(...nextNode.nodes);
-      }
-      if (!queueRef.length) return allNodes;
-      return iter(queueRef);
-    };
-
-    return iter(queue);
-  }
-
-  static findNode(nodeId: string, ...nodes: Node[]): Node | null {
+  // return Node ref - UNUSED
+  static find(nodeId: string, ...nodes: Node[]): Node | null {
     const iter = (nodes: Node[]): Node | null => {
       const node = nodes.find((n) => n.nodeId === nodeId);
       if (node) return node;
@@ -224,7 +228,8 @@ export class Node {
     return iter(nodes);
   }
 
-  static findNodeList(nodeId: string, ...nodeLists: Node[][]): Node[] | null {
+  // return Node[] ref - UNUSED
+  static findList(nodeId: string, ...nodeLists: Node[][]): Node[] | null {
     const iter = (nodeLists: Node[][]): Node[] | null => {
       for (const nodeList of nodeLists) {
         const node = nodeList.find((n) => n.nodeId === nodeId);

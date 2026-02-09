@@ -17,7 +17,9 @@
       <app-builder-node
         cdkDrag
         [node]="child"
+        [nodeList]="node.nodes"
         [nodeFormGroup]="getFormGroup(child.nodeId)"
+        [allFormGroupsIn]="allFormGroupsIn"
         (nodeDeletedEM_N)="nodeDeletedEM_G.emit($event)"
       />
     </div>

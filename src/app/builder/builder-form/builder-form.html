@@ -37,6 +37,7 @@
         >
           <app-builder-node
             [node]="node"
+            [nodeList]="formModel$().nodes"
             [nodeFormGroup]="getFormGroup(node.nodeId)"
             [allFormGroupsIn]="allFormGroups"
             (nodeDeletedEM_N)="nodeDeleteCleanup($event)"

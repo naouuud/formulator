@@ -46,7 +46,7 @@ export class BuilderNodeGroup {
 
   #addNode_C(event: CdkDragDrop<FactoryType>) {
     const factoryType: FactoryType = event.item.data;
-    this.builderService.addChildNode_S(this.node.nodes, factoryType);
+    this.builderService.addNode_S(this.node.nodes, factoryType);
     this.builderService.reorderNode_S(
       this.node.nodes,
       this.node.nodes.length - 1,

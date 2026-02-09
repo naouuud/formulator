@@ -54,13 +54,16 @@ const NodeLabels = {
 export class BuilderNode implements OnInit {
   NodeType = NodeType;
   PropType = PropType;
-  @Input() nodeFormGroup!: FormGroup;
+  NodeLabels = NodeLabels;
+
   @Input() node!: Node;
+  @Input() nodeList!: Node[]; // parent list ref for delete
+  @Input() nodeFormGroup!: FormGroup; // this node's form control
+  @Input() allFormGroupsIn!: FormGroup; // to pass to group node (for children)
   @Output() nodeDeletedEM_N = new EventEmitter<string[]>();
+
   dragDisabled$;
   floatVisible = false;
-  NodeLabels = NodeLabels;
-  @Input() allFormGroupsIn!: FormGroup; // to pass to group node
 
   constructor(private builderService: BuilderService) {
     this.dragDisabled$ = this.builderService.dragDisabled$;
@@ -99,11 +102,9 @@ export class BuilderNode implements OnInit {
   }
 
   deleteNode_C(): void {
-    const deleteResult = this.builderService.deleteNode_S(this.node.nodeId);
-    if (deleteResult) {
-      const nodeIdsForDelete = Node.flatten(this.node).map((n) => n.nodeId);
-      this.nodeDeletedEM_N.emit(nodeIdsForDelete); // emit to delete formcontrols
-    }
+    this.builderService.deleteNode_S(this.nodeList, this.node.nodeId);
+    const nodeIdsForDelete = Node.flat(this.node).map((n) => n.nodeId);
+    this.nodeDeletedEM_N.emit(nodeIdsForDelete); // emit to delete formcontrols
   }
 
   replaceOptions_C(optionList: Option[] | null) {
