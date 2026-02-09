@@ -42,7 +42,7 @@ export class BuilderForm {
     });
   }
 
-  onDrop(event: CdkDragDrop<any>) {
+  onDrop(event: CdkDragDrop<FactoryType>) {
     if (event.previousContainer === event.container) {
       this.#reorderNode_C(event);
     } else {
@@ -50,7 +50,7 @@ export class BuilderForm {
     }
   }
 
-  #reorderNode_C(event: CdkDragDrop<unknown>) {
+  #reorderNode_C(event: CdkDragDrop<FactoryType>) {
     this.builderService.reorderNode_S(
       this.formModel$().nodes,
       event.previousIndex,
@@ -60,7 +60,7 @@ export class BuilderForm {
 
   #addNode_C(event: CdkDragDrop<FactoryType>) {
     const factoryType: FactoryType = event.item.data; // extract FactoryType from drag data
-    const node = this.builderService.addNode_S(factoryType); // add & return Node ref
+    const node = this.builderService.addFormNode_S(factoryType); // add & return Node ref
     this.builderService.reorderNode_S(
       this.formModel$().nodes,
       this.formModel$().nodes.length - 1,

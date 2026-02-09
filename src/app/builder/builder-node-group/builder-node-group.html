@@ -8,15 +8,17 @@
   @for (child of node.nodes; track $index) {
     <div
       [formGroup]="getFormGroup(child.nodeId)"
+      animate.enter="group-enter-animation"
+      animate.leave="group-leave-animation"
       cdkDropList
       id="group-drop"
       (cdkDropListDropped)="onDrop($event)"
     >
       <app-builder-node
+        cdkDrag
         [node]="child"
         [nodeFormGroup]="getFormGroup(child.nodeId)"
         (nodeDeletedEM_N)="nodeDeletedEM_G.emit($event)"
-        cdkDrag
       />
     </div>
   }

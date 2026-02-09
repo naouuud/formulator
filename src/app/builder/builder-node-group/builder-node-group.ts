@@ -6,6 +6,7 @@ import { BuilderNode } from '../builder-node/builder-node';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { BuilderService } from '../../services/builder-service';
+import { FactoryType } from '../../models/factory-types';
 
 @Component({
   selector: 'app-builder-node-group',
@@ -31,7 +32,25 @@ export class BuilderNodeGroup {
     return this.allFormGroupsIn.get(nodeId) as FormGroup;
   }
 
-  onDrop(event: CdkDragDrop<any>) {
+  onDrop(event: CdkDragDrop<FactoryType>) {
+    if (event.previousContainer === event.container) {
+      this.#reorderNode_C(event);
+    } else {
+      this.#addNode_C(event);
+    }
+  }
+
+  #reorderNode_C(event: CdkDragDrop<FactoryType>) {
     this.builderService.reorderNode_S(this.node.nodes, event.previousIndex, event.currentIndex);
+  }
+
+  #addNode_C(event: CdkDragDrop<FactoryType>) {
+    const factoryType: FactoryType = event.item.data;
+    this.builderService.addChildNode_S(this.node.nodes, factoryType);
+    this.builderService.reorderNode_S(
+      this.node.nodes,
+      this.node.nodes.length - 1,
+      event.currentIndex,
+    );
   }
 }
