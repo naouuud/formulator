@@ -11,7 +11,7 @@
         class="text-blue-500 hover:cursor-pointer border border-blue-500 px-4 py-2 rounded-full"
         [innerHTML]="NodeLabels[node.nodeType]"
       ></div>
-      @if (node.nodeType === NodeType.RADIO) {
+      @if (node.nodeType === NodeType.RADIO && node.getPropValue(PropType.ALLOWTOGGLE)) {
         <div
           (click)="toggleRadioCheckbox_C()"
           class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
@@ -19,7 +19,7 @@
           toggle
         </div>
       }
-      @if (node.nodeType === NodeType.CHECKBOX) {
+      @if (node.nodeType === NodeType.CHECKBOX && node.getPropValue(PropType.ALLOWTOGGLE)) {
         <div
           (click)="toggleRadioCheckbox_C()"
           class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"

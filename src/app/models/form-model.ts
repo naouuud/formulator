@@ -5,20 +5,17 @@ import { createDateRange, PropType, todayString } from './prop-types';
 export type FormModelDto = {
   formId: ReturnType<typeof crypto.randomUUID>;
   formName: string;
-  // groups: GroupDto[];
   nodes: NodeDto[];
 };
 
 export class FormModel {
   formId: ReturnType<typeof crypto.randomUUID>;
   formName: string;
-  // groups: Group[];
   nodes: Node[];
 
   constructor() {
     this.formId = crypto.randomUUID();
     this.formName = '';
-    // this.groups = [];
     this.nodes = [];
   }
 
@@ -43,28 +40,12 @@ export class FormModel {
     return node;
   }
 
-  // reorderGroup(fromIndex: number, toIndex: number): void {
-  //   const newArray = [...this.groups]; // create a shallow copy to avoid mutating original
-  //   const [movedItem] = newArray.splice(fromIndex, 1); // remove item
-  //   newArray.splice(toIndex, 0, movedItem); // insert at new index
-  //   this.groups = newArray;
-  // }
-
   reorderNode(fromIndex: number, toIndex: number): void {
     const newArray = [...this.nodes]; // create a shallow copy to avoid mutating original
     const [movedItem] = newArray.splice(fromIndex, 1); // remove item
     newArray.splice(toIndex, 0, movedItem); // insert at new index
     this.nodes = newArray;
   }
-
-  // deleteGroup(groupId: string): void {
-  //   const deleteGroup = this.groups.find((g) => g.groupId === groupId);
-  //   if (deleteGroup === undefined) {
-  //     throw Error(`No group with groupId '${groupId}' found to delete`);
-  //   }
-  //   const deleteIdx = this.groups.indexOf(deleteGroup);
-  //   this.groups.splice(deleteIdx, 1);
-  // }
 
   deleteNode(nodeId: string): boolean {
     const nodeList = Node.findNodeList(nodeId, this.nodes);
@@ -77,25 +58,12 @@ export class FormModel {
     return false;
   }
 
-  // Apply domain checks here!
-  // static serialize(formModel: FormModel) {
-  //   const formModelDto: FormModelDto = { ...formModel };
-  //   formModelDto.groups = (formModel.groups ?? []).map((g: Group) => Group.serialize(g));
-  //   return formModelDto;
-  // }
-
+  // Apply domain checks here
   static serialize(formModel: FormModel): FormModelDto {
     const formModelDto: FormModelDto = { ...formModel };
     formModelDto.nodes = (formModel.nodes ?? []).map((n) => Node.serialize(n));
     return formModelDto;
   }
-
-  // static deserialize(formModelDto: FormModelDto): FormModel {
-  //   const formModel = new FormModel(); // create new form model
-  //   Object.assign(formModel, formModelDto); // copy enumerable properties
-  //   formModel.groups = (formModelDto.groups ?? []).map((g: GroupDto) => Group.deserialize(g)); // initialize new groups
-  //   return formModel;
-  // }
 
   static deserialize(formModelDto: FormModelDto): FormModel {
     const formModel = new FormModel();

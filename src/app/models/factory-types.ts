@@ -1,4 +1,5 @@
-import { Node, NodeType } from './node-types';
+import { leb_governorates } from './lebanon';
+import { Node, NodeFactory, NodeType } from './node-types';
 import { createDateRange, PropType, todayString } from './prop-types';
 
 export enum FactoryType {
@@ -141,163 +142,96 @@ export const factoryIconsComplex: FactoryIcon[] = [
   },
 ];
 
-type NodeFactory = () => Node;
 export const factoryMap = new Map<FactoryType, NodeFactory>([
-  [FactoryType.TEXT, createTextNode],
-  [FactoryType.TEXTAREA, createTextareaNode],
-  [FactoryType.NUMBER, createNumberNode],
-  [FactoryType.SELECT, createSelectNode],
-  [FactoryType.CHECKBOX, createCheckboxNode],
-  [FactoryType.RADIO, createRadioNode],
-  [FactoryType.DATE, createDateNode],
-  [FactoryType.GROUP, createGroupNode],
-  [FactoryType.EMAIL, createEmailNode],
-  [FactoryType.PHONE, createPhoneNode],
-  [FactoryType.NAME, createName],
-  [FactoryType.ADDRESS, createAddress],
-  [FactoryType.GENDER, createGender],
-  [FactoryType.BOOLEAN, createBoolean],
-  [FactoryType.BIRTHDAY, createBirthday],
+  [FactoryType.TEXT, () => Node.create(NodeType.TEXT)],
+  [FactoryType.TEXTAREA, () => Node.create(NodeType.TEXTAREA)],
+  [FactoryType.NUMBER, () => Node.create(NodeType.NUMBER)],
+  [FactoryType.SELECT, () => Node.create(NodeType.SELECT)],
+  [FactoryType.CHECKBOX, () => Node.create(NodeType.CHECKBOX)],
+  [FactoryType.RADIO, () => Node.create(NodeType.RADIO)],
+  [FactoryType.DATE, () => Node.create(NodeType.DATE)],
+  [FactoryType.EMAIL, () => Node.create(NodeType.EMAIL)],
+  [FactoryType.PHONE, () => Node.create(NodeType.PHONE)],
+  [FactoryType.GROUP, () => Node.create(NodeType.GROUP)],
+  [FactoryType.NAME, createNameGroup],
+  [FactoryType.ADDRESS, createAddressGroup],
+  [FactoryType.GENDER, createGenderQuestion],
+  [FactoryType.BOOLEAN, createYesNoQuestion],
+  [FactoryType.BIRTHDAY, createBirthdayQuestion],
 ]);
 
-// SIMPLE
-function createTextNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.TEXT;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.MAXLENGTHCHAR, 100);
-  node.setProp(PropType.PLACEHOLDER, 'Enter response here...');
+// GROUP FACTORIES
+export function createNameGroup(): Node {
+  const group = Node.create(NodeType.GROUP);
+  group.setProp(PropType.LABEL, 'Name');
+
+  const firstName = Node.create(NodeType.TEXT);
+  firstName.setProp(PropType.LABEL, 'First Name');
+  firstName.setProp(PropType.PLACEHOLDER, 'Enter first name...');
+  firstName.setProp(PropType.REQUIRED, true);
+  firstName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  const lastName = Node.create(NodeType.TEXT);
+  lastName.setProp(PropType.LABEL, 'Last Name');
+  lastName.setProp(PropType.PLACEHOLDER, 'Enter last name...');
+  lastName.setProp(PropType.REQUIRED, true);
+  lastName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  group.addNodes(firstName, lastName);
+  return group;
+}
+
+function createAddressGroup(): Node {
+  const group = Node.create(NodeType.GROUP);
+  group.setProp(PropType.LABEL, 'Address');
+
+  const governorate = Node.create(NodeType.SELECT);
+  governorate.setProp(PropType.LABEL, 'Governorate');
+  governorate.setProp(
+    PropType.OPTIONS,
+    leb_governorates.map((g) => g.name),
+  );
+
+  const district = Node.create(NodeType.SELECT);
+  district.setProp(PropType.LABEL, 'District');
+  district.setProp(PropType.PLACEHOLDER, 'Select district');
+
+  const street = Node.create(NodeType.TEXT);
+  street.setProp(PropType.LABEL, 'Street and building', false);
+  street.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
+  street.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  const city = Node.create(NodeType.TEXT);
+  city.setProp(PropType.LABEL, 'City', false);
+  city.setProp(PropType.PLACEHOLDER, 'Enter city...');
+  city.setProp(PropType.MAXLENGTHCHAR, 100, false);
+
+  group.addNodes(governorate, district, street, city);
+  return group;
+}
+
+function createGenderQuestion(): Node {
+  const node = Node.create(NodeType.RADIO);
+  node.setProp(PropType.LABEL, 'Gender', false);
+  node.setProp(PropType.OPTIONS, ['Female', 'Male', 'Non-binary', 'Prefer not to say']);
+  node.setProp(PropType.ALLOWTOGGLE, false);
   return node;
 }
 
-function createTextareaNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.TEXTAREA;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.MAXLENGTHWORD, 500);
-  node.setProp(PropType.PLACEHOLDER, 'Enter response here...');
-  return node;
-}
-
-function createNumberNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.NUMBER;
-  node.setProp(PropType.LABEL, '', true);
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.PATTERNNUMBER, true);
-  node.setProp(PropType.MAXLENGTHCHAR, 20, false);
-  // node.setProp(PropType.MAXVALUE, 1_000_000_000);
-  // node.setProp(PropType.MINVALUE, -1_000_000_000);
-  node.setProp(PropType.PLACEHOLDER, 'Enter number...');
-  return node;
-}
-
-function createSelectNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.SELECT;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.OPTIONS, []);
-  return node;
-}
-
-function createRadioNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.RADIO;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.OPTIONOTHER, false);
-  node.setProp(PropType.OPTIONS, []);
-  return node;
-}
-
-function createCheckboxNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.CHECKBOX;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.OPTIONOTHER, false);
-  node.setProp(PropType.OPTIONS, []);
-  return node;
-}
-
-function createDateNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.DATE;
-  node.setProp(PropType.LABEL, '');
-  node.setProp(PropType.REQUIRED, true);
-  const maxDateString = todayString();
-  const minDateString = todayString(-100);
+function createBirthdayQuestion(): Node {
+  const node = Node.create(NodeType.DATE);
+  node.setProp(PropType.LABEL, 'Date of birth', false);
+  const maxDateString = 'today';
+  const minDateString = todayString(-120);
   const dateRange = createDateRange(maxDateString, minDateString); // use factory
-  node.setProp(PropType.DATERANGE, dateRange);
+  node.setProp(PropType.DATERANGE, dateRange, false);
   return node;
 }
 
-function createGroupNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.GROUP;
-  node.setProp(PropType.LABEL, '');
+function createYesNoQuestion(): Node {
+  const node = Node.create(NodeType.RADIO);
+  node.setProp(PropType.OPTIONS, ['Yes', 'No', 'Unsure']);
+  node.setProp(PropType.ALLOWTOGGLE, false);
+  node.deleteProp(PropType.OPTIONOTHER);
   return node;
-}
-
-function createEmailNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.EMAIL;
-  node.setProp(PropType.LABEL, 'Email');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.EMAIL, true);
-  node.setProp(PropType.MAXLENGTHCHAR, 50, false);
-  node.setProp(PropType.PLACEHOLDER, 'Enter your email...');
-  return node;
-}
-
-function createPhoneNode(): Node {
-  const node = new Node();
-  node.nodeType = NodeType.PHONE;
-  node.setProp(PropType.LABEL, 'Phone number');
-  node.setProp(PropType.REQUIRED, true);
-  node.setProp(PropType.PATTERNPHONE, true);
-  node.setProp(PropType.MAXLENGTHCHAR, 15, false);
-  node.setProp(PropType.PLACEHOLDER, 'Enter phone number...');
-
-  return node;
-}
-
-// COMPLEX
-export function createName(): Node {
-  const groupNode = new Node();
-  groupNode.nodeType = NodeType.GROUP;
-  groupNode.setProp(PropType.LABEL, 'Name');
-
-  const node0 = new Node();
-  node0.nodeType = NodeType.TEXT;
-  node0.setProp(PropType.LABEL, 'First Name');
-  node0.setProp(PropType.PLACEHOLDER, 'Enter first name...');
-  node0.setProp(PropType.REQUIRED, true);
-  node0.setProp(PropType.MAXLENGTHCHAR, 100, false);
-
-  const node1 = new Node();
-  node1.nodeType = NodeType.TEXT;
-  node1.setProp(PropType.LABEL, 'Last Name');
-  node1.setProp(PropType.PLACEHOLDER, 'Enter last name...');
-  node1.setProp(PropType.REQUIRED, true);
-  node1.setProp(PropType.MAXLENGTHCHAR, 100, false);
-
-  groupNode.nodes.push(node0, node1);
-  return groupNode;
-}
-
-function createAddress(): Node {
-  return new Node();
-}
-function createGender(): Node {
-  return new Node();
-}
-function createBirthday(): Node {
-  return new Node();
-}
-function createBoolean(): Node {
-  return new Node();
 }
