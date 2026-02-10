@@ -28,6 +28,7 @@ export class BuilderForm {
   allFormGroups;
   PropType = PropType;
   NodeType = NodeType;
+  outerEnterPredicate = () => false;
 
   constructor(private builderService: BuilderService) {
     this.formModel$ = this.builderService.formModel$;
@@ -45,6 +46,7 @@ export class BuilderForm {
   }
 
   onDrop(event: CdkDragDrop<FactoryType>) {
+    console.log(event.container.id);
     if (event.previousContainer === event.container) {
       this.#reorderNode_C(event);
     } else {
@@ -62,13 +64,13 @@ export class BuilderForm {
 
   #addNode_C(event: CdkDragDrop<FactoryType>) {
     const factoryType: FactoryType = event.item.data; // extract FactoryType from drag data
-    const node = this.builderService.addNode_S(this.formModel$().nodes, factoryType); // add & return Node ref
+    const newNode = this.builderService.addNode_S(this.formModel$().nodes, factoryType); // add & return Node ref
     this.builderService.reorderNode_S(
       this.formModel$().nodes,
       this.formModel$().nodes.length - 1,
       event.currentIndex,
     );
-    const flatNodeList = Node.flat(node); // flatten node to add all necessary form groups
+    const flatNodeList = Node.flat(newNode); // flatten node to add all necessary form groups
     for (let node of flatNodeList) {
       this.#addFormGroup(node);
     }
