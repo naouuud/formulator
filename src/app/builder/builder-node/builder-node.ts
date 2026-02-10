@@ -45,7 +45,6 @@ const NodeLabels = {
     OptionListsFloat,
     BuilderNodeEmail,
     BuilderNodePhone,
-    // forwardRef(() => BuilderNodeGroup),
     BuilderNodeGroup,
   ],
   templateUrl: './builder-node.html',

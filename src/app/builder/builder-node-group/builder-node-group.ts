@@ -1,22 +1,21 @@
-import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Node } from '../../models/node-types';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderValidation } from '../builder-validation/builder-validation';
-import { BuilderNode } from '../builder-node/builder-node';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { BuilderService } from '../../services/builder-service';
 import { FactoryType } from '../../models/factory-types';
+import { BuilderNodeChild } from '../builder-node-child/builder-node-child';
 
 @Component({
   selector: 'app-builder-node-group',
   imports: [
     BuilderPropLabel,
     BuilderValidation,
-    forwardRef(() => BuilderNode),
     ReactiveFormsModule,
-    CdkDrag,
     CdkDropList,
+    BuilderNodeChild,
   ],
   templateUrl: './builder-node-group.html',
   styleUrl: './builder-node-group.css',
@@ -41,6 +40,7 @@ export class BuilderNodeGroup {
   }
 
   #reorderNode_C(event: CdkDragDrop<FactoryType>) {
+    // console.log(event);
     this.builderService.reorderNode_S(this.node.nodes, event.previousIndex, event.currentIndex);
   }
 
