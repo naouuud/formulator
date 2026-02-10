@@ -1,25 +1,20 @@
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2" cdkDropList id="group-drop" (cdkDropListDropped)="onDrop($event)">
   <!-- Label -->
   <app-builder-prop-label [labelMessage]="'Give your group a name...'" />
   <!-- Validation -->
   <app-builder-validation [node]="node" />
   <!-- Child nodes -->
   <!-- This component acts as intermediary for delete emission from child node component to parent node component -->
-  @for (child of node.nodes; track $index) {
+  @for (child of node.nodes; track child) {
     <div
       [formGroup]="getFormGroup(child.nodeId)"
       animate.enter="group-enter-animation"
       animate.leave="group-leave-animation"
-      cdkDropList
-      id="group-drop"
-      (cdkDropListDropped)="onDrop($event)"
     >
-      <app-builder-node
-        cdkDrag
+      <app-builder-node-child
         [node]="child"
         [nodeList]="node.nodes"
         [nodeFormGroup]="getFormGroup(child.nodeId)"
-        [allFormGroupsIn]="allFormGroupsIn"
         (nodeDeletedEM_N)="nodeDeletedEM_G.emit($event)"
       />
     </div>

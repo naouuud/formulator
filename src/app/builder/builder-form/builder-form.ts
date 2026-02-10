@@ -23,6 +23,7 @@ import { FactoryType } from '../../models/factory-types';
 })
 export class BuilderForm {
   formModel$;
+  dragDisabled$;
   hideMessage;
   allFormGroups;
   PropType = PropType;
@@ -30,6 +31,7 @@ export class BuilderForm {
 
   constructor(private builderService: BuilderService) {
     this.formModel$ = this.builderService.formModel$;
+    this.dragDisabled$ = this.builderService.dragDisabled$;
     this.allFormGroups = new FormGroup({});
     this.hideMessage = signal(false);
     effect(() => {

@@ -1,1 +1,97 @@
-<p>builder-node-child works!</p>
+<div
+  class="flex flex-col gap-4 p-4 border-2 border-dashed border-gray-400/50 rounded-2xl bg-gray-200"
+  cdkDrag
+  cdkDragBoundary=".main-component"
+  [cdkDragDisabled]="dragDisabled$()"
+>
+  <div class="flex justify-between items-center">
+    <!-- <div class="text-gray-400 hover:cursor-pointer pl-1">Drag to move</div> -->
+    <div class="flex gap-2">
+      <div
+        class="text-blue-500 hover:cursor-pointer border border-blue-500 px-4 py-2 rounded-full"
+        [innerHTML]="NodeLabels[node.nodeType]"
+      ></div>
+      @if (node.nodeType === NodeType.RADIO && node.getPropValue(PropType.ALLOWTOGGLE)) {
+        <div
+          (click)="toggleRadioCheckbox_C()"
+          class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
+        >
+          toggle
+        </div>
+      }
+      @if (node.nodeType === NodeType.CHECKBOX && node.getPropValue(PropType.ALLOWTOGGLE)) {
+        <div
+          (click)="toggleRadioCheckbox_C()"
+          class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
+        >
+          toggle
+        </div>
+      }
+      @if (
+        node.nodeType === NodeType.RADIO ||
+        node.nodeType === NodeType.CHECKBOX ||
+        node.nodeType === NodeType.SELECT
+      ) {
+        <div class="relative flex">
+          <!-- Button -->
+          <div
+            (click)="floatVisible = !floatVisible"
+            class="text-xs flex items-center text-violet-500 hover:bg-violet-100 hover:cursor-pointer border border-violet-500 px-4 py-2 rounded-full"
+          >
+            <span>available option lists</span>
+          </div>
+          <!-- Float -->
+          @if (floatVisible) {
+            <app-option-lists-float
+              class="absolute top-full left-0 mt-2 z-50"
+              [optionLists]="getOptionLists_C()"
+              (optionListEM)="replaceOptions_C($event)"
+            ></app-option-lists-float>
+          }
+        </div>
+      }
+    </div>
+    <button type="button" class="flex" (click)="deleteNode_C()">
+      <app-builder-delete-button />
+    </button>
+  </div>
+  <!-- "Fields" -->
+  @switch (node.nodeType) {
+    @case (NodeType.TEXT) {
+      <app-builder-node-text [node]="node" />
+    }
+    @case (NodeType.TEXTAREA) {
+      <app-builder-node-textarea [node]="node" />
+    }
+    @case (NodeType.NUMBER) {
+      <app-builder-node-number [node]="node" />
+    }
+    @case (NodeType.SELECT) {
+      <app-builder-node-select [node]="node" />
+    }
+    @case (NodeType.RADIO) {
+      <app-builder-node-option [node]="node" />
+    }
+    @case (NodeType.CHECKBOX) {
+      <app-builder-node-option [node]="node" />
+    }
+    @case (NodeType.DATE) {
+      <app-builder-node-date [node]="node" />
+    }
+    @case (NodeType.EMAIL) {
+      <app-builder-node-email [node]="node" />
+    }
+    @case (NodeType.PHONE) {
+      <app-builder-node-phone [node]="node" />
+    }
+    <!-- This component passes delete emission from nested node (group component as intermediary) -->
+    <!-- @case (NodeType.GROUP) {
+      <app-builder-node-group
+        [node]="node"
+        [allFormGroupsIn]="allFormGroupsIn"
+        (nodeDeletedEM_G)="nodeDeletedEM_N.emit($event)"
+      />
+    } -->
+    @default {}
+  }
+</div>
