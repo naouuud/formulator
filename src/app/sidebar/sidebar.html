@@ -3,7 +3,7 @@
   <div
     cdkDropList
     id="palette-basic"
-    [cdkDropListConnectedTo]="['form-drop', 'group-drop']"
+    [cdkDropListConnectedTo]="['form-drop'].concat(groupDropIds$())"
     cdkDropListSortingDisabled
     cdkDropListHasAnchor
     class="flex flex-col gap-2"
@@ -58,7 +58,7 @@
     <div
       cdkDropList
       id="palette-complex"
-      [cdkDropListConnectedTo]="['form-drop', 'group-drop']"
+      [cdkDropListConnectedTo]="['form-drop'].concat(groupDropIds$())"
       cdkDropListSortingDisabled
       cdkDropListHasAnchor
       class="flex flex-col gap-2"

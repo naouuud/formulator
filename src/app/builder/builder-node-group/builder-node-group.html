@@ -1,6 +1,6 @@
 <div
   cdkDropList
-  [id]="`group-drop`"
+  [id]="`group-drop-${node.nodeId}`"
   (cdkDropListDropped)="onDrop($event)"
   class="flex flex-col gap-2"
 >
