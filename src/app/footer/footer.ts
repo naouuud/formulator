@@ -8,8 +8,8 @@ import { Factory } from '../models/factory-types';
   styleUrl: './footer.css',
 })
 export class Footer {
-  authors = Factory.factoryIconsComplex
-    .concat(Factory.factoryIconsBasic)
+  authors = Factory.complex
+    .concat(Factory.basic)
     .filter((type) => type.attribution && type.attribution.length > 0)
     .map((type) => type.attribution)
     .filter((value, index, self) => self.indexOf(value) === index)

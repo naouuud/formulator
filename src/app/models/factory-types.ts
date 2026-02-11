@@ -29,7 +29,7 @@ export type FactoryIcon = {
 };
 
 export class Factory {
-  static factoryIconsBasic: FactoryIcon[] = [
+  static basic: FactoryIcon[] = [
     {
       factoryType: FactoryType.TEXT,
       label: 'Short Text',
@@ -91,6 +91,9 @@ export class Factory {
       img: 'radio.png',
       attribution: 'Bharat Icons',
     },
+  ];
+
+  static basic_F: FactoryIcon[] = [
     {
       factoryType: FactoryType.GROUP,
       label: 'Make a Group',
@@ -100,19 +103,7 @@ export class Factory {
     },
   ];
 
-  static factoryIconsComplex: FactoryIcon[] = [
-    {
-      factoryType: FactoryType.NAME,
-      label: 'Name',
-      img: 'user.png',
-      attribution: 'Bharat Icons',
-    },
-    {
-      factoryType: FactoryType.BIRTHDAY,
-      label: 'Date of Birth',
-      img: 'date-of-birth.png',
-      attribution: 'Freepik',
-    },
+  static complex: FactoryIcon[] = [
     {
       factoryType: FactoryType.GENDER,
       label: 'Gender',
@@ -129,6 +120,21 @@ export class Factory {
       factoryType: FactoryType.BOOLEAN,
       label: 'Yes/No',
       img: 'yes.png',
+      attribution: 'Freepik',
+    },
+  ];
+
+  static complex_F: FactoryIcon[] = [
+    {
+      factoryType: FactoryType.NAME,
+      label: 'Name',
+      img: 'user.png',
+      attribution: 'Bharat Icons',
+    },
+    {
+      factoryType: FactoryType.BIRTHDAY,
+      label: 'Date of Birth',
+      img: 'date-of-birth.png',
       attribution: 'Freepik',
     },
   ];

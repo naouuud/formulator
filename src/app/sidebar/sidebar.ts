@@ -12,8 +12,10 @@ import { BuilderService } from '../services/builder-service';
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
-  factoryIconsBasic = Factory.factoryIconsBasic;
-  factoryIconsComplex = Factory.factoryIconsComplex;
+  basic = Factory.basic;
+  basic_F = Factory.basic_F;
+  complex = Factory.complex;
+  complex_F = Factory.complex_F;
 
   constructor(private builderService: BuilderService) {}
 
