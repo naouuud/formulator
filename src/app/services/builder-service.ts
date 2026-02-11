@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, Signal, signal } from '@angular/core';
 import { FormModel, FormModelDto } from '../models/form-model';
 import { LocalStorageService } from './local-storage';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
@@ -20,6 +20,8 @@ export class BuilderService {
   saveFormSb;
   dragDisabled$; // prevents group drag
   showAllErrorMessages$;
+  pointerPosition$;
+  groupDropIds$;
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel$ = this.localStorage.has('formModel')
@@ -32,6 +34,8 @@ export class BuilderService {
       .subscribe(() => this.#saveToLocalStorage_S());
     this.dragDisabled$ = signal(false);
     this.showAllErrorMessages$ = signal(false);
+    this.pointerPosition$ = signal<{ x: number; y: number }>({ x: 0, y: 0 });
+    this.groupDropIds$ = signal<string[]>([]);
   }
 
   addOption_S(node: Node, option: Option): void {

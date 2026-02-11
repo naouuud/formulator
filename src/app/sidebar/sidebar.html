@@ -8,7 +8,12 @@
 >
   <div class="ml-3">Field Types</div>
   @for (icon of factoryIconsBasic; track icon) {
-    <app-ui-type-icon [factoryIcon]="icon" cdkDrag [cdkDragData]="icon.factoryType">
+    <app-ui-type-icon
+      [factoryIcon]="icon"
+      cdkDrag
+      (cdkDragMoved)="onMove($event)"
+      [cdkDragData]="icon.factoryType"
+    >
       <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
     </app-ui-type-icon>
   }

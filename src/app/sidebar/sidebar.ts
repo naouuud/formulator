@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
-import { Factory } from '../models/factory-types';
+import { Factory, FactoryType } from '../models/factory-types';
 import { UiTypeIcon } from '../ui-type-icon/ui-type-icon';
-import { CdkDrag, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragMove, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
+import { BuilderService } from '../services/builder-service';
 
 @Component({
   selector: 'app-sidebar',
@@ -13,4 +14,11 @@ import { CommonModule } from '@angular/common';
 export class Sidebar {
   factoryIconsBasic = Factory.factoryIconsBasic;
   factoryIconsComplex = Factory.factoryIconsComplex;
+
+  constructor(private builderService: BuilderService) {}
+
+  onMove(event: CdkDragMove<FactoryType>) {
+    const pos = event.pointerPosition;
+    this.builderService.pointerPosition$.set(pos);
+  }
 }
