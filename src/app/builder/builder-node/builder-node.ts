@@ -1,4 +1,15 @@
-import { Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { Node, NodeType } from '../../models/node-types';
 import { Option, PropChangeEvent, PropType } from '../../models/prop-types';
 import { BuilderNodeText } from '../builder-node-text/builder-node-text';
@@ -50,7 +61,7 @@ const NodeLabels = {
   templateUrl: './builder-node.html',
   styleUrl: './builder-node.css',
 })
-export class BuilderNode implements OnInit {
+export class BuilderNode implements OnInit, AfterViewInit {
   NodeType = NodeType;
   PropType = PropType;
   NodeLabels = NodeLabels;
@@ -60,6 +71,8 @@ export class BuilderNode implements OnInit {
   @Input() nodeFormGroup!: FormGroup; // this node's form control
   @Input() allFormGroupsIn!: FormGroup; // to pass to group node (for children)
   @Output() nodeDeletedEM_N = new EventEmitter<string[]>();
+  @Output() groupElementEM = new EventEmitter<ElementRef<HTMLDivElement>>();
+  @ViewChild('groupElement') groupElement!: ElementRef<HTMLDivElement>;
 
   dragDisabled$;
   floatVisible = false;
@@ -89,6 +102,11 @@ export class BuilderNode implements OnInit {
     optionOtherControl?.valueChanges.subscribe((value: unknown) => {
       this.setProp_C({ propType: PropType.OPTIONOTHER, value });
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (!this.groupElement) return;
+    this.groupElementEM.emit(this.groupElement);
   }
 
   setProp_C(propChangeEvent: PropChangeEvent) {

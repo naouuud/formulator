@@ -1,6 +1,6 @@
-import { Component, effect, signal } from '@angular/core';
+import { Component, effect, ElementRef, signal } from '@angular/core';
 import { BuilderService } from '../../services/builder-service';
-import { CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
 import {
   FormControl,
@@ -28,12 +28,13 @@ export class BuilderForm {
   allFormGroups;
   PropType = PropType;
   NodeType = NodeType;
-  outerEnterPredicate = () => false;
+  groupElements: ElementRef<HTMLDivElement>[];
 
   constructor(private builderService: BuilderService) {
     this.formModel$ = this.builderService.formModel$;
     this.dragDisabled$ = this.builderService.dragDisabled$;
     this.allFormGroups = new FormGroup({});
+    this.groupElements = [];
     this.hideMessage = signal(false);
     effect(() => {
       const formModel = this.formModel$(); // only set once in service
@@ -44,6 +45,27 @@ export class BuilderForm {
       console.log(this.allFormGroups);
     });
   }
+
+  addGroupElement(groupElement: ElementRef<HTMLDivElement>) {
+    this.groupElements.push(groupElement);
+  }
+
+  enterPredicate = (drag: CdkDrag, drop: CdkDropList) => {
+    // console.log(drag._dragRef);
+    // const pointer = drag._dragRef._lastKnownPointerPosition;
+    // const pointer = { x: 200, y: 200 };
+    const pointer = { x: 568, y: 538 };
+    return !this.groupElements
+      .map((el) => el.nativeElement.getBoundingClientRect())
+      .some((rect) => {
+        return (
+          pointer.x >= rect.left &&
+          pointer.x <= rect.right &&
+          pointer.y >= rect.top &&
+          pointer.y <= rect.bottom
+        );
+      });
+  };
 
   onDrop(event: CdkDragDrop<FactoryType>) {
     console.log(event.container.id);
