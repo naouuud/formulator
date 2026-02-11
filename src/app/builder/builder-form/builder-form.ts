@@ -51,18 +51,12 @@ export class BuilderForm {
   }
 
   enterPredicate = (drag: CdkDrag, drop: CdkDropList) => {
-    // console.log(drag._dragRef);
-    // const pointer = drag._dragRef._lastKnownPointerPosition;
-    // const pointer = { x: 200, y: 200 };
-    const pointer = { x: 568, y: 538 };
+    const pos = this.builderService.pointerPosition$();
     return !this.groupElements
       .map((el) => el.nativeElement.getBoundingClientRect())
       .some((rect) => {
         return (
-          pointer.x >= rect.left &&
-          pointer.x <= rect.right &&
-          pointer.y >= rect.top &&
-          pointer.y <= rect.bottom
+          pos.x >= rect.left && pos.x <= rect.right && pos.y >= rect.top && pos.y <= rect.bottom
         );
       });
   };

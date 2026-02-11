@@ -55,7 +55,6 @@ export class BuilderNodeChild {
   @Input() node!: Node;
   @Input() nodeList!: Node[]; // parent list ref for delete
   @Input() nodeFormGroup!: FormGroup; // this node's form control
-  @Input() allFormGroupsIn!: FormGroup; // to pass to group node (for children)
   @Output() nodeDeletedEM_N = new EventEmitter<string[]>();
 
   dragDisabled$;
