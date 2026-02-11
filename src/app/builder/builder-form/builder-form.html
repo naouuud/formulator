@@ -6,7 +6,7 @@
     (cdkDropListEntered)="this.hideMessage.set(true)"
     (cdkDropListExited)="this.hideMessage.set(false)"
     [cdkDropListAutoScrollDisabled]="false"
-    [cdkDropListEnterPredicate]="outerEnterPredicate"
+    [cdkDropListEnterPredicate]="enterPredicate"
   >
     <!-- Form Title -->
     <app-builder-form-title [formName]="formModel$().formName" />
@@ -37,6 +37,7 @@
             [nodeFormGroup]="getFormGroup(node.nodeId)"
             [allFormGroupsIn]="allFormGroups"
             (nodeDeletedEM_N)="nodeDeleteCleanup($event)"
+            (groupElementEM)="addGroupElement($event)"
           ></app-builder-node>
         </div>
       }
