@@ -1,10 +1,11 @@
-import { Injectable, Signal, signal } from '@angular/core';
+import { effect, Injectable, Signal, signal } from '@angular/core';
 import { FormModel, FormModelDto } from '../models/form-model';
 import { LocalStorageService } from './local-storage';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
 import { debounceTime, Subject } from 'rxjs';
 import { Node, NodeType } from '../models/node-types';
 import { Factory, FactoryType } from '../models/factory-types';
+import { N } from '@angular/cdk/keycodes';
 
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
@@ -21,7 +22,7 @@ export class BuilderService {
   dragDisabled$; // prevents group drag
   showAllErrorMessages$;
   pointerPosition$;
-  groupDropIds$;
+  groupIds$;
 
   constructor(private localStorage: LocalStorageService) {
     this.formModel$ = this.localStorage.has('formModel')
@@ -35,7 +36,34 @@ export class BuilderService {
     this.dragDisabled$ = signal(false);
     this.showAllErrorMessages$ = signal(false);
     this.pointerPosition$ = signal<{ x: number; y: number }>({ x: 0, y: 0 });
-    this.groupDropIds$ = signal<string[]>([]);
+    this.groupIds$ = signal<string[]>([]);
+    // initialize groupIds
+    effect(() => {
+      const formModel = this.formModel$();
+      this.groupIds$.set(
+        Node.flat(...this.formModel$().nodes)
+          .filter((n) => n.nodeType === NodeType.GROUP)
+          .map((n) => n.nodeId),
+      );
+    });
+    // effect(() => console.log('Group ids:', this.groupIds$()));
+  }
+
+  #addGroupId(node: Node): void {
+    if (node.nodeType !== NodeType.GROUP) return;
+    const groupDropIds = this.groupIds$();
+    if (!groupDropIds.find((id) => id === node.nodeId)) {
+      this.groupIds$.set([...groupDropIds, node.nodeId]);
+    }
+  }
+
+  #deleteGroupId(idIn: string): void {
+    const newArray = [...this.groupIds$()];
+    const id = newArray.find((id) => id === idIn);
+    if (!id) return;
+    const idIdx = newArray.indexOf(id);
+    newArray.splice(idIdx, 1);
+    this.groupIds$.set(newArray);
   }
 
   addOption_S(node: Node, option: Option): void {
@@ -107,6 +135,7 @@ export class BuilderService {
   addNode_S(nodeList: Node[], factoryType: FactoryType): Node {
     const node = Factory.make(factoryType);
     Node.append(nodeList, node);
+    this.#addGroupId(node); // UI concern
     this.saveFormSb.next();
     return node;
   }
@@ -118,6 +147,7 @@ export class BuilderService {
 
   deleteNode_S(nodeList: Node[], nodeId: string): void {
     Node.delete(nodeList, nodeId);
+    this.#deleteGroupId(nodeId); // UI concern
     this.saveFormSb.next();
   }
 
