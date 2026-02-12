@@ -24,7 +24,7 @@ import { FactoryType } from '../../models/factory-types';
 export class BuilderForm {
   formModel$;
   dragDisabled$;
-  hideMessage;
+  hideEmptyMessage$;
   allFormGroups;
   PropType = PropType;
   NodeType = NodeType;
@@ -35,14 +35,14 @@ export class BuilderForm {
     this.dragDisabled$ = this.builderService.dragDisabled$;
     this.allFormGroups = new FormGroup({});
     this.groupElements = [];
-    this.hideMessage = signal(false);
+    this.hideEmptyMessage$ = signal(false);
     effect(() => {
       const formModel = this.formModel$(); // only set once in service
       const nodeList = Node.flat(...formModel.nodes);
       for (let node of nodeList) {
         this.#addFormGroup(node);
       }
-      console.log(this.allFormGroups);
+      // console.log(this.allFormGroups);
     });
   }
 
@@ -62,7 +62,7 @@ export class BuilderForm {
   };
 
   onDrop(event: CdkDragDrop<FactoryType>) {
-    console.log(event.container.id);
+    // console.log(event.container.id);
     if (event.previousContainer === event.container) {
       this.#reorderNode_C(event);
     } else {
@@ -90,13 +90,13 @@ export class BuilderForm {
     for (let node of flatNodeList) {
       this.#addFormGroup(node);
     }
-    console.log(this.allFormGroups);
+    // console.log(this.allFormGroups);
   }
 
   nodeDeleteCleanup(nodeIdsForDelete: string[]) {
-    this.hideMessage.set(this.formModel$().nodes.length > 0); // show empty message if no nodes left
+    this.hideEmptyMessage$.set(this.formModel$().nodes.length > 0); // show empty message if no nodes left
     nodeIdsForDelete.forEach((nodeId) => this.allFormGroups.removeControl(nodeId));
-    console.log(this.allFormGroups);
+    // console.log(this.allFormGroups);
   }
 
   submitForm(): void {
