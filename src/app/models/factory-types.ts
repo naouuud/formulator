@@ -16,7 +16,8 @@ export enum FactoryType {
   GENDER = 'gender',
   BIRTHDAY = 'birthday',
   BOOLEAN = 'boolean',
-  NAME = 'name',
+  FIRSTNAME = 'firstname',
+  LASTNAME = 'lastname',
   ADDRESS = 'address',
   PERSONAL = 'personal',
 }
@@ -106,6 +107,18 @@ export class Factory {
 
   static complex: FactoryIcon[] = [
     {
+      factoryType: FactoryType.FIRSTNAME,
+      label: 'First Name',
+      img: 'id-card.png',
+      attribution: 'Pixel perfect',
+    },
+    {
+      factoryType: FactoryType.LASTNAME,
+      label: 'Last Name',
+      img: 'id-card.png',
+      attribution: 'Pixel perfect',
+    },
+    {
       factoryType: FactoryType.GENDER,
       label: 'Gender',
       img: 'gender-fluid.png',
@@ -126,17 +139,11 @@ export class Factory {
   ];
 
   static complex_F: FactoryIcon[] = [
-    // {
-    //   factoryType: FactoryType.PERSONAL,
-    //   label: 'Personal Info',
-    //   img: 'user.png',
-    //   attribution: 'Bharat Icons',
-    // },
     {
-      factoryType: FactoryType.NAME,
-      label: 'Name',
-      img: 'id-card.png',
-      attribution: 'Pixel perfect',
+      factoryType: FactoryType.PERSONAL,
+      label: 'Personal Info',
+      img: 'user.png',
+      attribution: 'Bharat Icons',
     },
     {
       factoryType: FactoryType.ADDRESS,
@@ -171,30 +178,27 @@ export class Factory {
     [FactoryType.EMAIL, () => Node.create(NodeType.EMAIL)],
     [FactoryType.PHONE, () => Node.create(NodeType.PHONE)],
     [FactoryType.GROUP, () => Node.create(NodeType.GROUP)],
-    [FactoryType.NAME, Factory.#createNameGroup],
+    [FactoryType.PERSONAL, Factory.#createPersonalInfoGroup],
     [FactoryType.ADDRESS, Factory.#createAddressGroup],
-    [FactoryType.GENDER, Factory.#createGenderQuestion],
-    [FactoryType.BOOLEAN, Factory.#createYesNoQuestion],
-    [FactoryType.BIRTHDAY, Factory.#createBirthdayQuestion],
+    [FactoryType.FIRSTNAME, Factory.#createFirstNameField],
+    [FactoryType.LASTNAME, Factory.#createLastNameField],
+    [FactoryType.GENDER, Factory.#createGenderField],
+    [FactoryType.BOOLEAN, Factory.#createYesNoField],
+    [FactoryType.BIRTHDAY, Factory.#createBirthdayField],
   ]);
 
-  static #createNameGroup(): Node {
+  static #createPersonalInfoGroup(): Node {
     const group = Node.create(NodeType.GROUP);
-    group.setProp(PropType.LABEL, 'Name');
+    group.setProp(PropType.LABEL, 'Personal Information');
 
-    const firstName = Node.create(NodeType.TEXT);
-    firstName.setProp(PropType.LABEL, 'First Name');
-    firstName.setProp(PropType.PLACEHOLDER, 'Enter first name...');
-    firstName.setProp(PropType.REQUIRED, true);
-    firstName.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    const firstName = Factory.#createFirstNameField();
+    const lastName = Factory.#createLastNameField();
+    const gender = Factory.#createGenderField();
+    const email = Node.create(NodeType.EMAIL);
+    const phone = Node.create(NodeType.PHONE);
+    const dob = Factory.#createBirthdayField();
 
-    const lastName = Node.create(NodeType.TEXT);
-    lastName.setProp(PropType.LABEL, 'Last Name');
-    lastName.setProp(PropType.PLACEHOLDER, 'Enter last name...');
-    lastName.setProp(PropType.REQUIRED, true);
-    lastName.setProp(PropType.MAXLENGTHCHAR, 100, false);
-
-    group.addNodes(firstName, lastName);
+    group.addNodes(firstName, lastName, gender, email, phone, dob);
     return group;
   }
 
@@ -227,7 +231,25 @@ export class Factory {
     return group;
   }
 
-  static #createGenderQuestion(): Node {
+  static #createFirstNameField(): Node {
+    const node = Node.create(NodeType.TEXT);
+    node.setProp(PropType.LABEL, 'First Name');
+    node.setProp(PropType.PLACEHOLDER, 'Enter first name...');
+    node.setProp(PropType.REQUIRED, true);
+    node.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    return node;
+  }
+
+  static #createLastNameField(): Node {
+    const node = Node.create(NodeType.TEXT);
+    node.setProp(PropType.LABEL, 'Last Name');
+    node.setProp(PropType.PLACEHOLDER, 'Enter last name...');
+    node.setProp(PropType.REQUIRED, true);
+    node.setProp(PropType.MAXLENGTHCHAR, 100, false);
+    return node;
+  }
+
+  static #createGenderField(): Node {
     const node = Node.create(NodeType.RADIO);
     node.setProp(PropType.LABEL, 'Gender', false);
     node.setProp(PropType.OPTIONS, ['Female', 'Male', 'Non-binary', 'Prefer not to say']);
@@ -235,7 +257,7 @@ export class Factory {
     return node;
   }
 
-  static #createBirthdayQuestion(): Node {
+  static #createBirthdayField(): Node {
     const node = Node.create(NodeType.DATE);
     node.setProp(PropType.LABEL, 'Date of birth', false);
     const maxDateString = 'today';
@@ -245,7 +267,7 @@ export class Factory {
     return node;
   }
 
-  static #createYesNoQuestion(): Node {
+  static #createYesNoField(): Node {
     const node = Node.create(NodeType.RADIO);
     node.setProp(PropType.OPTIONS, ['Yes', 'No', 'Unsure']);
     node.setProp(PropType.ALLOWTOGGLE, false);
