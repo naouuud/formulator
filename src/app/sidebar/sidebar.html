@@ -1,69 +1,14 @@
-<aside class="text-white flex flex-col gap-3">
-  <div class="ml-3">Field Types</div>
+<aside class="text-white">
+  <div class="ml-3 mb-3">Field Types</div>
   <div
     cdkDropList
     id="palette-basic"
     [cdkDropListConnectedTo]="['form-drop'].concat(groupDropIds$())"
     cdkDropListSortingDisabled
     cdkDropListHasAnchor
-    class="flex flex-col gap-2"
   >
     @for (icon of basic; track icon) {
-      <app-ui-type-icon
-        [factoryIcon]="icon"
-        cdkDrag
-        (cdkDragMoved)="onMove($event)"
-        [cdkDragData]="icon.factoryType"
-      >
-        <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
-      </app-ui-type-icon>
-    }
-  </div>
-  <div class="ml-3">Group</div>
-  <div
-    cdkDropList
-    id="palette-basic-f"
-    [cdkDropListConnectedTo]="['form-drop']"
-    cdkDropListSortingDisabled
-    cdkDropListHasAnchor
-    class="flex flex-col gap-2"
-  >
-    @for (icon of basic_F; track icon) {
-      <app-ui-type-icon
-        [factoryIcon]="icon"
-        cdkDrag
-        (cdkDragMoved)="onMove($event)"
-        [cdkDragData]="icon.factoryType"
-      >
-        <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
-      </app-ui-type-icon>
-    }
-  </div>
-  <div class="ml-3">Quick Picks</div>
-  <div class="flex flex-col gap-2">
-    <div
-      cdkDropList
-      id="palette-complex-f"
-      [cdkDropListConnectedTo]="['form-drop']"
-      cdkDropListSortingDisabled
-      cdkDropListHasAnchor
-      class="flex flex-col gap-2"
-    >
-      @for (icon of complex_F; track icon) {
-        <app-ui-type-icon [factoryIcon]="icon" cdkDrag [cdkDragData]="icon.factoryType">
-          <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
-        </app-ui-type-icon>
-      }
-    </div>
-    <div
-      cdkDropList
-      id="palette-complex"
-      [cdkDropListConnectedTo]="['form-drop'].concat(groupDropIds$())"
-      cdkDropListSortingDisabled
-      cdkDropListHasAnchor
-      class="flex flex-col gap-2"
-    >
-      @for (icon of complex; track icon) {
+      <div class="mb-4">
         <app-ui-type-icon
           [factoryIcon]="icon"
           cdkDrag
@@ -72,7 +17,64 @@
         >
           <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
         </app-ui-type-icon>
-      }
-    </div>
+      </div>
+    }
+  </div>
+  <div class="ml-3 mb-3">Group</div>
+  <div
+    cdkDropList
+    id="palette-basic-f"
+    [cdkDropListConnectedTo]="['form-drop']"
+    cdkDropListSortingDisabled
+    cdkDropListHasAnchor
+  >
+    @for (icon of basic_F; track icon) {
+      <div class="mb-4">
+        <app-ui-type-icon
+          [factoryIcon]="icon"
+          cdkDrag
+          (cdkDragMoved)="onMove($event)"
+          [cdkDragData]="icon.factoryType"
+        >
+          <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
+        </app-ui-type-icon>
+      </div>
+    }
+  </div>
+  <div class="ml-3 mb-3">Quick Picks</div>
+  <div
+    cdkDropList
+    id="palette-complex-f"
+    [cdkDropListConnectedTo]="['form-drop']"
+    cdkDropListSortingDisabled
+    cdkDropListHasAnchor
+  >
+    @for (icon of complex_F; track icon) {
+      <div class="mb-4">
+        <app-ui-type-icon [factoryIcon]="icon" cdkDrag [cdkDragData]="icon.factoryType">
+          <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
+        </app-ui-type-icon>
+      </div>
+    }
+  </div>
+  <div
+    cdkDropList
+    id="palette-complex"
+    [cdkDropListConnectedTo]="['form-drop'].concat(groupDropIds$())"
+    cdkDropListSortingDisabled
+    cdkDropListHasAnchor
+  >
+    @for (icon of complex; track icon) {
+      <div class="mb-4">
+        <app-ui-type-icon
+          [factoryIcon]="icon"
+          cdkDrag
+          (cdkDragMoved)="onMove($event)"
+          [cdkDragData]="icon.factoryType"
+        >
+          <div class="sidebar-placeholder" *cdkDragPlaceholder></div>
+        </app-ui-type-icon>
+      </div>
+    }
   </div>
 </aside>
