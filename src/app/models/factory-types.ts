@@ -18,6 +18,7 @@ export enum FactoryType {
   BOOLEAN = 'boolean',
   NAME = 'name',
   ADDRESS = 'address',
+  PERSONAL = 'personal',
 }
 
 export type FactoryIcon = {
@@ -125,11 +126,17 @@ export class Factory {
   ];
 
   static complex_F: FactoryIcon[] = [
+    // {
+    //   factoryType: FactoryType.PERSONAL,
+    //   label: 'Personal Info',
+    //   img: 'user.png',
+    //   attribution: 'Bharat Icons',
+    // },
     {
       factoryType: FactoryType.NAME,
       label: 'Name',
-      img: 'user.png',
-      attribution: 'Bharat Icons',
+      img: 'id-card.png',
+      attribution: 'Pixel perfect',
     },
     {
       factoryType: FactoryType.BIRTHDAY,
