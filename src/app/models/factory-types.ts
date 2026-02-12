@@ -112,10 +112,10 @@ export class Factory {
       attribution: 'Aranagraphics',
     },
     {
-      factoryType: FactoryType.ADDRESS,
-      label: 'Address',
-      img: 'house.png',
-      attribution: 'KP Arts',
+      factoryType: FactoryType.BIRTHDAY,
+      label: 'Date of Birth',
+      img: 'date-of-birth.png',
+      attribution: 'Freepik',
     },
     {
       factoryType: FactoryType.BOOLEAN,
@@ -139,10 +139,10 @@ export class Factory {
       attribution: 'Pixel perfect',
     },
     {
-      factoryType: FactoryType.BIRTHDAY,
-      label: 'Date of Birth',
-      img: 'date-of-birth.png',
-      attribution: 'Freepik',
+      factoryType: FactoryType.ADDRESS,
+      label: 'Address',
+      img: 'house.png',
+      attribution: 'KP Arts',
     },
   ];
 

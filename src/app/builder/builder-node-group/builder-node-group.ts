@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
 import { LABEL_MAX_LENGTH, Node } from '../../models/node-types';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderValidation } from '../builder-validation/builder-validation';
@@ -19,7 +19,7 @@ import { Prop, PropType } from '../../models/prop-types';
   selector: 'app-builder-node-group',
   imports: [
     BuilderPropLabel,
-    BuilderValidation,
+    // BuilderValidation,
     ReactiveFormsModule,
     CdkDropList,
     BuilderNodeChild,
@@ -27,19 +27,31 @@ import { Prop, PropType } from '../../models/prop-types';
   templateUrl: './builder-node-group.html',
   styleUrl: './builder-node-group.css',
 })
-export class BuilderNodeGroup {
+export class BuilderNodeGroup implements OnInit {
   @Input() node!: Node;
   @Input() allFormGroupsIn!: FormGroup;
   @Output() nodeDeletedEM_G = new EventEmitter<string[]>();
+  hideEmptyMessage$;
 
-  constructor(private builderService: BuilderService) {}
+  constructor(private builderService: BuilderService) {
+    this.hideEmptyMessage$ = signal(true);
+  }
+
+  ngOnInit(): void {
+    this.hideEmptyMessage$.set(!!this.node.nodes.length);
+  }
+
+  childNodeDeleteCleanup(event: string[]) {
+    setTimeout(() => this.hideEmptyMessage$.set(!!this.node.nodes.length), 250); // show empty message if no nodes left
+    this.nodeDeletedEM_G.emit(event);
+  }
 
   getFormGroup(nodeId: string): FormGroup {
     return this.allFormGroupsIn.get(nodeId) as FormGroup;
   }
 
   onDrop(event: CdkDragDrop<FactoryType>) {
-    console.log(event.container.id);
+    // console.log(event.container.id);
     if (event.previousContainer === event.container) {
       this.#reorderNode_C(event);
     } else {
@@ -64,7 +76,7 @@ export class BuilderNodeGroup {
     for (let node of flatNodeList) {
       this.#addFormGroup(node);
     }
-    console.log(this.allFormGroupsIn);
+    // console.log(this.allFormGroupsIn);
   }
 
   #addFormGroup(node: Node): void {
