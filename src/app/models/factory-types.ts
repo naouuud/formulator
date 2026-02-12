@@ -218,12 +218,12 @@ export class Factory {
     district.setProp(PropType.PLACEHOLDER, 'Select district');
 
     const street = Node.create(NodeType.TEXT);
-    street.setProp(PropType.LABEL, 'Street and building', false);
+    street.setProp(PropType.LABEL, 'Street and building');
     street.setProp(PropType.PLACEHOLDER, 'Enter street and building name...');
     street.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
     const city = Node.create(NodeType.TEXT);
-    city.setProp(PropType.LABEL, 'City', false);
+    city.setProp(PropType.LABEL, 'City');
     city.setProp(PropType.PLACEHOLDER, 'Enter city...');
     city.setProp(PropType.MAXLENGTHCHAR, 100, false);
 
@@ -251,7 +251,7 @@ export class Factory {
 
   static #createGenderField(): Node {
     const node = Node.create(NodeType.RADIO);
-    node.setProp(PropType.LABEL, 'Gender', false);
+    node.setProp(PropType.LABEL, 'Gender');
     node.setProp(PropType.OPTIONS, ['Female', 'Male', 'Non-binary', 'Prefer not to say']);
     node.setProp(PropType.ALLOWTOGGLE, false);
     return node;
@@ -259,7 +259,7 @@ export class Factory {
 
   static #createBirthdayField(): Node {
     const node = Node.create(NodeType.DATE);
-    node.setProp(PropType.LABEL, 'Date of birth', false);
+    node.setProp(PropType.LABEL, 'Date of birth');
     const maxDateString = 'today';
     const minDateString = todayString(-120);
     const dateRange = createDateRange(maxDateString, minDateString); // use factory
