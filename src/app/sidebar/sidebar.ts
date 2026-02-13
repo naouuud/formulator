@@ -1,13 +1,19 @@
-import { Component, computed } from '@angular/core';
+import { Component, computed, effect, signal } from '@angular/core';
 import { Factory, FactoryType } from '../models/factory-types';
 import { UiTypeIcon } from '../ui-type-icon/ui-type-icon';
-import { CdkDrag, CdkDragMove, CdkDragPlaceholder, CdkDropList } from '@angular/cdk/drag-drop';
+import {
+  CdkDrag,
+  CdkDragMove,
+  CdkDragPlaceholder,
+  CdkDropList,
+  CdkDropListGroup,
+} from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { BuilderService } from '../services/builder-service';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [UiTypeIcon, CdkDropList, CdkDrag, CdkDragPlaceholder, CommonModule],
+  imports: [UiTypeIcon, CdkDropList, CdkDrag, CdkDragPlaceholder, CommonModule, CdkDropListGroup],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
@@ -17,9 +23,9 @@ export class Sidebar {
   complex = Factory.complex;
   complex_F = Factory.complex_F;
   groupIds$;
-  groupDropIds$ = computed(() => {
+  dropListIds$ = computed(() => {
     const groupIds = this.groupIds$();
-    return groupIds.map((id) => `group-drop-${id}`);
+    return ['form-drop'].concat(groupIds.map((id) => `group-drop-${id}`));
   });
 
   constructor(private builderService: BuilderService) {
