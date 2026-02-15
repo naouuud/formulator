@@ -22,7 +22,7 @@ import { FactoryType } from '../../models/factory-types';
   styleUrl: './builder-form.css',
 })
 export class BuilderForm {
-  formModel$;
+  activeForm$;
   dragDisabled$;
   hideEmptyMessage$;
   allFormGroups;
@@ -31,14 +31,15 @@ export class BuilderForm {
   groupElements: ElementRef<HTMLDivElement>[];
 
   constructor(private builderService: BuilderService) {
-    this.formModel$ = this.builderService.formModel$;
+    this.activeForm$ = this.builderService.activeForm$;
     this.dragDisabled$ = this.builderService.dragDisabled$;
     this.allFormGroups = new FormGroup({});
     this.groupElements = [];
     this.hideEmptyMessage$ = signal(false);
+    // Reset allFormGroups when activeForm changes
     effect(() => {
-      const formModel = this.formModel$(); // only set once in service
-      const nodeList = Node.flat(...formModel.nodes);
+      this.allFormGroups = new FormGroup({});
+      const nodeList = Node.flat(...this.activeForm$().nodes);
       for (let node of nodeList) {
         this.#addFormGroup(node);
       }
@@ -72,7 +73,7 @@ export class BuilderForm {
 
   #reorderNode_C(event: CdkDragDrop<FactoryType>) {
     this.builderService.reorderNode_S(
-      this.formModel$().nodes,
+      this.activeForm$().nodes,
       event.previousIndex,
       event.currentIndex,
     );
@@ -80,10 +81,10 @@ export class BuilderForm {
 
   #addNode_C(event: CdkDragDrop<FactoryType>) {
     const factoryType: FactoryType = event.item.data; // extract FactoryType from drag data
-    const newNode = this.builderService.addNode_S(this.formModel$().nodes, factoryType); // add & return Node ref
+    const newNode = this.builderService.addNode_S(this.activeForm$().nodes, factoryType); // add & return Node ref
     this.builderService.reorderNode_S(
-      this.formModel$().nodes,
-      this.formModel$().nodes.length - 1,
+      this.activeForm$().nodes,
+      this.activeForm$().nodes.length - 1,
       event.currentIndex,
     );
     const flatNodeList = Node.flat(newNode); // flatten node to add all necessary form groups
@@ -94,7 +95,7 @@ export class BuilderForm {
   }
 
   nodeDeleteCleanup(nodeIdsForDelete: string[]) {
-    this.hideEmptyMessage$.set(this.formModel$().nodes.length > 0); // show empty message if no nodes left
+    this.hideEmptyMessage$.set(this.activeForm$().nodes.length > 0); // show empty message if no nodes left
     nodeIdsForDelete.forEach((nodeId) => this.allFormGroups.removeControl(nodeId));
     // console.log(this.allFormGroups);
   }
