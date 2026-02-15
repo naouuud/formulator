@@ -1,12 +1,13 @@
-import { effect, Injectable, Signal, signal } from '@angular/core';
+import { computed, effect, EventEmitter, Injectable, Signal, signal } from '@angular/core';
 import { FormModel, FormModelDto } from '../models/form-model';
 import { LocalStorageService } from './local-storage';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
-import { debounceTime, Subject } from 'rxjs';
+import { debounceTime, delay, filter, Observable, of, Subject, tap } from 'rxjs';
 import { Node, NodeType } from '../models/node-types';
 import { Factory, FactoryType } from '../models/factory-types';
-import { N } from '@angular/cdk/keycodes';
+import { toSignal } from '@angular/core/rxjs-interop';
 
+const FRESH_START: FormModel[] = [new FormModel()] as const;
 type PropSchemaType = {
   [K in keyof PropValueMap]: {
     type: 'string' | 'number' | 'boolean' | 'regexp' | 'object';
@@ -17,36 +18,62 @@ type PropSchemaType = {
   providedIn: 'root',
 })
 export class BuilderService {
-  formModel$;
-  saveFormSb;
-  dragDisabled$; // prevents group drag
+  loading$;
+  activeIdx$;
+  forms$;
+  activeForm$;
+  saveFormsEM;
+  dragDisabled$;
   showAllErrorMessages$;
   pointerPosition$;
   groupIds$;
 
   constructor(private localStorage: LocalStorageService) {
-    this.formModel$ = this.localStorage.has('formModel')
-      ? signal(this.#deserializeFormModel_S(this.localStorage.get('formModel')!))
-      : signal(new FormModel());
-    this.saveFormSb = new Subject<void>();
-    this.saveFormSb
+    // Data
+    this.loading$ = signal(true);
+    this.activeIdx$ = signal(0);
+    this.forms$ = toSignal(this.#fetchFromLocalStorage(), { initialValue: FRESH_START }); // Replace with API fetch
+    this.activeForm$ = computed(() => this.forms$()[this.activeIdx$()]);
+    this.saveFormsEM = new EventEmitter<void>();
+    this.saveFormsEM
       .asObservable()
       .pipe(debounceTime(1000))
-      .subscribe(() => this.#saveToLocalStorage_S());
-    this.dragDisabled$ = signal(false);
+      .subscribe(() => this.#saveToLocalStorage());
+
+    // Validation
     this.showAllErrorMessages$ = signal(false);
+
+    // Drag
+    this.dragDisabled$ = signal(false); // prevents Node drag during internal operations
     this.pointerPosition$ = signal<{ x: number; y: number }>({ x: 0, y: 0 });
     this.groupIds$ = signal<string[]>([]);
-    // initialize groupIds
+    // Reset groupIds when activeForm changes
     effect(() => {
-      const formModel = this.formModel$();
       this.groupIds$.set(
-        Node.flat(...this.formModel$().nodes)
+        Node.flat(...this.activeForm$().nodes)
           .filter((n) => n.nodeType === NodeType.GROUP)
           .map((n) => n.nodeId),
       );
     });
-    // effect(() => console.log('Group ids:', this.groupIds$()));
+  }
+
+  #fetchFromLocalStorage() {
+    const recordExists = this.localStorage.has('forms');
+    if (!recordExists) {
+      return of(FRESH_START);
+    }
+    const formsDto = this.localStorage.get('forms') as FormModelDto[];
+    const forms = this.#deserialize_S(formsDto);
+    return of(forms).pipe(
+      delay(2000),
+      tap(() => this.loading$.set(false)),
+    );
+  }
+
+  #saveToLocalStorage(): void {
+    const serializedForms = this.#serialize_S(this.forms$());
+    this.localStorage.set('forms', serializedForms);
+    console.log('Saved', serializedForms);
   }
 
   #addGroupId(node: Node): void {
@@ -68,22 +95,22 @@ export class BuilderService {
 
   addOption_S(node: Node, option: Option): void {
     node.addOption(option);
-    this.saveFormSb.next();
+    this.saveFormsEM.next();
   }
 
   deleteOption_S(node: Node, idx: number): void {
     node.deleteOption(idx);
-    this.saveFormSb.next();
+    this.saveFormsEM.next();
   }
 
   reorderOption_S(node: Node, fromIndex: number, toIndex: number): void {
     node.reorderOption(fromIndex, toIndex);
-    this.saveFormSb.next();
+    this.saveFormsEM.next();
   }
 
   getOptionLists_S(): Option[][] {
     const optionLists: Option[][] = [];
-    const flatNodeList = Node.flat(...this.formModel$().nodes);
+    const flatNodeList = Node.flat(...this.activeForm$().nodes);
     flatNodeList.forEach((n) => {
       if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(n.nodeType)) return;
       if (!n.getOptions().length) return;
@@ -107,7 +134,7 @@ export class BuilderService {
   replaceOptions_S(node: Node, optionList: Option[]): void {
     if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(node.nodeType)) return;
     node.setOptions(optionList);
-    this.saveFormSb.next();
+    this.saveFormsEM.next();
   }
 
   setProp_S(node: Node, propType: PropType, value: unknown) {
@@ -119,52 +146,45 @@ export class BuilderService {
       );
     }
     node.setProp(propType, value);
-    this.saveFormSb.next();
+    this.saveFormsEM.next();
   }
 
   setFormName_S(value: string): void {
-    this.formModel$().setFormName(value);
-    this.saveFormSb.next();
+    this.activeForm$().setFormName(value);
+    this.saveFormsEM.next();
   }
 
   toggleRadioCheckbox_S(node: Node): void {
     node.toggleRadioCheckbox();
-    this.saveFormSb.next();
+    this.saveFormsEM.next();
   }
 
   addNode_S(nodeList: Node[], factoryType: FactoryType): Node {
     const node = Factory.make(factoryType);
     Node.append(nodeList, node);
     this.#addGroupId(node); // UI concern
-    this.saveFormSb.next();
+    this.saveFormsEM.next();
     return node;
   }
 
   reorderNode_S(nodeList: Node[], fromIndex: number, toIndex: number): void {
     Node.reorder(nodeList, fromIndex, toIndex);
-    this.saveFormSb.next();
+    this.saveFormsEM.next();
   }
 
   deleteNode_S(nodeList: Node[], nodeId: string): void {
     Node.delete(nodeList, nodeId);
     this.#deleteGroupId(nodeId); // UI concern
-    this.saveFormSb.next();
+    this.saveFormsEM.next();
   }
 
-  #deserializeFormModel_S(formModelDto: FormModelDto): FormModel {
-    return FormModel.deserialize(formModelDto);
+  // APPLY CHECKS HERE
+  #deserialize_S(formModelDtoArray: FormModelDto[]): FormModel[] {
+    return formModelDtoArray.map((f) => FormModel.deserialize(f));
   }
 
-  #serializeFormModel_S(formModel: FormModel): FormModelDto {
-    return FormModel.serialize(formModel);
-  }
-
-  #saveToLocalStorage_S(): void {
-    const formModel = this.formModel$();
-    const serializedFormModel = this.#serializeFormModel_S(formModel);
-    this.localStorage.set('formModel', serializedFormModel);
-    // console.log('Form Schema Saved', serializedFormModel);
-    console.log('Saved');
+  #serialize_S(formModelArray: FormModel[]): FormModelDto[] {
+    return formModelArray.map((f) => FormModel.serialize(f));
   }
 
   // runtime prop validation

@@ -10,10 +10,10 @@
     class="pb-80"
   >
     <!-- Form Title -->
-    <app-builder-form-title [formName]="formModel$().formName" />
+    <app-builder-form-title [formName]="activeForm$().formName" />
     <!-- Form Nodes -->
     <div class="">
-      @for (node of formModel$().nodes; track node.nodeId) {
+      @for (node of activeForm$().nodes; track node.nodeId) {
         <div
           [formGroup]="getFormGroup(node.nodeId)"
           animate.enter="group-enter-animation"
@@ -23,7 +23,7 @@
           <!-- cdkDrag inside component -->
           <app-builder-node
             [node]="node"
-            [nodeList]="formModel$().nodes"
+            [nodeList]="activeForm$().nodes"
             [nodeFormGroup]="getFormGroup(node.nodeId)"
             [allFormGroupsIn]="allFormGroups"
             (nodeDeletedEM_N)="nodeDeleteCleanup($event)"
@@ -33,7 +33,7 @@
       }
     </div>
     <!-- Empty form message -->
-    @if (!formModel$().nodes.length && !hideEmptyMessage$()) {
+    @if (!activeForm$().nodes.length && !hideEmptyMessage$()) {
       <div
         class="flex justify-center items-center min-h-[300px] w-full text-xl font-[500] text-gray-400 mb-4 p-2 border-2 border-gray-400/50 rounded-xl border-dashed"
         animate.enter="message-enter-animation"
