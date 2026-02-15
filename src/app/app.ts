@@ -5,10 +5,11 @@ import { Sidebar } from './sidebar/sidebar';
 import { Main } from './main/main';
 import { Footer } from './footer/footer';
 import { CdkScrollable } from '@angular/cdk/scrolling';
+import { FormMenu } from './form-menu/form-menu';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterModule, Navbar, Sidebar, Main, Footer, CdkScrollable],
+  imports: [RouterModule, Navbar, Sidebar, Main, Footer, CdkScrollable, FormMenu],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

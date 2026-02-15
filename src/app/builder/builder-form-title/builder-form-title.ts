@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { BuilderService } from '../../services/builder-service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { filter } from 'rxjs';
@@ -9,23 +9,20 @@ import { filter } from 'rxjs';
   templateUrl: './builder-form-title.html',
   styleUrl: './builder-form-title.css',
 })
-export class BuilderFormTitle implements OnInit {
-  @Input() formName!: string;
-  formControl = new FormControl('');
+export class BuilderFormTitle implements OnInit, OnChanges {
+  @Input() formTitle!: string;
+  titleControl = new FormControl('');
 
   constructor(private builderService: BuilderService) {}
+
   ngOnInit(): void {
-    this.formControl.setValue(this.formName);
-    this.formControl.valueChanges
-      .pipe(
-        filter((value) => value != null)
-        // throttleTime(1000, undefined, { leading: true, trailing: true })
-      )
-      .subscribe((value) => this.setFormName(value));
+    this.titleControl.valueChanges
+      .pipe(filter((value) => value != null))
+      .subscribe((value) => this.builderService.setFormTitle_S(value));
   }
 
-  setFormName(value: string) {
-    this.builderService.setFormName_S(value);
+  ngOnChanges(changes: SimpleChanges): void {
+    this.titleControl.setValue(this.formTitle, { emitEvent: false }); // No save
   }
 
   endEdit(event: Partial<KeyboardEvent>) {

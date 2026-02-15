@@ -1,11 +1,10 @@
-import { computed, effect, EventEmitter, Injectable, Signal, signal } from '@angular/core';
+import { computed, effect, EventEmitter, Injectable, signal } from '@angular/core';
 import { FormModel, FormModelDto } from '../models/form-model';
 import { LocalStorageService } from './local-storage';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
-import { debounceTime, delay, filter, Observable, of, Subject, tap } from 'rxjs';
+import { debounceTime, delay, map, of, Subject, tap } from 'rxjs';
 import { Node, NodeType } from '../models/node-types';
 import { Factory, FactoryType } from '../models/factory-types';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 const FRESH_START: FormModel[] = [new FormModel()] as const;
 type PropSchemaType = {
@@ -22,7 +21,7 @@ export class BuilderService {
   activeIdx$;
   forms$;
   activeForm$;
-  saveFormsEM;
+  saveFormsSB;
   dragDisabled$;
   showAllErrorMessages$;
   pointerPosition$;
@@ -32,10 +31,11 @@ export class BuilderService {
     // Data
     this.loading$ = signal(true);
     this.activeIdx$ = signal(0);
-    this.forms$ = toSignal(this.#fetchFromLocalStorage(), { initialValue: FRESH_START }); // Replace with API fetch
-    this.activeForm$ = computed(() => this.forms$()[this.activeIdx$()]);
-    this.saveFormsEM = new EventEmitter<void>();
-    this.saveFormsEM
+    this.forms$ = signal<FormModel[]>([]);
+    this.activeForm$ = computed(() => this.forms$()[this.activeIdx$()]); // Error?
+    // effect(() => console.log(this.activeForm$()));
+    this.saveFormsSB = new Subject<void>();
+    this.saveFormsSB
       .asObservable()
       .pipe(debounceTime(1000))
       .subscribe(() => this.#saveToLocalStorage());
@@ -49,23 +49,34 @@ export class BuilderService {
     this.groupIds$ = signal<string[]>([]);
     // Reset groupIds when activeForm changes
     effect(() => {
+      const activeForm = this.activeForm$();
+      if (!activeForm) {
+        this.groupIds$.set([]);
+        return;
+      }
       this.groupIds$.set(
         Node.flat(...this.activeForm$().nodes)
           .filter((n) => n.nodeType === NodeType.GROUP)
           .map((n) => n.nodeId),
       );
     });
+
+    // Fetch data
+    this.#fetchFromLocalStorage().subscribe();
   }
 
   #fetchFromLocalStorage() {
-    const recordExists = this.localStorage.has('forms');
-    if (!recordExists) {
-      return of(FRESH_START);
-    }
-    const formsDto = this.localStorage.get('forms') as FormModelDto[];
-    const forms = this.#deserialize_S(formsDto);
-    return of(forms).pipe(
+    return of(1).pipe(
       delay(2000),
+      tap(() => {
+        const recordExists = this.localStorage.has('forms');
+        if (!recordExists) this.forms$.set([...FRESH_START]);
+        else {
+          const formsDto = this.localStorage.get('forms') as FormModelDto[];
+          const forms = this.#deserialize_S(formsDto);
+          this.forms$.set(forms);
+        }
+      }),
       tap(() => this.loading$.set(false)),
     );
   }
@@ -73,7 +84,17 @@ export class BuilderService {
   #saveToLocalStorage(): void {
     const serializedForms = this.#serialize_S(this.forms$());
     this.localStorage.set('forms', serializedForms);
-    console.log('Saved', serializedForms);
+    // console.log('Saved', serializedForms);
+    console.log('Saved');
+  }
+
+  // APPLY CHECKS HERE
+  #deserialize_S(formModelDtoArray: FormModelDto[]): FormModel[] {
+    return formModelDtoArray.map((f) => FormModel.deserialize(f));
+  }
+
+  #serialize_S(formModelArray: FormModel[]): FormModelDto[] {
+    return formModelArray.map((f) => FormModel.serialize(f));
   }
 
   #addGroupId(node: Node): void {
@@ -93,19 +114,86 @@ export class BuilderService {
     this.groupIds$.set(newArray);
   }
 
+  setActiveIdx_S(index: number) {
+    const length = this.forms$().length;
+    if (index > length - 1) this.activeIdx$.set(length - 1);
+    else this.activeIdx$.set(index);
+  }
+
+  addForm_S(): void {
+    this.forms$.update((val) => [...val, new FormModel()]);
+    this.setActiveIdx_S(this.forms$().length - 1);
+    this.saveFormsSB.next();
+  }
+
+  deleteForm_S(index: number): void {
+    const val = this.forms$();
+    val.splice(index, 1);
+    // If no forms left, reset
+    if (!val.length) {
+      this.forms$.set([...FRESH_START]);
+      return;
+    }
+    this.forms$.set([...val]);
+    // Handle last index problem
+    this.setActiveIdx_S(index);
+    this.saveFormsSB.next();
+  }
+
+  setFormTitle_S(value: string): void {
+    this.activeForm$().setFormTitle(value);
+    this.saveFormsSB.next();
+  }
+
+  addNode_S(nodeList: Node[], factoryType: FactoryType): Node {
+    const node = Factory.make(factoryType);
+    Node.append(nodeList, node);
+    this.#addGroupId(node); // UI concern
+    this.saveFormsSB.next();
+    return node;
+  }
+
+  reorderNode_S(nodeList: Node[], fromIndex: number, toIndex: number): void {
+    Node.reorder(nodeList, fromIndex, toIndex);
+    this.saveFormsSB.next();
+  }
+
+  deleteNode_S(nodeList: Node[], nodeId: string): void {
+    Node.delete(nodeList, nodeId);
+    this.#deleteGroupId(nodeId); // UI concern
+    this.saveFormsSB.next();
+  }
+
+  toggleRadioCheckbox_S(node: Node): void {
+    node.toggleRadioCheckbox();
+    this.saveFormsSB.next();
+  }
+
+  setProp_S(node: Node, propType: PropType, value: unknown) {
+    if (!this.#isValidPropValue(propType, value)) {
+      throw new Error(
+        `Invalid value for propType '${propType}'. ` +
+          `Expected ${this.#propSchema[propType].type}, ` +
+          `received ${this.#describeValue(value)}.`,
+      );
+    }
+    node.setProp(propType, value);
+    this.saveFormsSB.next();
+  }
+
   addOption_S(node: Node, option: Option): void {
     node.addOption(option);
-    this.saveFormsEM.next();
+    this.saveFormsSB.next();
   }
 
   deleteOption_S(node: Node, idx: number): void {
     node.deleteOption(idx);
-    this.saveFormsEM.next();
+    this.saveFormsSB.next();
   }
 
   reorderOption_S(node: Node, fromIndex: number, toIndex: number): void {
     node.reorderOption(fromIndex, toIndex);
-    this.saveFormsEM.next();
+    this.saveFormsSB.next();
   }
 
   getOptionLists_S(): Option[][] {
@@ -134,57 +222,7 @@ export class BuilderService {
   replaceOptions_S(node: Node, optionList: Option[]): void {
     if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(node.nodeType)) return;
     node.setOptions(optionList);
-    this.saveFormsEM.next();
-  }
-
-  setProp_S(node: Node, propType: PropType, value: unknown) {
-    if (!this.#isValidPropValue(propType, value)) {
-      throw new Error(
-        `Invalid value for propType '${propType}'. ` +
-          `Expected ${this.#propSchema[propType].type}, ` +
-          `received ${this.#describeValue(value)}.`,
-      );
-    }
-    node.setProp(propType, value);
-    this.saveFormsEM.next();
-  }
-
-  setFormName_S(value: string): void {
-    this.activeForm$().setFormName(value);
-    this.saveFormsEM.next();
-  }
-
-  toggleRadioCheckbox_S(node: Node): void {
-    node.toggleRadioCheckbox();
-    this.saveFormsEM.next();
-  }
-
-  addNode_S(nodeList: Node[], factoryType: FactoryType): Node {
-    const node = Factory.make(factoryType);
-    Node.append(nodeList, node);
-    this.#addGroupId(node); // UI concern
-    this.saveFormsEM.next();
-    return node;
-  }
-
-  reorderNode_S(nodeList: Node[], fromIndex: number, toIndex: number): void {
-    Node.reorder(nodeList, fromIndex, toIndex);
-    this.saveFormsEM.next();
-  }
-
-  deleteNode_S(nodeList: Node[], nodeId: string): void {
-    Node.delete(nodeList, nodeId);
-    this.#deleteGroupId(nodeId); // UI concern
-    this.saveFormsEM.next();
-  }
-
-  // APPLY CHECKS HERE
-  #deserialize_S(formModelDtoArray: FormModelDto[]): FormModel[] {
-    return formModelDtoArray.map((f) => FormModel.deserialize(f));
-  }
-
-  #serialize_S(formModelArray: FormModel[]): FormModelDto[] {
-    return formModelArray.map((f) => FormModel.serialize(f));
+    this.saveFormsSB.next();
   }
 
   // runtime prop validation

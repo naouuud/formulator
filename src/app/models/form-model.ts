@@ -2,23 +2,23 @@ import { Node, NodeDto } from './node-types';
 
 export type FormModelDto = {
   formId: ReturnType<typeof crypto.randomUUID>;
-  formName: string;
+  formTitle: string;
   nodes: NodeDto[];
 };
 
 export class FormModel {
   formId: ReturnType<typeof crypto.randomUUID>;
-  formName: string;
+  formTitle: string;
   nodes: Node[];
 
   constructor() {
     this.formId = crypto.randomUUID();
-    this.formName = '';
+    this.formTitle = '';
     this.nodes = [];
   }
 
-  setFormName(value: string): void {
-    this.formName = value.trim();
+  setFormTitle(value: string): void {
+    this.formTitle = value.trim();
   }
 
   // Apply domain checks here
