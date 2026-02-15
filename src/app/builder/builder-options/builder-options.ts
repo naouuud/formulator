@@ -1,5 +1,4 @@
-import { Component, computed, effect, Input, OnInit, signal } from '@angular/core';
-import { Field, FieldType, OPTION_OTHER_TEXT } from '../../models/field-types';
+import { Component, Input, OnInit } from '@angular/core';
 import { BuilderService } from '../../services/builder-service';
 import { CdkDropList, CdkDrag, CdkDragDrop, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
 import { CustomRadio } from '../custom-radio/custom-radio';
@@ -7,8 +6,13 @@ import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
 import { PropType } from '../../models/prop-types';
 import { ControlContainer, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { OptionOther } from '../option-other/option-other';
-import { Node, DuplicateOptionError, EmptyOptionError, NodeType } from '../../models/node-types';
-// import { CustomSelect } from '../custom-select/custom-select';
+import {
+  Node,
+  DuplicateOptionError,
+  EmptyOptionError,
+  NodeType,
+  OPTION_OTHER_TEXT,
+} from '../../models/node-types';
 
 @Component({
   selector: 'app-builder-options',
@@ -20,14 +24,12 @@ import { Node, DuplicateOptionError, EmptyOptionError, NodeType } from '../../mo
     CustomCheckbox,
     ReactiveFormsModule,
     OptionOther,
-    // CustomSelect,
   ],
   templateUrl: './builder-options.html',
   styleUrl: './builder-options.css',
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
 })
 export class BuilderOptions implements OnInit {
-  // FieldType = FieldType;
   NodeType = NodeType;
   @Input() node!: Node;
   dragDisabled$;

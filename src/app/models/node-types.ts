@@ -88,6 +88,7 @@ export class Node {
 
   // Returns ref, can mutate directly
   getOptions(): Option[] {
+    // console.log('template reevaluated');
     return this.getPropValue(PropType.OPTIONS) ?? [];
   }
 
