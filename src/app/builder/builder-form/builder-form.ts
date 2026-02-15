@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, signal } from '@angular/core';
+import { Component, computed, effect, ElementRef, signal } from '@angular/core';
 import { BuilderService } from '../../services/builder-service';
 import { CdkDrag, CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 import { BuilderFormTitle } from '../builder-form-title/builder-form-title';

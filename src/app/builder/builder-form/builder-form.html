@@ -1,4 +1,4 @@
-<div cdkDropListGroup class="max-w-2xl flex flex-col gap-6">
+<div cdkDropListGroup class="flex flex-col gap-6">
   <div
     cdkDropList
     id="form-drop"
@@ -10,7 +10,7 @@
     class="pb-80"
   >
     <!-- Form Title -->
-    <app-builder-form-title [formName]="activeForm$().formName" />
+    <app-builder-form-title [formTitle]="activeForm$().formTitle" />
     <!-- Form Nodes -->
     <div class="">
       @for (node of activeForm$().nodes; track node.nodeId) {
