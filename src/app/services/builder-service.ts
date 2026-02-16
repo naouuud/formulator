@@ -136,7 +136,7 @@ export class BuilderService {
     }
     this.forms$.set([...val]);
     // Handle last index problem
-    this.setActiveIdx_S(index);
+    this.setActiveIdx_S(this.activeIdx$());
     this.saveFormsSB.next();
   }
 

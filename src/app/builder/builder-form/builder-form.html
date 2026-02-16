@@ -2,9 +2,9 @@
   <div
     cdkDropList
     id="form-drop"
-    (cdkDropListDropped)="onDrop($event)"
     (cdkDropListEntered)="hideEmptyMessage$.set(true)"
     (cdkDropListExited)="hideEmptyMessage$.set(false)"
+    (cdkDropListDropped)="onDrop($event); hideEmptyMessage$.set(false)"
     [cdkDropListAutoScrollDisabled]="false"
     [cdkDropListEnterPredicate]="enterPredicate"
     class="pb-80"

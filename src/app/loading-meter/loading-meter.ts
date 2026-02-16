@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-loading-meter',
   template: `
-    <div class="h-80 flex flex-col gap-4 justify-center items-center mb-80">
-      <div class="w-2/3 h-5 relative overflow-hidden bg-gray-400 rounded-2xl ring-2 ring-gray-400">
+    <div class="h-96 flex flex-col gap-4 justify-center items-center mb-80">
+      <div class="w-2/3 h-5 relative overflow-hidden bg-gray-400 rounded-2xl ring-2 ring-gray-600">
         <div
           class="absolute inset-0 bg-gradient-to-r from-gray-300 via-gray-400 to-gray-300 animate-loading-stripes"
         ></div>

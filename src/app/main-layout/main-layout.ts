@@ -5,12 +5,12 @@ import { BuilderService } from '../services/builder-service';
 import { LoadingMeterComponent } from '../loading-meter/loading-meter';
 
 @Component({
-  selector: 'app-main',
+  selector: 'app-main-layout',
   imports: [RouterModule, MainNavbar, LoadingMeterComponent],
-  templateUrl: './main.html',
-  styleUrl: './main.css',
+  templateUrl: './main-layout.html',
+  styleUrl: './main-layout.css',
 })
-export class Main {
+export class MainLayout {
   loading$;
 
   constructor(private builderService: BuilderService) {
