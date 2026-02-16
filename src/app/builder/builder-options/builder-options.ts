@@ -13,6 +13,7 @@ import {
   NodeType,
   OPTION_OTHER_TEXT,
 } from '../../models/node-types';
+// import { OptionWarning } from '../option-warning/option-warning';
 
 @Component({
   selector: 'app-builder-options',
@@ -24,6 +25,7 @@ import {
     CustomCheckbox,
     ReactiveFormsModule,
     OptionOther,
+    // OptionWarning,
   ],
   templateUrl: './builder-options.html',
   styleUrl: './builder-options.css',
