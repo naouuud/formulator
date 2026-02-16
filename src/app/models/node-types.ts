@@ -105,7 +105,7 @@ export class Node {
     // check if duplicate
     for (let option of options) {
       if (optionIn === option) {
-        throw new DuplicateOptionError(`Option '${optionIn} already exists'`);
+        throw new DuplicateOptionError(`Option '${optionIn}' already exists'`);
       }
     }
     options.push(optionIn); // direct mutation
