@@ -16,7 +16,7 @@ export const OPTION_MAX_LENGTH = 50;
 
 export type NodeDto = {
   nodeType: NodeType;
-  nodeId: ReturnType<typeof crypto.randomUUID>;
+  nodeId: string;
   props: Prop[];
   nodes: NodeDto[];
 };
@@ -39,7 +39,7 @@ export type NodeFactory = () => Node;
 
 export class Node {
   nodeType: NodeType;
-  nodeId: ReturnType<typeof crypto.randomUUID>;
+  nodeId: string;
   props: Prop[];
   nodes: Node[];
 

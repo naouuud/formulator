@@ -1,13 +1,13 @@
 import { Node, NodeDto } from './node-types';
 
 export type FormModelDto = {
-  formId: ReturnType<typeof crypto.randomUUID>;
+  formId: string;
   formTitle: string;
   nodes: NodeDto[];
 };
 
 export class FormModel {
-  formId: ReturnType<typeof crypto.randomUUID>;
+  formId: string;
   formTitle: string;
   nodes: Node[];
 
