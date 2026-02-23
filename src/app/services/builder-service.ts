@@ -6,6 +6,7 @@ import { debounceTime, delay, of, Subject, tap } from 'rxjs';
 import { Node, NodeType } from '../models/node-types';
 import { Factory, FactoryType } from '../models/factory-types';
 import { AuthService } from './auth-service';
+import { FormService } from './form-service';
 
 const FRESH_START: FormModel[] = [new FormModel()] as const;
 const RUN_LOCAL = false as const;
@@ -33,6 +34,7 @@ export class BuilderService {
   constructor(
     private localStorage: LocalStorageService,
     private authService: AuthService,
+    private formService: FormService,
   ) {
     // Data
     this.loading$ = signal(true);
@@ -70,7 +72,8 @@ export class BuilderService {
     if (RUN_LOCAL) this.#fetchFromLocalStorage().subscribe();
     else
       this.authService.bootstrap().subscribe((forms) => {
-        this.forms$.set(forms);
+        const deserialized = forms.map((f) => FormModel.deserialize(f));
+        this.forms$.set(deserialized);
         this.loading$.set(false);
       });
   }
@@ -112,6 +115,11 @@ export class BuilderService {
     return formModelArray.map((f) => FormModel.serialize(f));
   }
 
+  #updateFormId(oldId: string, newId: string): void {
+    const form = this.forms$().find((f) => f.formId === oldId)!; // check
+    form.formId = newId;
+  }
+
   #addGroupId(node: Node): void {
     if (node.nodeType !== NodeType.GROUP) return;
     const groupDropIds = this.groupIds$();
@@ -136,14 +144,24 @@ export class BuilderService {
   }
 
   addForm_S(): void {
-    this.forms$.update((val) => [...val, new FormModel()]);
+    const newForm = new FormModel();
+    const tempId = newForm.formId;
+    this.forms$.update((val) => [...val, newForm]);
     this.setActiveIdx_S(this.forms$().length - 1);
     this.#save();
+    // Update backend and get server generated uuid
+    this.formService.createForm().subscribe((res) => {
+      if (res.status === 'ok') {
+        this.#updateFormId(tempId, res.id);
+      } else {
+        // handle rollback
+      }
+    });
   }
 
   deleteForm_S(index: number): void {
     const val = this.forms$();
-    val.splice(index, 1);
+    const [deletedForm] = val.splice(index, 1);
     // If no forms left, reset
     if (!val.length) {
       this.forms$.set([...FRESH_START]);
@@ -153,6 +171,17 @@ export class BuilderService {
     // Handle last index problem
     this.setActiveIdx_S(this.activeIdx$());
     this.#save();
+    // Update backend and confirm completion
+    this.formService.deleteForm(deletedForm.formId).subscribe({
+      next: (res) => {
+        if (res.status !== 204) {
+          // restore form
+        }
+      },
+      error: (err) => {
+        // restore form
+      },
+    });
   }
 
   setFormTitle_S(value: string): void {
