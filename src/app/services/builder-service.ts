@@ -2,13 +2,25 @@ import { computed, effect, Injectable, signal } from '@angular/core';
 import { FormModel, FormModelDto } from '../models/form-model';
 import { LocalStorageService } from './local-storage';
 import { PropType, PropValueMap, Option } from '../models/prop-types';
-import { debounceTime, delay, of, Subject, tap } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  delay,
+  EMPTY,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { Node, NodeType } from '../models/node-types';
 import { Factory, FactoryType } from '../models/factory-types';
 import { AuthService } from './auth-service';
 import { FormService } from './form-service';
 
-const FRESH_START: FormModel[] = [new FormModel()] as const;
+// const FRESH_START: FormModel[] = [new FormModel()] as const;
 const RUN_LOCAL = false as const;
 
 type PropSchemaType = {
@@ -82,8 +94,8 @@ export class BuilderService {
     return of(1).pipe(
       delay(1000),
       tap(() => {
-        const exists = this.localStorage.has('localForms');
-        if (!exists) this.forms$.set([...FRESH_START]);
+        const hasLocalForms = this.localStorage.has('localForms');
+        if (!hasLocalForms) this.forms$.set([new FormModel()]);
         else {
           const formsDto = this.localStorage.get<FormModelDto[]>('localForms')!;
           const forms = this.#deserialize_S(formsDto);
@@ -99,11 +111,6 @@ export class BuilderService {
     this.localStorage.set('localForms', serializedForms);
     // console.log('Saved', serializedForms);
     console.log('Saved');
-  }
-
-  #save() {
-    if (RUN_LOCAL) this.saveToLocalSB.next();
-    else return;
   }
 
   // APPLY CHECKS HERE
@@ -144,73 +151,99 @@ export class BuilderService {
   }
 
   addForm_S(): void {
+    this.addForm_S$().subscribe();
+  }
+
+  // race conditions
+  addForm_S$(): Observable<void> {
     const newForm = new FormModel();
     const tempId = newForm.formId;
     this.forms$.update((val) => [...val, newForm]);
     this.setActiveIdx_S(this.forms$().length - 1);
-    this.#save();
-    // Update backend and get server generated uuid
-    this.formService.createForm().subscribe((res) => {
-      if (res.status === 'ok') {
-        this.#updateFormId(tempId, res.id);
-      } else {
-        // handle rollback
-      }
-    });
+    if (RUN_LOCAL)
+      return of(void 0).pipe(
+        tap(() => {
+          this.saveToLocalSB.next();
+        }),
+      );
+    // API mode - Update backend and get server generated uuid
+    return this.formService.createForm().pipe(
+      tap((res) => {
+        if (res.status === 'ok') {
+          this.#updateFormId(tempId, res.id);
+        } else {
+          // handle rollback
+        }
+      }),
+      map(() => void 0),
+    );
   }
 
   deleteForm_S(index: number): void {
     const val = this.forms$();
     const [deletedForm] = val.splice(index, 1);
-    // If no forms left, reset
-    if (!val.length) {
-      this.forms$.set([...FRESH_START]);
+    if (RUN_LOCAL) {
+      if (!val.length) {
+        this.forms$.set([new FormModel()]);
+      } else {
+        this.forms$.set([...val]);
+        this.setActiveIdx_S(this.activeIdx$()); // handles last index problem
+      }
+      this.saveToLocalSB.next();
       return;
     }
-    this.forms$.set([...val]);
-    // Handle last index problem
-    this.setActiveIdx_S(this.activeIdx$());
-    this.#save();
-    // Update backend and confirm completion
-    this.formService.deleteForm(deletedForm.formId).subscribe({
-      next: (res) => {
-        if (res.status !== 204) {
+    // API mode - Update backend and confirm deletion
+    const prep$ = !val.length ? this.addForm_S$() : of(void 0);
+    prep$
+      .pipe(
+        tap(() => this.setActiveIdx_S(this.activeIdx$())),
+        switchMap(() => this.formService.deleteForm(deletedForm.formId)),
+        tap((res) => {
+          if (res.status !== 204) {
+            // restore form
+            val.splice(index, 0, deletedForm);
+            this.forms$.set([...val]);
+            this.setActiveIdx_S(this.activeIdx$());
+          }
+        }),
+        catchError((err) => {
           // restore form
-        }
-      },
-      error: (err) => {
-        // restore form
-      },
-    });
+          val.splice(index, 0, deletedForm);
+          this.forms$.set([...val]);
+          this.setActiveIdx_S(this.activeIdx$());
+          return EMPTY;
+        }),
+      )
+      .subscribe();
   }
 
   setFormTitle_S(value: string): void {
     this.activeForm$().setFormTitle(value);
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
   }
 
   addNode_S(nodeList: Node[], factoryType: FactoryType): Node {
     const node = Factory.make(factoryType);
     Node.append(nodeList, node);
     this.#addGroupId(node); // UI concern
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
     return node;
   }
 
   reorderNode_S(nodeList: Node[], fromIndex: number, toIndex: number): void {
     Node.reorder(nodeList, fromIndex, toIndex);
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
   }
 
   deleteNode_S(nodeList: Node[], nodeId: string): void {
     Node.delete(nodeList, nodeId);
     this.#deleteGroupId(nodeId); // UI concern
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
   }
 
   toggleRadioCheckbox_S(node: Node): void {
     node.toggleRadioCheckbox();
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
   }
 
   setProp_S(node: Node, propType: PropType, value: unknown) {
@@ -222,22 +255,22 @@ export class BuilderService {
       );
     }
     node.setProp(propType, value);
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
   }
 
   addOption_S(node: Node, option: Option): void {
     node.addOption(option);
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
   }
 
   deleteOption_S(node: Node, idx: number): void {
     node.deleteOption(idx);
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
   }
 
   reorderOption_S(node: Node, fromIndex: number, toIndex: number): void {
     node.reorderOption(fromIndex, toIndex);
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
   }
 
   getOptionLists_S(): Option[][] {
@@ -266,7 +299,7 @@ export class BuilderService {
   replaceOptions_S(node: Node, optionList: Option[]): void {
     if (![NodeType.CHECKBOX, NodeType.RADIO, NodeType.SELECT].includes(node.nodeType)) return;
     node.setOptions(optionList);
-    this.#save();
+    if (RUN_LOCAL) this.saveToLocalSB.next();
   }
 
   // runtime prop validation
