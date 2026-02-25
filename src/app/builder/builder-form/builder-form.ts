@@ -1,5 +1,5 @@
-import { Component, computed, effect, ElementRef, signal } from '@angular/core';
-import { BuilderService } from '../../services/builder-service';
+import { Component, computed, effect, ElementRef, Inject, signal } from '@angular/core';
+import { FormRepoLocal } from '../../services/form-repo-local';
 import { CdkDrag, CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 import { BuilderFormTitle } from '../builder-form-title/builder-form-title';
 import {
@@ -14,6 +14,8 @@ import { LABEL_MAX_LENGTH } from '../../models/field-types';
 import { BuilderNode } from '../builder-node/builder-node';
 import { NodeType, Node } from '../../models/node-types';
 import { FactoryType } from '../../models/factory-types';
+import { FORM_REPO } from '../../app.config';
+import { IFormRepo } from '../../services/form-repo';
 
 @Component({
   selector: 'app-builder-form',
@@ -30,9 +32,9 @@ export class BuilderForm {
   NodeType = NodeType;
   groupElements: ElementRef<HTMLDivElement>[];
 
-  constructor(private builderService: BuilderService) {
-    this.activeForm$ = this.builderService.activeForm$;
-    this.dragDisabled$ = this.builderService.dragDisabled$;
+  constructor(@Inject(FORM_REPO) private formRepo: IFormRepo) {
+    this.activeForm$ = this.formRepo.activeForm$;
+    this.dragDisabled$ = this.formRepo.dragDisabled$;
     this.allFormGroups = new FormGroup({});
     this.groupElements = [];
     this.hideEmptyMessage$ = signal(false);
@@ -52,7 +54,7 @@ export class BuilderForm {
   }
 
   enterPredicate = (drag: CdkDrag, drop: CdkDropList) => {
-    const pos = this.builderService.pointerPosition$();
+    const pos = this.formRepo.pointerPosition$();
     return !this.groupElements
       .map((el) => el.nativeElement.getBoundingClientRect())
       .some((rect) => {
@@ -72,17 +74,13 @@ export class BuilderForm {
   }
 
   #reorderNode_C(event: CdkDragDrop<FactoryType>) {
-    this.builderService.reorderNode_S(
-      this.activeForm$().nodes,
-      event.previousIndex,
-      event.currentIndex,
-    );
+    this.formRepo.reorderNode_S(this.activeForm$().nodes, event.previousIndex, event.currentIndex);
   }
 
   #addNode_C(event: CdkDragDrop<FactoryType>) {
     const factoryType: FactoryType = event.item.data; // extract FactoryType from drag data
-    const newNode = this.builderService.addNode_S(this.activeForm$().nodes, factoryType); // add & return Node ref
-    this.builderService.reorderNode_S(
+    const newNode = this.formRepo.addNode_S(this.activeForm$().nodes, factoryType); // add & return Node ref
+    this.formRepo.reorderNode_S(
       this.activeForm$().nodes,
       this.activeForm$().nodes.length - 1,
       event.currentIndex,
@@ -104,9 +102,9 @@ export class BuilderForm {
     if (this.allFormGroups.valid) {
       // proceed
     } else {
-      this.builderService.showAllErrorMessages$.set(true);
+      this.formRepo.showAllErrorMessages$.set(true);
       setTimeout(() => {
-        this.builderService.showAllErrorMessages$.set(false);
+        this.formRepo.showAllErrorMessages$.set(false);
       }, 8_000);
     }
   }

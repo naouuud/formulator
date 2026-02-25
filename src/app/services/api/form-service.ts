@@ -1,7 +1,8 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { LocalStorageService } from './local-storage';
+import { LocalStorageService } from '../local-storage';
+import { FormModel } from '../../models/form-model';
 
 type CreateFormResp = {
   status: string;
@@ -31,6 +32,13 @@ export class FormService {
     return this.http.delete<void>(`${this.url}/${formId}`, {
       headers: { Authorization: `Bearer ${tokenStr}` },
       observe: 'response',
+    });
+  }
+
+  updateFormSchema(body: FormModel): Observable<void> {
+    const tokenStr = this.localStorage.has('auth') ? this.localStorage.get<string>('auth')! : '';
+    return this.http.put<void>(this.url, body, {
+      headers: { Authorization: `Bearer ${tokenStr}`, 'Content-Type': 'application/json' },
     });
   }
 }

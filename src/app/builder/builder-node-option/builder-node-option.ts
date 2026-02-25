@@ -1,9 +1,11 @@
-import { Component, Input } from '@angular/core';
-import { BuilderService } from '../../services/builder-service';
+import { Component, Inject, Input } from '@angular/core';
+import { FormRepoLocal } from '../../services/form-repo-local';
 import { BuilderValidation } from '../builder-validation/builder-validation';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderOptions } from '../builder-options/builder-options';
 import { Node } from '../../models/node-types';
+import { FORM_REPO } from '../../app.config';
+import { IFormRepo } from '../../services/form-repo';
 
 @Component({
   selector: 'app-builder-node-option',
@@ -15,7 +17,7 @@ export class BuilderNodeOption {
   @Input() node!: Node;
   dragDisabled$;
 
-  constructor(private builderService: BuilderService) {
-    this.dragDisabled$ = this.builderService.dragDisabled$;
+  constructor(@Inject(FORM_REPO) private formRepo: IFormRepo) {
+    this.dragDisabled$ = this.formRepo.dragDisabled$;
   }
 }

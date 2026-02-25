@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { BuilderService } from '../../services/builder-service';
+import { Component, Inject, Input, OnInit } from '@angular/core';
+import { FormRepoLocal } from '../../services/form-repo-local';
 import { CdkDropList, CdkDrag, CdkDragDrop, CdkDragPlaceholder } from '@angular/cdk/drag-drop';
 import { CustomRadio } from '../custom-radio/custom-radio';
 import { CustomCheckbox } from '../custom-checkbox/custom-checkbox';
@@ -13,6 +13,8 @@ import {
   NodeType,
   OPTION_OTHER_TEXT,
 } from '../../models/node-types';
+import { IFormRepo } from '../../services/form-repo';
+import { FORM_REPO } from '../../app.config';
 // import { OptionWarning } from '../option-warning/option-warning';
 
 @Component({
@@ -40,8 +42,8 @@ export class BuilderOptions implements OnInit {
   OptionOtherText = OPTION_OTHER_TEXT;
   PropType = PropType;
 
-  constructor(private builderService: BuilderService) {
-    this.dragDisabled$ = this.builderService.dragDisabled$;
+  constructor(@Inject(FORM_REPO) private formRepo: IFormRepo) {
+    this.dragDisabled$ = this.formRepo.dragDisabled$;
   }
 
   ngOnInit(): void {
@@ -60,7 +62,7 @@ export class BuilderOptions implements OnInit {
   addOption_C(optionInput: HTMLInputElement) {
     const option = optionInput.value;
     try {
-      this.builderService.addOption_S(this.node, option);
+      this.formRepo.addOption_S(this.node, option);
       optionInput.value = '';
     } catch (err) {
       if (err instanceof DuplicateOptionError) {
@@ -73,10 +75,10 @@ export class BuilderOptions implements OnInit {
   }
 
   reorderOption_C(event: CdkDragDrop<unknown>) {
-    this.builderService.reorderOption_S(this.node, event.previousIndex, event.currentIndex);
+    this.formRepo.reorderOption_S(this.node, event.previousIndex, event.currentIndex);
   }
 
   deleteOption_C(idx: number) {
-    this.builderService.deleteOption_S(this.node, idx);
+    this.formRepo.deleteOption_S(this.node, idx);
   }
 }

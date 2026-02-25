@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
-import { BuilderService } from '../services/builder-service';
+import { Component, Inject } from '@angular/core';
+import { FormRepoLocal } from '../services/form-repo-local';
 import { FormIcon } from '../form-icon/form-icon';
+import { FORM_REPO } from '../app.config';
+import { IFormRepo } from '../services/form-repo';
 
 @Component({
   selector: 'app-form-menu',
@@ -10,11 +12,11 @@ import { FormIcon } from '../form-icon/form-icon';
 })
 export class FormMenu {
   forms$;
-  constructor(private builderService: BuilderService) {
-    this.forms$ = this.builderService.forms$;
+  constructor(@Inject(FORM_REPO) private formRepo: IFormRepo) {
+    this.forms$ = this.formRepo.forms$;
   }
 
   addForm_C() {
-    this.builderService.addForm_S();
+    this.formRepo.addForm_S();
   }
 }

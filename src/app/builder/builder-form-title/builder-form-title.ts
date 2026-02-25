@@ -1,7 +1,9 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { BuilderService } from '../../services/builder-service';
+import { Component, Inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { FormRepoLocal } from '../../services/form-repo-local';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { filter } from 'rxjs';
+import { FORM_REPO } from '../../app.config';
+import { IFormRepo } from '../../services/form-repo';
 
 @Component({
   selector: 'app-builder-form-title',
@@ -13,12 +15,12 @@ export class BuilderFormTitle implements OnInit, OnChanges {
   @Input() formTitle!: string;
   titleControl = new FormControl('');
 
-  constructor(private builderService: BuilderService) {}
+  constructor(@Inject(FORM_REPO) private formRepo: IFormRepo) {}
 
   ngOnInit(): void {
     this.titleControl.valueChanges
       .pipe(filter((value) => value != null))
-      .subscribe((value) => this.builderService.setFormTitle_S(value));
+      .subscribe((value) => this.formRepo.setFormTitle_S(value));
   }
 
   ngOnChanges(changes: SimpleChanges): void {

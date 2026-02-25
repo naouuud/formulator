@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { LocalStorageService } from './local-storage';
-import { FormModel, FormModelDto } from '../models/form-model';
+import { LocalStorageService } from '../local-storage';
+import { FormModel, FormModelDto } from '../../models/form-model';
 import { map, Observable, retry, tap } from 'rxjs';
+import { ENV } from '../../env';
 
 type AuthResp = {
   id: string;
@@ -16,7 +17,7 @@ type AuthResp = {
 })
 export class AuthService {
   http;
-  url = 'http://localhost:8080/auth/me';
+  url = `${ENV.API_URL}/auth/me`;
 
   constructor(private localStorage: LocalStorageService) {
     this.http = inject(HttpClient); // gets the global singleton
