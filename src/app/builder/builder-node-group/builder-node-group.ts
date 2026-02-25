@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnInit, Output, signal } from '@angular/core';
 import { LABEL_MAX_LENGTH, Node } from '../../models/node-types';
 import { BuilderPropLabel } from '../builder-prop-label/builder-prop-label';
 import { BuilderValidation } from '../builder-validation/builder-validation';
@@ -10,10 +10,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
-import { BuilderService } from '../../services/builder-service';
+import { FormRepoLocal } from '../../services/form-repo-local';
 import { FactoryType } from '../../models/factory-types';
 import { BuilderNodeChild } from '../builder-node-child/builder-node-child';
 import { Prop, PropType } from '../../models/prop-types';
+import { FORM_REPO } from '../../app.config';
+import { IFormRepo } from '../../services/form-repo';
 
 @Component({
   selector: 'app-builder-node-group',
@@ -33,7 +35,7 @@ export class BuilderNodeGroup implements OnInit {
   @Output() nodeDeletedEM_G = new EventEmitter<string[]>();
   hideEmptyMessage$;
 
-  constructor(private builderService: BuilderService) {
+  constructor(@Inject(FORM_REPO) private formRepo: IFormRepo) {
     this.hideEmptyMessage$ = signal(true);
   }
 
@@ -61,17 +63,13 @@ export class BuilderNodeGroup implements OnInit {
 
   #reorderNode_C(event: CdkDragDrop<FactoryType>) {
     // console.log(event);
-    this.builderService.reorderNode_S(this.node.nodes, event.previousIndex, event.currentIndex);
+    this.formRepo.reorderNode_S(this.node.nodes, event.previousIndex, event.currentIndex);
   }
 
   #addNode_C(event: CdkDragDrop<FactoryType>) {
     const factoryType: FactoryType = event.item.data;
-    const newNode = this.builderService.addNode_S(this.node.nodes, factoryType);
-    this.builderService.reorderNode_S(
-      this.node.nodes,
-      this.node.nodes.length - 1,
-      event.currentIndex,
-    );
+    const newNode = this.formRepo.addNode_S(this.node.nodes, factoryType);
+    this.formRepo.reorderNode_S(this.node.nodes, this.node.nodes.length - 1, event.currentIndex);
     const flatNodeList = Node.flat(newNode); // flatten node to add all necessary form groups
     for (let node of flatNodeList) {
       this.#addFormGroup(node);

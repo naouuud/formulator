@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { BuilderService } from './builder-service';
+import { FormRepoLocal } from './form-repo-local';
 
-describe('BuilderService', () => {
-  let service: BuilderService;
+describe('FormRepoLocal', () => {
+  let service: FormRepoLocal;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(BuilderService);
+    service = TestBed.inject(FormRepoLocal);
   });
 
   it('should be created', () => {

@@ -1,6 +1,8 @@
-import { Component, computed, Input } from '@angular/core';
-import { BuilderService } from '../services/builder-service';
+import { Component, computed, Inject, Input } from '@angular/core';
+import { FormRepoLocal } from '../services/form-repo-local';
 import { CommonModule } from '@angular/common';
+import { IFormRepo } from '../services/form-repo';
+import { FORM_REPO } from '../app.config';
 
 @Component({
   selector: 'app-form-icon',
@@ -15,16 +17,16 @@ export class FormIcon {
   activeIdx$;
   active$ = computed(() => this.activeIdx$() === this.index);
 
-  constructor(private builderService: BuilderService) {
-    this.activeIdx$ = this.builderService.activeIdx$;
+  constructor(@Inject(FORM_REPO) private formRepo: IFormRepo) {
+    this.activeIdx$ = this.formRepo.activeIdx$;
   }
 
   setActiveIdx_C(): void {
-    this.builderService.setActiveIdx_S(this.index);
+    this.formRepo.setActiveIdx_S(this.index);
   }
 
   deleteForm_C(event: PointerEvent): void {
     event.stopPropagation();
-    this.builderService.deleteForm_S(this.index);
+    this.formRepo.deleteForm_S(this.index);
   }
 }

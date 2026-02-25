@@ -3,13 +3,14 @@ import {
   computed,
   effect,
   EventEmitter,
+  Inject,
   Input,
   OnInit,
   Output,
   signal,
 } from '@angular/core';
 import { ControlContainer, FormGroupDirective } from '@angular/forms';
-import { BuilderService } from '../../services/builder-service';
+import { FormRepoLocal } from '../../services/form-repo-local';
 import { Field } from '../../models/field-types';
 import {
   createDateRange,
@@ -20,6 +21,8 @@ import {
   todayString,
 } from '../../models/prop-types';
 import { Node } from '../../models/node-types';
+import { IFormRepo } from '../../services/form-repo';
+import { FORM_REPO } from '../../app.config';
 
 type SelectOptions = 'mixed' | 'past' | 'future';
 
@@ -48,9 +51,9 @@ export class BuilderValidationDaterange implements OnInit {
 
   constructor(
     public controlContainer: ControlContainer,
-    private builderService: BuilderService,
+    @Inject(FORM_REPO) private formRepo: IFormRepo,
   ) {
-    this.dragDisabled$ = this.builderService.dragDisabled$;
+    this.dragDisabled$ = this.formRepo.dragDisabled$;
     this.#fallBackDateRange = this.#createFallBackDateRange();
     this.maxDate$ = signal<string>(this.#fallBackDateRange.max);
     this.minDate$ = signal<string>(this.#fallBackDateRange.min);
@@ -121,7 +124,7 @@ export class BuilderValidationDaterange implements OnInit {
 
   setDateRange_C(maxDateString: string, minDateString: string) {
     const dateRange = createDateRange(maxDateString, minDateString); // factory enforces type correctness and throws error
-    this.builderService.setProp_S(this.node, PropType.DATERANGE, dateRange);
+    this.formRepo.setProp_S(this.node, PropType.DATERANGE, dateRange);
     this.triggerChangeEMIT.emit();
   }
 

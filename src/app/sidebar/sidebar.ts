@@ -9,7 +9,7 @@ import {
   CdkDropListGroup,
 } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { BuilderService } from '../services/builder-service';
+import { FormRepoLocal } from '../services/form-repo-local';
 
 @Component({
   selector: 'app-sidebar',
@@ -28,7 +28,7 @@ export class Sidebar {
     return ['form-drop'].concat(groupIds.map((id) => `group-drop-${id}`));
   });
 
-  constructor(private builderService: BuilderService) {
+  constructor(private builderService: FormRepoLocal) {
     this.groupIds$ = this.builderService.groupIds$;
   }
 

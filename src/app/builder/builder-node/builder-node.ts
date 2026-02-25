@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  Inject,
   Input,
   OnInit,
   Output,
@@ -13,7 +14,7 @@ import {
 import { Node, NodeType } from '../../models/node-types';
 import { Option, PropChangeEvent, PropType } from '../../models/prop-types';
 import { BuilderNodeText } from '../builder-node-text/builder-node-text';
-import { BuilderService } from '../../services/builder-service';
+import { FormRepoLocal } from '../../services/form-repo-local';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { BuilderNodeTextarea } from '../builder-node-textarea/builder-node-textarea';
@@ -26,6 +27,8 @@ import { OptionListsFloat } from '../option-lists-float/option-lists-float';
 import { BuilderNodeEmail } from '../builder-node-email/builder-node-email';
 import { BuilderNodePhone } from '../builder-node-phone/builder-node-phone';
 import { BuilderNodeGroup } from '../builder-node-group/builder-node-group';
+import { FORM_REPO } from '../../app.config';
+import { IFormRepo } from '../../services/form-repo';
 
 const NodeLabels = {
   [NodeType.NONE]: 'none',
@@ -77,8 +80,8 @@ export class BuilderNode implements OnInit, AfterViewInit {
   dragDisabled$;
   floatVisible = false;
 
-  constructor(private builderService: BuilderService) {
-    this.dragDisabled$ = this.builderService.dragDisabled$;
+  constructor(@Inject(FORM_REPO) private formRepo: IFormRepo) {
+    this.dragDisabled$ = this.formRepo.dragDisabled$;
   }
 
   ngOnInit(): void {
@@ -111,25 +114,25 @@ export class BuilderNode implements OnInit, AfterViewInit {
 
   setProp_C(propChangeEvent: PropChangeEvent) {
     const { propType, value } = propChangeEvent;
-    this.builderService.setProp_S(this.node, propType, value);
+    this.formRepo.setProp_S(this.node, propType, value);
   }
 
   toggleRadioCheckbox_C(): void {
-    this.builderService.toggleRadioCheckbox_S(this.node);
+    this.formRepo.toggleRadioCheckbox_S(this.node);
   }
 
   deleteNode_C(): void {
-    this.builderService.deleteNode_S(this.nodeList, this.node.nodeId);
+    this.formRepo.deleteNode_S(this.nodeList, this.node.nodeId);
     const nodeIdsForDelete = Node.flat(this.node).map((n) => n.nodeId);
     this.nodeDeletedEM_N.emit(nodeIdsForDelete); // emit to delete formcontrols
   }
 
   replaceOptions_C(optionList: Option[] | null) {
-    if (optionList) this.builderService.replaceOptions_S(this.node, optionList);
+    if (optionList) this.formRepo.replaceOptions_S(this.node, optionList);
     this.floatVisible = false;
   }
 
   getOptionLists_C(): Option[][] {
-    return this.builderService.getOptionLists_S();
+    return this.formRepo.getOptionLists_S();
   }
 }

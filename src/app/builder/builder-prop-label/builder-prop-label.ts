@@ -1,13 +1,15 @@
-import { Component, computed, Input } from '@angular/core';
+import { Component, computed, Inject, Input } from '@angular/core';
 import {
   AbstractControl,
   ControlContainer,
   FormGroupDirective,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { BuilderService } from '../../services/builder-service';
+import { FormRepoLocal } from '../../services/form-repo-local';
 import { CommonModule } from '@angular/common';
 import { LABEL_MAX_LENGTH } from '../../models/field-types';
+import { IFormRepo } from '../../services/form-repo';
+import { FORM_REPO } from '../../app.config';
 
 @Component({
   selector: 'app-builder-prop-label',
@@ -28,10 +30,10 @@ export class BuilderPropLabel {
 
   constructor(
     public controlContainer: ControlContainer,
-    private builderService: BuilderService,
+    @Inject(FORM_REPO) private formRepo: IFormRepo,
   ) {
-    this.dragDisabled$ = this.builderService.dragDisabled$;
-    this.showAllErrorMessages$ = this.builderService.showAllErrorMessages$;
+    this.dragDisabled$ = this.formRepo.dragDisabled$;
+    this.showAllErrorMessages$ = this.formRepo.showAllErrorMessages$;
     this.showRequiredError$ = computed(() => {
       if (this.showAllErrorMessages$()) return this.#getControl()?.getError('required');
     });
