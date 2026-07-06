@@ -1,0 +1,21 @@
+<div class="flex items-center gap-3 border-b border-slate-200 px-6 py-3 bg-white shrink-0">
+  <input
+    class="flex-1 text-xl font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
+    [value]="domainStore.activeSpread()?.title ?? ''"
+    placeholder="Untitled spread"
+    (input)="onTitleInput($event)"
+  />
+  @if (uiStore.spreadSaving()) {
+    <span class="text-sm text-slate-400">Saving…</span>
+  }
+  @if (uiStore.spreadSavingError(); as error) {
+    <span class="text-sm text-red-500">{{ error.message }}</span>
+  }
+  <button
+    class="px-4 py-1.5 rounded-md bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 disabled:opacity-50 transition-colors"
+    [disabled]="uiStore.spreadSaving()"
+    (click)="domainStore.saveSpread()"
+  >
+    Save
+  </button>
+</div>

@@ -1,0 +1,16 @@
+<div class="flex flex-col gap-1">
+  @for (spread of domainStore.spreadsMetaData(); track spread.id) {
+    <button
+      type="button"
+      class="w-full text-left px-3 py-2 rounded-md text-sm transition-colors truncate"
+      [ngClass]="domainStore.activeSpread()?.id === spread.id
+        ? 'bg-violet-50 text-violet-700 font-medium'
+        : 'text-slate-700 hover:bg-slate-100'"
+      (click)="domainStore.loadSpread(spread.id)"
+    >
+      {{ spread.title || 'Untitled spread' }}
+    </button>
+  } @empty {
+    <p class="text-xs text-slate-400 px-3">No spreads yet</p>
+  }
+</div>

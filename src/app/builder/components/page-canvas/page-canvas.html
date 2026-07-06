@@ -1,0 +1,108 @@
+<div class="flex flex-col flex-1 overflow-hidden">
+  <!-- Page tabs -->
+  <div class="flex items-center gap-1 px-6 pt-3 border-b border-slate-200 bg-white shrink-0">
+    @for (page of domainStore.activeSpread()?.pages; track page.id; let i = $index) {
+      <button
+        class="px-4 py-2 text-sm border-b-2 transition-colors -mb-px"
+        [class.border-violet-600]="domainStore.activePageIdx() === i"
+        [class.text-violet-700]="domainStore.activePageIdx() === i"
+        [class.font-medium]="domainStore.activePageIdx() === i"
+        [class.border-transparent]="domainStore.activePageIdx() !== i"
+        [class.text-slate-500]="domainStore.activePageIdx() !== i"
+        (click)="setActivePage(i)"
+      >
+        {{ page.title || 'Page ' + (i + 1) }}
+      </button>
+    }
+    <button
+      class="px-3 py-2 text-sm text-slate-400 hover:text-violet-600 transition-colors -mb-px border-b-2 border-transparent"
+      (click)="domainStore.addPage()"
+    >
+      + Add Page
+    </button>
+  </div>
+
+  <!-- Canvas body -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Elements list -->
+    <div class="flex-1 overflow-auto p-6">
+      @if (domainStore.activePage(); as page) {
+        <div class="flex flex-col gap-2 max-w-2xl">
+          @for (element of page.elements; track element.id) {
+            @if (element.type === 'question') {
+              <div
+                class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors"
+                [class.border-violet-400]="selectedElementId() === element.id"
+                [class.bg-violet-50]="selectedElementId() === element.id"
+                [class.border-slate-200]="selectedElementId() !== element.id"
+                (click)="selectElement(element.id)"
+              >
+                <span
+                  class="shrink-0 text-xs font-mono px-2 py-0.5 bg-slate-100 text-slate-500 rounded"
+                >
+                  {{ element.el.htmlType }}
+                </span>
+                <span class="text-sm text-slate-700 truncate">
+                  {{ element.el.label || 'Untitled question' }}
+                </span>
+              </div>
+            } @else if (element.type === 'note') {
+              <div
+                class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors"
+                [class.border-violet-400]="selectedElementId() === element.id"
+                [class.bg-violet-50]="selectedElementId() === element.id"
+                [class.border-slate-200]="selectedElementId() !== element.id"
+                (click)="selectElement(element.id)"
+              >
+                <span
+                  class="shrink-0 text-xs font-mono px-2 py-0.5 bg-amber-100 text-amber-600 rounded"
+                >
+                  note
+                </span>
+                <span class="text-sm text-slate-500 italic truncate">
+                  {{ element.el.value || 'Empty note' }}
+                </span>
+              </div>
+            }
+          } @empty {
+            <p class="text-sm text-slate-400 py-2">No elements yet.</p>
+          }
+
+          <div class="mt-2 flex gap-2">
+            <button
+              class="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-violet-400 hover:text-violet-600 transition-colors"
+              (click)="addQuestion()"
+            >
+              + Add Question
+            </button>
+            <button
+              class="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-amber-400 hover:text-amber-600 transition-colors"
+              (click)="addNote()"
+            >
+              + Add Note
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="flex flex-col items-start gap-3 py-2">
+          <p class="text-sm text-slate-400">No pages yet.</p>
+          <button
+            class="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-violet-400 hover:text-violet-600 transition-colors"
+            (click)="domainStore.addPage()"
+          >
+            + Add First Page
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Element editor panel -->
+    @if (selectedElement(); as element) {
+      @if (element.type === 'question') {
+        <app-question-editor [element]="element" />
+      } @else if (element.type === 'note') {
+        <app-note-editor [element]="element" />
+      }
+    }
+  </div>
+</div>
