@@ -2,6 +2,7 @@
 
 /src/app/unused
 .env
+extra.ts
 
 # Compiled output
 /dist

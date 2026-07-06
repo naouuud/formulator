@@ -1,7 +1,0 @@
-<!-- <div class="block text-md font-medium text-gray-900 my-2">GroupLabel</div> -->
-@for (field of group.fields; track $index) {
-  <div class="mb-4">
-    <!-- No group labels, fix top level -->
-    <app-renderer-field [field]="field" [formGroupIn]="formGroupIn" [topLevel]="false" />
-  </div>
-}
