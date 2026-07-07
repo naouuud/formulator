@@ -22,4 +22,8 @@ export class SpreadHeader {
       this.domainStore.saveSpread(spread);
     }
   }
+
+  protected toggleJsonViewer(): void {
+    this.uiStore.toggleJsonViewer();
+  }
 }

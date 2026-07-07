@@ -1,7 +1,8 @@
 <div class="flex h-screen bg-slate-50 font-sans">
-
   <!-- Sidebar -->
-  <div class="w-64 shrink-0 border-r border-slate-200 bg-white flex flex-col gap-4 p-4 overflow-auto">
+  <div
+    class="w-64 shrink-0 border-r border-slate-200 bg-white flex flex-col gap-4 p-4 overflow-auto"
+  >
     <app-create-spread />
     <app-metadata-list />
   </div>
@@ -10,12 +11,15 @@
   <div class="flex-1 flex flex-col overflow-hidden">
     @if (domainStore.activeSpread()) {
       <app-spread-header />
-      <app-page-canvas class="flex flex-col flex-1 overflow-hidden" />
+      @if (uiStore.showJsonViewer()) {
+        <app-json-viewer class="flex flex-1 overflow-hidden" />
+      } @else {
+        <app-page-canvas class="flex flex-col flex-1 overflow-hidden" />
+      }
     } @else {
       <div class="flex-1 flex items-center justify-center">
         <p class="text-slate-400 text-sm">Select a spread or create a new one</p>
       </div>
     }
   </div>
-
 </div>

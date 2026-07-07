@@ -12,6 +12,18 @@
     <span class="text-sm text-red-500">{{ error.message }}</span>
   }
   <button
+    class="px-4 py-1.5 rounded-md border text-sm font-medium transition-colors"
+    [class.border-violet-300]="uiStore.showJsonViewer()"
+    [class.bg-violet-50]="uiStore.showJsonViewer()"
+    [class.text-violet-700]="uiStore.showJsonViewer()"
+    [class.border-slate-200]="!uiStore.showJsonViewer()"
+    [class.text-slate-600]="!uiStore.showJsonViewer()"
+    [class.hover:bg-slate-50]="!uiStore.showJsonViewer()"
+    (click)="toggleJsonViewer()"
+  >
+    JSON
+  </button>
+  <button
     class="px-4 py-1.5 rounded-md bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 disabled:opacity-50 transition-colors"
     [disabled]="uiStore.spreadSaving()"
     (click)="saveSpread()"
