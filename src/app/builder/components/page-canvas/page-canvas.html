@@ -1,31 +1,44 @@
-<div class="flex flex-col flex-1 overflow-hidden">
+<div class="flex flex-1 overflow-hidden">
+  <!-- Left column: tabs + canvas -->
+  <div class="flex flex-col flex-1 overflow-hidden">
   <!-- Page tabs -->
   <div class="flex items-center gap-1 px-6 pt-3 border-b border-slate-200 bg-white shrink-0">
     @for (page of domainStore.activeSpread()?.pages; track page.id; let i = $index) {
-      <button
-        class="px-4 py-2 text-sm border-b-2 transition-colors -mb-px"
+      <div
+        class="group flex items-center border-b-2 -mb-px transition-colors"
         [class.border-violet-600]="domainStore.activePageIdx() === i"
-        [class.text-violet-700]="domainStore.activePageIdx() === i"
-        [class.font-medium]="domainStore.activePageIdx() === i"
         [class.border-transparent]="domainStore.activePageIdx() !== i"
-        [class.text-slate-500]="domainStore.activePageIdx() !== i"
-        (click)="setActivePage(i)"
       >
-        {{ page.title || 'Page ' + (i + 1) }}
-      </button>
+        <button
+          class="px-3 py-2 text-sm transition-colors"
+          [class.text-violet-700]="domainStore.activePageIdx() === i"
+          [class.font-medium]="domainStore.activePageIdx() === i"
+          [class.text-slate-500]="domainStore.activePageIdx() !== i"
+          (click)="setActivePage(i)"
+        >
+          {{ page.title || 'Page ' + (i + 1) }}
+        </button>
+        @if ((domainStore.activeSpread()?.pages?.length ?? 0) > 1) {
+          <button
+            class="mr-1 w-4 h-4 flex items-center justify-center rounded text-slate-300 hover:text-slate-500 hover:bg-slate-50 opacity-0 group-hover:opacity-100 transition-all text-xs"
+            (click)="deletePage(page.id)"
+            title="Delete page"
+          >
+            ✕
+          </button>
+        }
+      </div>
     }
     <button
       class="px-3 py-2 text-sm text-slate-400 hover:text-violet-600 transition-colors -mb-px border-b-2 border-transparent"
-      (click)="domainStore.addPage()"
+      (click)="addPage()"
     >
       + Add Page
     </button>
   </div>
 
   <!-- Canvas body -->
-  <div class="flex flex-1 overflow-hidden">
-    <!-- Elements list -->
-    <div class="flex-1 overflow-auto p-6">
+  <div class="flex-1 overflow-auto p-6">
       @if (domainStore.activePage(); as page) {
         <div class="flex flex-col gap-2 max-w-2xl">
           @for (element of page.elements; track element.id) {
@@ -69,17 +82,66 @@
           }
 
           <div class="mt-2 flex gap-2">
-            <button
-              class="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-violet-400 hover:text-violet-600 transition-colors"
-              (click)="addQuestion()"
-            >
-              + Add Question
-            </button>
+            <!-- Add Question button with type picker -->
+            <div class="relative">
+              <button
+                class="flex items-center gap-2 px-4 py-2 border-2 border-dashed rounded-lg text-sm transition-colors"
+                [class.border-violet-400]="showTypePicker()"
+                [class.text-violet-600]="showTypePicker()"
+                [class.bg-violet-50]="showTypePicker()"
+                [class.border-slate-300]="!showTypePicker()"
+                [class.text-slate-500]="!showTypePicker()"
+                [class.hover:border-violet-400]="!showTypePicker()"
+                [class.hover:text-violet-600]="!showTypePicker()"
+                (click)="toggleTypePicker()"
+              >
+                Add Question
+                <svg
+                  class="w-3.5 h-3.5 transition-transform"
+                  [class.rotate-180]="showTypePicker()"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+
+              @if (showTypePicker()) {
+                <!-- Backdrop to close on outside click -->
+                <div class="fixed inset-0 z-10" (click)="closeTypePicker()"></div>
+
+                <!-- Dropdown menu -->
+                <div
+                  class="absolute left-0 top-full mt-1.5 z-20 w-52 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+                >
+                  <p
+                    class="px-3 pt-2.5 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-widest"
+                  >
+                    Question type
+                  </p>
+                  @for (option of questionTypeOptions; track option.htmlType) {
+                    <button
+                      class="w-full flex flex-col gap-0.5 px-3 py-2.5 text-left hover:bg-violet-50 transition-colors"
+                      (click)="addQuestionOfType(option.htmlType)"
+                    >
+                      <span class="text-sm font-medium text-slate-700">{{ option.label }}</span>
+                      <span class="text-xs text-slate-400">{{ option.description }}</span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+
             <button
               class="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-amber-400 hover:text-amber-600 transition-colors"
               (click)="addNote()"
             >
-              + Add Note
+              Add Note
             </button>
           </div>
         </div>
@@ -88,21 +150,22 @@
           <p class="text-sm text-slate-400">No pages yet.</p>
           <button
             class="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-violet-400 hover:text-violet-600 transition-colors"
-            (click)="domainStore.addPage()"
+            (click)="addPage()"
           >
             + Add First Page
           </button>
         </div>
       }
     </div>
-
-    <!-- Element editor panel -->
-    @if (selectedElement(); as element) {
-      @if (element.type === 'question') {
-        <app-question-editor [element]="element" />
-      } @else if (element.type === 'note') {
-        <app-note-editor [element]="element" />
-      }
-    }
   </div>
+  <!-- /Left column -->
+
+  <!-- Element editor panel: full height alongside the left column -->
+  @if (selectedElement(); as element) {
+    @if (element.type === 'question') {
+      <app-question-editor [element]="element" />
+    } @else if (element.type === 'note') {
+      <app-note-editor [element]="element" />
+    }
+  }
 </div>

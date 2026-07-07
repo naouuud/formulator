@@ -1,15 +1,18 @@
-import { newOptionList, OptionList } from './option';
+import { Option } from './option';
 import { RichText } from './rich-text';
 import { Validators } from './validators';
 
 export type HTMLType =
   | 'text'
   | 'select'
+  | 'radio'
   | 'checkbox'
   | 'date'
   | 'date_time'
   | 'calendar_date'
   | 'clock_time';
+
+export type OptionValueType = 'string' | 'number' | 'boolean';
 
 interface BaseQuestion {
   label: RichText;
@@ -17,25 +20,33 @@ interface BaseQuestion {
   validators: Validators;
 }
 
+export type OptionsQuestion = BaseQuestion & {
+  htmlType: 'select' | 'radio' | 'checkbox';
+  optionValueType: OptionValueType;
+  options: Option[];
+};
+
 export type Question =
   | (BaseQuestion & {
       htmlType: 'text' | 'date' | 'date_time' | 'calendar_date' | 'clock_time';
     })
-  | (BaseQuestion & {
-      htmlType: 'select' | 'checkbox';
-      optionList: OptionList;
-    });
+  | OptionsQuestion;
+
+export function isOptionsQuestion(q: Question): q is OptionsQuestion {
+  return 'options' in q;
+}
 
 export const newQuestion = (htmlType: HTMLType): Question => {
   const validators: Validators = {
     required: true,
   };
-  if (htmlType === 'select' || htmlType === 'checkbox') {
+  if (htmlType === 'select' || htmlType === 'radio' || htmlType === 'checkbox') {
     return {
       label: '',
       htmlType,
       validators,
-      optionList: newOptionList(),
+      optionValueType: 'string',
+      options: [] as Option[],
     };
   } else {
     return {

@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { ENV } from '../../app/env';
 import { Spread, SpreadMetaData, toMetaData } from '../../domain/model/spread';
+import { newPage } from '../../domain/model/page';
 
 let mockSpreads: Spread[] = [
   {
@@ -10,7 +11,7 @@ let mockSpreads: Spread[] = [
     title: 'Cyberpunk 2077 Survey',
     version: 0,
     ectm: null,
-    pages: [],
+    pages: [newPage()],
     createdAt: new Date('2026-07-04T22:25:09.661Z'),
     lastModifiedAt: new Date('2026-07-04T22:25:09.661Z'),
   },
@@ -19,7 +20,7 @@ let mockSpreads: Spread[] = [
     title: 'Paradise Killer Survey',
     version: 0,
     ectm: null,
-    pages: [],
+    pages: [newPage()],
     createdAt: new Date('2026-07-04T22:25:09.830Z'),
     lastModifiedAt: new Date('2026-07-04T22:25:09.830Z'),
   },
@@ -28,7 +29,7 @@ let mockSpreads: Spread[] = [
     title: 'Sayonara Wildhearts Survey',
     version: 0,
     ectm: null,
-    pages: [],
+    pages: [newPage()],
     createdAt: new Date('2026-07-04T22:25:10.027Z'),
     lastModifiedAt: new Date('2026-07-04T22:25:10.027Z'),
   },
@@ -37,7 +38,7 @@ let mockSpreads: Spread[] = [
     title: 'CrossCode Survey',
     version: 0,
     ectm: null,
-    pages: [],
+    pages: [newPage()],
     createdAt: new Date('2026-07-04T22:25:10.231Z'),
     lastModifiedAt: new Date('2026-07-04T22:25:10.231Z'),
   },

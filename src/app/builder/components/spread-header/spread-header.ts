@@ -15,4 +15,11 @@ export class SpreadHeader {
     const value = (event.target as HTMLInputElement).value;
     this.domainStore.updateSpreadTitle(value);
   }
+
+  protected saveSpread(): void {
+    const spread = this.domainStore.activeSpread();
+    if (spread) {
+      this.domainStore.saveSpread(spread);
+    }
+  }
 }
