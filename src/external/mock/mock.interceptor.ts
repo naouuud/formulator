@@ -90,5 +90,16 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
     return of(new HttpResponse({ status: 404, body: null }));
   }
 
+  // DELETE /spreads/:id
+  if (req.method === 'DELETE' && url.startsWith('/spreads/')) {
+    const id = url.slice('/spreads/'.length);
+    const exists = mockSpreads.some((spread) => spread.id === id);
+    if (exists) {
+      mockSpreads = mockSpreads.filter((spread) => spread.id !== id);
+      return of(new HttpResponse({ status: 204, body: null })).pipe(delay(1500));
+    }
+    return of(new HttpResponse({ status: 404, body: null }));
+  }
+
   return next(req);
 };

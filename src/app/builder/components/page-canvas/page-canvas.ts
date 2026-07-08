@@ -1,8 +1,9 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { HTMLType } from '../../../../domain/model/question';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { NoteEditor } from '../note-editor/note-editor';
 import { QuestionEditor } from '../question-editor/question-editor';
+import { UiStore } from '../../../../ui/store/ui-store';
 
 export type QuestionTypeOption = {
   htmlType: HTMLType;
@@ -14,6 +15,7 @@ const QUESTION_TYPE_OPTIONS: QuestionTypeOption[] = [
   { htmlType: 'text', label: 'Text', description: 'Free-form text answer' },
   { htmlType: 'select', label: 'Select', description: 'Dropdown with one choice' },
   { htmlType: 'radio', label: 'Radio', description: 'Radio buttons, one choice' },
+  { htmlType: 'checkbox', label: 'Checkbox', description: 'Checkboxes, multiple choices' },
 ];
 
 @Component({
@@ -23,26 +25,17 @@ const QUESTION_TYPE_OPTIONS: QuestionTypeOption[] = [
 })
 export class PageCanvas {
   protected readonly domainStore = inject(DomainStore);
-  protected readonly selectedElementId = signal<string | null>(null);
+  protected readonly uiStore = inject(UiStore);
   protected readonly showTypePicker = signal(false);
   protected readonly questionTypeOptions = QUESTION_TYPE_OPTIONS;
-  private readonly activeSpreadId = computed(() => this.domainStore.activeSpread()?.id);
-
   protected readonly selectedElement = computed(() => {
-    const id = this.selectedElementId();
+    const id = this.uiStore.selectedElementId();
     if (!id) return null;
     return this.domainStore.activePage()?.elements.find((e) => e.id === id) ?? null;
   });
 
-  constructor() {
-    effect(() => {
-      this.activeSpreadId();
-      this.selectedElementId.set(null);
-    });
-  }
-
   protected setActivePage(idx: number): void {
-    this.selectedElementId.set(null);
+    this.uiStore.clearSelectedElementId();
     this.domainStore.setActivePage(idx);
   }
 
@@ -61,11 +54,16 @@ export class PageCanvas {
   }
 
   protected selectElement(id: string): void {
-    this.selectedElementId.update((current) => (current === id ? null : id));
+    if (this.uiStore.selectedElementId() === id) this.uiStore.clearSelectedElementId();
+    else this.uiStore.setSelectedElementId(id);
   }
 
   protected toggleTypePicker(): void {
     this.showTypePicker.update((v) => !v);
+  }
+
+  protected closeTypePicker(): void {
+    this.showTypePicker.set(false);
   }
 
   protected addQuestionOfType(htmlType: HTMLType): void {
@@ -74,19 +72,21 @@ export class PageCanvas {
     this.selectLastElement();
   }
 
-  protected closeTypePicker(): void {
-    this.showTypePicker.set(false);
-  }
-
   protected addNote(): void {
     this.domainStore.addElement({ elementType: 'note' });
     this.selectLastElement();
   }
 
+  protected deleteElement(elementId: string, event: Event): void {
+    event.stopPropagation();
+    this.domainStore.deleteElement(elementId);
+    if (this.uiStore.selectedElementId() === elementId) this.uiStore.clearSelectedElementId();
+  }
+
   private selectLastElement(): void {
     const elements = this.domainStore.activePage()?.elements;
     if (elements?.length) {
-      this.selectedElementId.set(elements[elements.length - 1].id);
+      this.uiStore.setSelectedElementId(elements[elements.length - 1].id);
     }
   }
 }

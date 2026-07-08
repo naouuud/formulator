@@ -9,19 +9,19 @@ import {
   debounceTime,
   EMPTY,
   exhaustMap,
+  finalize,
   Observable,
   pipe,
   switchMap,
   tap,
 } from 'rxjs';
 import { SpreadService } from '../../external/api/spread.service';
+import { UiStore } from '../../ui/store/ui-store';
 import { CreateElementParams, newElement } from '../model/element';
 import { newOption } from '../model/option';
 import { newPage } from '../model/page';
 import { Spread, SpreadMetaData, toMetaData, updateMetaData } from '../model/spread';
 import { User } from '../model/user';
-import { UiStore } from '../../ui/store/ui-store';
-import { isOptionsQuestion } from '../model/question';
 
 type DomainState = {
   user: User | null;
@@ -163,6 +163,28 @@ export const DomainStore = signalStore(
           concatMap((spread) => performSave(spread)),
         ),
       ),
+      deleteSpread: rxMethod<string>(
+        pipe(
+          tap(() => uiStore.clearDeleteSpreadError()),
+          exhaustMap((id) => {
+            uiStore.startDeletingSpread(id);
+            return spreadService.delete(id).pipe(
+              tap(() => {
+                const isActive = store.activeSpread()?.id === id;
+                patchState(store, {
+                  spreadsMetaData: store.spreadsMetaData().filter((m) => m.id !== id),
+                  ...(isActive ? { activeSpread: null, activePageIdx: 0 } : {}),
+                });
+              }),
+              catchError((err: HttpErrorResponse) => {
+                uiStore.setDeleteSpreadError(err.message, String(err.status));
+                return EMPTY;
+              }),
+              finalize(() => uiStore.stopDeletingSpread()),
+            );
+          }),
+        ),
+      ),
       updateSpreadTitle(title: string): void {
         if (!store.activeSpread()) return;
         patchState(
@@ -210,16 +232,18 @@ export const DomainStore = signalStore(
         );
         triggerAutoSave(store.activeSpread()!);
       },
-      deletePage(id: string) {
+      deletePage(pageId: string): void {
         if (!store.activeSpread()) return;
+        let changed = false;
         patchState(
           store,
           produce<DomainState>((draft) => {
-            const updated = draft.activeSpread!.pages.filter((p) => p.id !== id);
-            draft.activeSpread!.pages = updated;
+            const before = draft.activeSpread!.pages.length;
+            draft.activeSpread!.pages = draft.activeSpread!.pages.filter((p) => p.id !== pageId);
+            changed = draft.activeSpread!.pages.length !== before;
           }),
         );
-        triggerAutoSave(store.activeSpread()!);
+        if (changed) triggerAutoSave(store.activeSpread()!);
       },
       addElement(params: CreateElementParams): void {
         if (!store.activeSpread()) return;
@@ -232,6 +256,20 @@ export const DomainStore = signalStore(
           }),
         );
         triggerAutoSave(store.activeSpread()!);
+      },
+      deleteElement(elementId: string): void {
+        if (!store.activeSpread()) return;
+        let changed = false;
+        patchState(
+          store,
+          produce<DomainState>((draft) => {
+            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const before = page.elements.length;
+            page.elements = page.elements.filter((e) => e.id !== elementId);
+            changed = page.elements.length !== before;
+          }),
+        );
+        if (changed) triggerAutoSave(store.activeSpread()!);
       },
       addOption(elementId: string, label: string, value: string | number | boolean): void {
         const trimmedLabel = label.trim();
@@ -253,7 +291,11 @@ export const DomainStore = signalStore(
                     ? Boolean(value)
                     : String(value).trim();
 
-              if (options.some((o) => o.value === coercedValue)) return;
+              if (
+                options.some((o) => o.value === coercedValue) ||
+                options.some((o) => o.label === trimmedLabel)
+              )
+                return;
 
               options.push(newOption(trimmedLabel, coercedValue));
               added = true;
@@ -278,6 +320,67 @@ export const DomainStore = signalStore(
           }),
         );
         if (deleted) triggerAutoSave(store.activeSpread()!);
+      },
+      editOption(
+        elementId: string,
+        optionId: string,
+        label: string,
+        value: string | number | boolean,
+      ) {
+        const trimmedLabel = label.trim();
+        if (!trimmedLabel || !store.activeSpread()) return;
+
+        let changed = false;
+        patchState(
+          store,
+          produce<DomainState>((draft) => {
+            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const element = page.elements.find((e) => e.id === elementId);
+            if (element?.type === 'question' && 'options' in element.el) {
+              const { optionValueType, options } = element.el;
+
+              const coercedValue =
+                optionValueType === 'number'
+                  ? Number(value)
+                  : optionValueType === 'boolean'
+                    ? Boolean(value)
+                    : String(value).trim();
+
+              const existing = options.find((o) => o.id === optionId);
+              if (!existing) return;
+
+              if (existing.label === trimmedLabel && existing.value === coercedValue) return;
+
+              if (
+                options.some((o) => o.id !== optionId && o.value === coercedValue) ||
+                options.some((o) => o.id !== optionId && o.label === trimmedLabel)
+              )
+                return;
+
+              element.el.options = options.map((o) =>
+                o.id === optionId ? { ...o, label: trimmedLabel, value: coercedValue } : o,
+              );
+              changed = true;
+            }
+          }),
+        );
+        if (changed) triggerAutoSave(store.activeSpread()!);
+      },
+      setValidatorRequired(elementId: string, value: boolean) {
+        if (!store.activeSpread()) return;
+        let changed = false;
+        patchState(
+          store,
+          produce<DomainState>((draft) => {
+            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const element = page.elements.find((e) => e.id === elementId);
+            if (element?.type === 'question' && element.el.validators.required !== value) {
+              element.el.validators.required = value;
+              changed = true;
+            }
+          }),
+        );
+        if (changed) triggerAutoSave(store.activeSpread()!);
       },
     };
   }),

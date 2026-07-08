@@ -20,7 +20,10 @@ export class BuilderParent {
   constructor() {
     effect(() => {
       this.activeSpreadId();
-      untracked(() => this.uiStore.closeJsonViewer());
+      untracked(() => {
+        this.uiStore.closeJsonViewer();
+        this.uiStore.clearSelectedElementId();
+      });
     });
   }
 }

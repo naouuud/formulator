@@ -25,5 +25,24 @@
         (input)="onLabelInput($event)"
       />
     </div>
+
+    <div class="flex items-center justify-between gap-3">
+      <label class="text-xs font-medium text-slate-500" for="question-required">Required</label>
+      <button
+        id="question-required"
+        type="button"
+        role="switch"
+        [attr.aria-checked]="requiredValue()"
+        class="relative w-10 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
+        [class.bg-violet-600]="requiredValue()"
+        [class.bg-slate-200]="!requiredValue()"
+        (click)="toggleRequired()"
+      >
+        <span
+          class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform"
+          [class.translate-x-4]="requiredValue()"
+        ></span>
+      </button>
+    </div>
   </div>
 </div>
