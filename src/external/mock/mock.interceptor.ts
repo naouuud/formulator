@@ -1,9 +1,9 @@
 import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
 import { ENV } from '../../app/env';
-import { Spread, SpreadMetaData, toMetaData } from '../../domain/model/spread';
 import { newPage } from '../../domain/model/page';
+import { Spread, SpreadMetaData, toMetaData } from '../../domain/model/spread';
+import { spreadNotFound, versionConflict } from '../api/problem-detail';
 
 let mockSpreads: Spread[] = [
   {
@@ -49,7 +49,7 @@ const newMockSpread = (): Spread => ({
   title: '',
   version: 0,
   ectm: null,
-  pages: [],
+  pages: [newPage()],
   createdAt: new Date(),
   lastModifiedAt: new Date(),
 });
@@ -67,8 +67,10 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.method === 'GET' && url.startsWith('/spreads/')) {
     const id = url.slice('/spreads/'.length);
     const spread = mockSpreads.find((s) => s.id === id);
-    const status = spread ? 200 : 404;
-    return of(new HttpResponse({ status, body: spread ?? null }));
+    if (!spread) {
+      return of(new HttpResponse({ status: 404, body: spreadNotFound(id) }));
+    }
+    return of(new HttpResponse({ status: 200, body: spread }));
   }
 
   // POST /spreads
@@ -80,14 +82,24 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
 
   // PUT /spreads/:id
   if (req.method === 'PUT' && url.startsWith('/spreads/')) {
-    const updated = req.body as Spread;
     const id = url.slice('/spreads/'.length);
-    const exists = mockSpreads.some((spread) => spread.id === id);
-    if (exists) {
+    const existing = mockSpreads.find((spread) => spread.id === id);
+    if (existing) {
+      const updated = { ...(req.body as Spread) };
+      if (updated.version !== existing.version) {
+        return of(
+          new HttpResponse({
+            status: 409,
+            body: versionConflict(updated.version, existing.version),
+          }),
+        );
+      }
+      updated.version = existing.version + 1;
+      updated.lastModifiedAt = new Date();
       mockSpreads = mockSpreads.map((spread) => (spread.id === id ? updated : spread));
-      return of(new HttpResponse({ status: 200, body: updated })).pipe(delay(1500));
+      return of(new HttpResponse({ status: 200, body: updated }));
     }
-    return of(new HttpResponse({ status: 404, body: null }));
+    return of(new HttpResponse({ status: 404, body: spreadNotFound(id) }));
   }
 
   // DELETE /spreads/:id
@@ -96,9 +108,9 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
     const exists = mockSpreads.some((spread) => spread.id === id);
     if (exists) {
       mockSpreads = mockSpreads.filter((spread) => spread.id !== id);
-      return of(new HttpResponse({ status: 204, body: null })).pipe(delay(1500));
+      return of(new HttpResponse({ status: 204, body: null }));
     }
-    return of(new HttpResponse({ status: 404, body: null }));
+    return of(new HttpResponse({ status: 404, body: spreadNotFound(id) }));
   }
 
   return next(req);

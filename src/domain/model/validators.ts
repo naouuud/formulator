@@ -1,6 +1,6 @@
 export type Validators = {
   required: boolean;
-  pattern?: RegExp;
+  pattern?: string;
   maxLengthChar?: number;
   maxLengthWord?: number;
 };

@@ -1,0 +1,33 @@
+export type ProblemDetailCode = 'SPREAD_NOT_FOUND' | 'VERSION_CONFLICT';
+
+export type ProblemDetail = {
+  status: number;
+  title: string;
+  detail?: string;
+  code: ProblemDetailCode;
+};
+
+export type VersionConflictDetail = ProblemDetail & {
+  code: 'VERSION_CONFLICT';
+  expectedVersion: number;
+  actualVersion: number;
+};
+
+export const spreadNotFound = (id: string): ProblemDetail => ({
+  status: 404,
+  title: 'Spread not found',
+  detail: `No spread exists with id ${id}.`,
+  code: 'SPREAD_NOT_FOUND',
+});
+
+export const versionConflict = (
+  expectedVersion: number,
+  actualVersion: number,
+): VersionConflictDetail => ({
+  status: 409,
+  title: 'Version conflict',
+  detail: `Expected version ${expectedVersion} but found ${actualVersion}.`,
+  code: 'VERSION_CONFLICT',
+  expectedVersion,
+  actualVersion,
+});

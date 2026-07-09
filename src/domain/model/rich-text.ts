@@ -1,1 +1,1 @@
-export type RichText = {};
+export type RichText = string;

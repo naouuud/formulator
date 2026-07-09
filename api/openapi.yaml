@@ -1,0 +1,420 @@
+openapi: 3.1.0
+info:
+  title: Formulator Spreads API
+  version: 0.0.0
+  description: |
+    REST API contract for the Formulator form builder application.
+
+    This specification is derived from the Angular client (`SpreadService`) and the
+    mock HTTP interceptor that simulates the backend during local development.
+
+servers:
+  - url: http://localhost:8080
+    description: Local development backend
+
+tags:
+  - name: Spreads
+    description: CRUD operations for form/survey spreads
+
+paths:
+  /spreads:
+    get:
+      tags:
+        - Spreads
+      operationId: listSpreads
+      summary: List spread metadata
+      description: Returns metadata for all spreads without the full page/element tree.
+      responses:
+        '200':
+          description: List of spread metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpreadMetaDataDto'
+
+    post:
+      tags:
+        - Spreads
+      operationId: createSpread
+      summary: Create a new spread
+      description: |
+        Creates a new empty spread with a generated UUID, default title, version 0,
+        one empty page, and current timestamps.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              description: Empty object; no input fields are required.
+      responses:
+        '201':
+          description: Spread created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpreadDto'
+
+  /spreads/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SpreadId'
+
+    get:
+      tags:
+        - Spreads
+      operationId: getSpreadById
+      summary: Get spread by ID
+      description: Returns the full spread including pages and elements.
+      responses:
+        '200':
+          description: Spread found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpreadDto'
+        '404':
+          $ref: '#/components/responses/SpreadNotFound'
+
+    put:
+      tags:
+        - Spreads
+      operationId: updateSpread
+      summary: Update spread
+      description: |
+        Replaces a spread by ID. Used for auto-save.
+
+        Optimistic concurrency is enforced via the `version` field: the request body
+        must carry the current version. On success the server increments `version`
+        and updates `lastModifiedAt`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpreadDto'
+      responses:
+        '200':
+          description: Spread updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpreadDto'
+        '404':
+          $ref: '#/components/responses/SpreadNotFound'
+        '409':
+          $ref: '#/components/responses/VersionConflict'
+
+    delete:
+      tags:
+        - Spreads
+      operationId: deleteSpread
+      summary: Delete spread
+      responses:
+        '204':
+          description: Spread deleted
+        '404':
+          $ref: '#/components/responses/SpreadNotFound'
+
+components:
+  responses:
+    SpreadNotFound:
+      description: Spread not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          examples:
+            spreadNotFound:
+              value:
+                status: 404
+                title: Spread not found
+                detail: No spread exists with id 00000000-0000-0000-0000-000000000000.
+                code: SPREAD_NOT_FOUND
+
+    VersionConflict:
+      description: Version conflict — the spread was modified since the client last read it
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/VersionConflictDetail'
+          examples:
+            versionConflict:
+              value:
+                status: 409
+                title: Version conflict
+                detail: Expected version 2 but found 3.
+                code: VERSION_CONFLICT
+                expectedVersion: 2
+                actualVersion: 3
+
+  parameters:
+    SpreadId:
+      name: id
+      in: path
+      required: true
+      description: Spread UUID
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    SpreadMetaDataDto:
+      type: object
+      required:
+        - id
+        - title
+        - createdAt
+        - lastModifiedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        lastModifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    SpreadDto:
+      allOf:
+        - $ref: '#/components/schemas/SpreadMetaDataDto'
+        - type: object
+          required:
+            - version
+            - ectm
+            - pages
+          properties:
+            version:
+              type: integer
+              minimum: 0
+              description: Optimistic locking counter; incremented on each successful update.
+            ectm:
+              type: integer
+              nullable: true
+              description: Estimated completion time in minutes.
+            pages:
+              type: array
+              items:
+                $ref: '#/components/schemas/Page'
+
+    Page:
+      type: object
+      required:
+        - id
+        - title
+        - elements
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        elements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Element'
+
+    Element:
+      oneOf:
+        - $ref: '#/components/schemas/NoteElement'
+        - $ref: '#/components/schemas/QuestionElement'
+      discriminator:
+        propertyName: type
+        mapping:
+          note: '#/components/schemas/NoteElement'
+          question: '#/components/schemas/QuestionElement'
+
+    NoteElement:
+      type: object
+      required:
+        - id
+        - type
+        - el
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          const: note
+        el:
+          $ref: '#/components/schemas/Note'
+
+    QuestionElement:
+      type: object
+      required:
+        - id
+        - type
+        - el
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          const: question
+        el:
+          $ref: '#/components/schemas/Question'
+
+    Note:
+      type: object
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          description: Rich text content.
+
+    Question:
+      oneOf:
+        - allOf:
+            - $ref: '#/components/schemas/BaseQuestion'
+            - type: object
+              required:
+                - htmlType
+              properties:
+                htmlType:
+                  type: string
+                  enum:
+                    - text
+                    - date
+                    - date_time
+                    - calendar_date
+                    - clock_time
+        - $ref: '#/components/schemas/OptionsQuestion'
+
+    BaseQuestion:
+      type: object
+      required:
+        - label
+        - htmlType
+        - validators
+      properties:
+        label:
+          type: string
+          description: Rich text label.
+        htmlType:
+          type: string
+          enum:
+            - text
+            - select
+            - radio
+            - checkbox
+            - date
+            - date_time
+            - calendar_date
+            - clock_time
+        validators:
+          $ref: '#/components/schemas/Validators'
+
+    OptionsQuestion:
+      allOf:
+        - $ref: '#/components/schemas/BaseQuestion'
+        - type: object
+          required:
+            - htmlType
+            - optionValueType
+            - options
+          properties:
+            htmlType:
+              type: string
+              enum:
+                - select
+                - radio
+                - checkbox
+            optionValueType:
+              type: string
+              enum:
+                - string
+                - number
+                - boolean
+            options:
+              type: array
+              items:
+                $ref: '#/components/schemas/Option'
+
+    Option:
+      type: object
+      required:
+        - id
+        - label
+        - value
+      properties:
+        id:
+          type: string
+          format: uuid
+        label:
+          type: string
+        value:
+          oneOf:
+            - type: string
+            - type: number
+            - type: boolean
+
+    Validators:
+      type: object
+      required:
+        - required
+      properties:
+        required:
+          type: boolean
+        pattern:
+          type: string
+        maxLengthChar:
+          type: integer
+          minimum: 0
+        maxLengthWord:
+          type: integer
+          minimum: 0
+
+    ProblemDetail:
+      type: object
+      required:
+        - status
+        - title
+        - code
+      properties:
+        status:
+          type: integer
+          description: HTTP status code
+        title:
+          type: string
+          description: Short human-readable summary
+        detail:
+          type: string
+          description: Explanation specific to this occurrence
+        code:
+          type: string
+          enum:
+            - SPREAD_NOT_FOUND
+            - VERSION_CONFLICT
+          description: Machine-readable error code
+
+    VersionConflictDetail:
+      allOf:
+        - $ref: '#/components/schemas/ProblemDetail'
+        - type: object
+          required:
+            - code
+            - expectedVersion
+            - actualVersion
+          properties:
+            code:
+              type: string
+              const: VERSION_CONFLICT
+            expectedVersion:
+              type: integer
+              minimum: 0
+              description: Version sent by the client
+            actualVersion:
+              type: integer
+              minimum: 0
+              description: Current version stored on the server
