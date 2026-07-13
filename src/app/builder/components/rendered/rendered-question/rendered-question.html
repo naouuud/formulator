@@ -1,38 +1,94 @@
 @if (questionElement(); as element) {
   @if (element.el; as question) {
-    <label [for]="element.id">{{ question.label }}</label>
-    @if (!isOptionsQuestion(question)) {
-      @switch (question.htmlType) {
-        @case ('text') {
-          <input type="text" [id]="element.id" />
+    <fieldset class="flex flex-col gap-2.5 border-0 p-0 m-0">
+      <legend class="text-sm font-medium text-slate-700 mb-0.5">
+        {{ question.label || 'Untitled question' }}
+        @if (question.validators.required) {
+          <span class="text-red-500 ml-0.5" aria-hidden="true">*</span>
         }
-      }
-    } @else {
-      @switch (question.htmlType) {
-        @case ('radio') {
-          @for (option of question.options; track option.id) {
-            <label [for]="option.id"
-              ><input type="radio" [name]="element.id" [id]="option.id" [value]="option.value" />
-              {{ option.label }}</label
-            >
+      </legend>
+
+      @if (!isOptionsQuestion(question)) {
+        @switch (question.htmlType) {
+          @case ('text') {
+            <input
+              type="text"
+              [id]="element.id"
+              [name]="element.id"
+              [required]="question.validators.required"
+              placeholder="Your answer"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-colors"
+            />
+          }
+          @default {
+            <p class="text-xs text-slate-400 italic px-1">
+              Preview for “{{ question.htmlType }}” questions is not available yet.
+            </p>
           }
         }
-        @case ('checkbox') {
-          @for (option of question.options; track option.id) {
-            <label [for]="option.id"
-              ><input type="checkbox" [name]="element.id" [id]="option.id" [value]="option.value" />
-              {{ option.label }}</label
-            >
+      } @else {
+        @switch (question.htmlType) {
+          @case ('radio') {
+            <div class="flex flex-col gap-2" role="radiogroup" [attr.aria-required]="question.validators.required">
+              @for (option of question.options; track option.id) {
+                <label
+                  [for]="option.id"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-200 bg-white hover:border-violet-300 hover:bg-violet-50/40 cursor-pointer transition-colors has-[:checked]:border-violet-400 has-[:checked]:bg-violet-50"
+                >
+                  <input
+                    type="radio"
+                    [name]="element.id"
+                    [id]="option.id"
+                    [value]="option.value"
+                    [required]="question.validators.required"
+                    class="accent-violet-600"
+                  />
+                  <span class="text-sm text-slate-700">{{ option.label }}</span>
+                </label>
+              } @empty {
+                <p class="text-xs text-slate-400 italic px-1">No options configured.</p>
+              }
+            </div>
           }
-        }
-        @case ('select') {
-          <select [name]="element.id" [id]="element.id">
-            @for (option of question.options; track option.id) {
-              <option [value]="option.value">{{ option.label }}</option>
+          @case ('checkbox') {
+            <div class="flex flex-col gap-2">
+              @for (option of question.options; track option.id) {
+                <label
+                  [for]="option.id"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-200 bg-white hover:border-violet-300 hover:bg-violet-50/40 cursor-pointer transition-colors has-[:checked]:border-violet-400 has-[:checked]:bg-violet-50"
+                >
+                  <input
+                    type="checkbox"
+                    [name]="option.id"
+                    [id]="option.id"
+                    [value]="option.value"
+                    class="accent-violet-600 rounded"
+                  />
+                  <span class="text-sm text-slate-700">{{ option.label }}</span>
+                </label>
+              } @empty {
+                <p class="text-xs text-slate-400 italic px-1">No options configured.</p>
+              }
+            </div>
+          }
+          @case ('select') {
+            <select
+              [name]="element.id"
+              [id]="element.id"
+              [required]="question.validators.required"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-colors"
+            >
+              <option value="" disabled selected>Select an option</option>
+              @for (option of question.options; track option.id) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            @if (question.options.length === 0) {
+              <p class="text-xs text-slate-400 italic px-1">No options configured.</p>
             }
-          </select>
+          }
         }
       }
-    }
+    </fieldset>
   }
 }

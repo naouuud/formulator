@@ -1,13 +1,11 @@
-@for (element of page().elements; track element.id) {
-  <div class="flex flex-col gap-2">
+<div class="flex flex-col gap-6">
+  @for (element of page().elements; track element.id) {
     @if (element.type === 'note') {
       <app-rendered-note [noteElement]="element" />
-    } @else {
-      @if (element.type === 'question') {
-        <app-rendered-question [questionElement]="element"></app-rendered-question>
-      }
+    } @else if (element.type === 'question') {
+      <app-rendered-question [questionElement]="element" />
     }
-  </div>
-} @empty {
-  <p class="text-sm text-slate-400 py-2">There are no elements on this page.</p>
-}
+  } @empty {
+    <p class="text-sm text-slate-400 text-center py-8">This page has no content yet.</p>
+  }
+</div>

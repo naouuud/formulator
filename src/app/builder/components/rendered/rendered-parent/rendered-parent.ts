@@ -11,11 +11,20 @@ import { RenderedPage } from '../rendered-page/rendered-page';
 export class RenderedParent {
   private readonly uiStore = inject(UiStore);
   protected readonly domainStore = inject(DomainStore);
-  private readonly activeSpread = this.domainStore.activeSpread;
-  private readonly pagesLength = computed(() => this.activeSpread()?.pages.length ?? 0);
+  protected readonly activeSpread = this.domainStore.activeSpread;
+  protected readonly pagesLength = computed(() => this.activeSpread()?.pages.length ?? 0);
 
   protected readonly activePageIdx = signal<number>(0);
   protected readonly activePage = computed(() => this.activeSpread()?.pages[this.activePageIdx()]);
+  protected readonly spreadTitle = computed(() => this.activeSpread()?.title || 'Untitled spread');
+  protected readonly pageNumber = computed(() => this.activePageIdx() + 1);
+  protected readonly hasMultiplePages = computed(() => this.pagesLength() > 1);
+  protected readonly isFirstPage = computed(() => this.activePageIdx() <= 0);
+  protected readonly isLastPage = computed(() => this.activePageIdx() >= this.pagesLength() - 1);
+  protected readonly pageTitle = computed(() => {
+    const page = this.activePage();
+    return page?.title?.trim() || `Page ${this.pageNumber()}`;
+  });
 
   protected nextPage(): void {
     if (this.activePageIdx() >= this.pagesLength() - 1) return;
