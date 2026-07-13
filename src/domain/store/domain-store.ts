@@ -1,5 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject } from '@angular/core';
+import {
+  CreateElementParams,
+  newElement,
+  newOption,
+  newPage,
+  Spread,
+  SpreadMetaData,
+  toMetaData,
+  updateMetaData,
+} from '@formulator/schema';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { produce } from 'immer';
@@ -17,10 +27,6 @@ import {
 } from 'rxjs';
 import { SpreadService } from '../../external/api/spread.service';
 import { UiStore } from '../../ui/store/ui-store';
-import { CreateElementParams, newElement } from '../model/element';
-import { newOption } from '../model/option';
-import { newPage } from '../model/page';
-import { Spread, SpreadMetaData, toMetaData, updateMetaData } from '../model/spread';
 import { User } from '../model/user';
 
 type DomainState = {

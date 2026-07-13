@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { NoteElement } from '../../../../../domain/model/element';
+import { NoteElement } from '@formulator/schema';
 
 @Component({
   selector: 'app-rendered-note',

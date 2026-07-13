@@ -1,4 +1,4 @@
-import { Spread, SpreadMetaData } from '../../domain/model/spread';
+import { Spread, SpreadMetaData } from '../spread';
 
 type WireDates = {
   readonly createdAt: string | null;

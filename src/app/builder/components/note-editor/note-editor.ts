@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { NoteElement } from '../../../../domain/model/element';
+import { NoteElement } from '@formulator/schema';
 import { DomainStore } from '../../../../domain/store/domain-store';
 
 @Component({

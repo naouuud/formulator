@@ -1,8 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { QuestionElement } from '../../../../domain/model/element';
+import { isOptionsQuestion, QuestionElement } from '@formulator/schema';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { OptionsPanel } from '../options-panel/options-panel';
-import { isOptionsQuestion } from '../../../../domain/model/question';
 
 @Component({
   selector: 'app-question-editor',

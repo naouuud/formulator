@@ -1,5 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { HTMLType } from '../../../../domain/model/question';
+import { HTMLType } from '@formulator/schema';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { NoteEditor } from '../note-editor/note-editor';
 import { QuestionEditor } from '../question-editor/question-editor';

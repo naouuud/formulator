@@ -5,12 +5,14 @@ import { of } from 'rxjs';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SpreadService } from '../../external/api/spread.service';
 import { UiStore } from '../../ui/store/ui-store';
-import { QuestionElement } from '../model/element';
-import { newElement } from '../model/element';
-import { Option } from '../model/option';
-import { newPage } from '../model/page';
-import { isOptionsQuestion } from '../model/question';
-import { Spread } from '../model/spread';
+import {
+  isOptionsQuestion,
+  newElement,
+  newPage,
+  Option,
+  QuestionElement,
+  Spread,
+} from '@formulator/schema';
 import { DomainStore } from './domain-store';
 
 type TestFixtures = {

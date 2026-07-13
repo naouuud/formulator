@@ -1,6 +1,5 @@
 import { Component, input } from '@angular/core';
-import { QuestionElement } from '../../../../../domain/model/element';
-import { isOptionsQuestion } from '../../../../../domain/model/question';
+import { isOptionsQuestion, QuestionElement } from '@formulator/schema';
 
 @Component({
   selector: 'app-rendered-question',

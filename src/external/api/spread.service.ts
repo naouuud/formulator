@@ -2,9 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ENV } from '../../app/env';
-import { Spread, SpreadMetaData } from '../../domain/model/spread';
-import { SpreadDto, SpreadMetaDataDto } from './spread.dto';
-import { parseSpread } from './spread.mapper';
+import {
+  parseSpread,
+  Spread,
+  SpreadDto,
+  SpreadMetaData,
+  SpreadMetaDataDto,
+} from '@formulator/schema';
 
 @Injectable({ providedIn: 'root' })
 export class SpreadService {

@@ -1,4 +1,4 @@
-import { Spread, SpreadMetaData } from '../../domain/model/spread';
+import { Spread, SpreadMetaData } from '../spread';
 import { SpreadDto, SpreadMetaDataDto } from './spread.dto';
 
 export type ParseSpreadResult<T extends SpreadDto | SpreadMetaDataDto> = T extends SpreadDto

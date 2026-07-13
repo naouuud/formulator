@@ -1,7 +1,5 @@
 import { Component, computed, HostListener, inject, input, signal } from '@angular/core';
-import { QuestionElement } from '../../../../domain/model/element';
-import { Option } from '../../../../domain/model/option';
-import { isOptionsQuestion } from '../../../../domain/model/question';
+import { isOptionsQuestion, Option, QuestionElement } from '@formulator/schema';
 import { DomainStore } from '../../../../domain/store/domain-store';
 
 @Component({

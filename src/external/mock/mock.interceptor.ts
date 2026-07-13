@@ -1,8 +1,7 @@
 import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { of } from 'rxjs';
 import { ENV } from '../../app/env';
-import { newPage } from '../../domain/model/page';
-import { Spread, SpreadMetaData, toMetaData } from '../../domain/model/spread';
+import { newPage, Spread, SpreadMetaData, toMetaData } from '@formulator/schema';
 import { spreadNotFound, versionConflict } from '../api/problem-detail';
 
 let mockSpreads: Spread[] = [
