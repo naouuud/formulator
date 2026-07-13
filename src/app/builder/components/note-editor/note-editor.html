@@ -1,12 +1,12 @@
 <div
-  class="w-72 shrink-0 border-l border-slate-200 p-6 flex flex-col gap-5 overflow-auto bg-white h-full"
+  class="w-96 shrink-0 border-l border-slate-200 p-6 flex flex-col gap-5 overflow-auto bg-white h-full"
 >
   <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Edit Note</h3>
   <div class="flex flex-col gap-1.5">
     <label class="text-xs font-medium text-slate-500" for="note-value">Content</label>
     <textarea
       id="note-value"
-      rows="6"
+      rows="10"
       class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-violet-500 transition-colors resize-none"
       placeholder="Enter note text"
       [value]="noteValue()"
