@@ -1,0 +1,13 @@
+@for (element of page().elements; track element.id) {
+  <div class="flex flex-col gap-2">
+    @if (element.type === 'note') {
+      <app-rendered-note [noteElement]="element" />
+    } @else {
+      @if (element.type === 'question') {
+        <app-rendered-question [questionElement]="element"></app-rendered-question>
+      }
+    }
+  </div>
+} @empty {
+  <p class="text-sm text-slate-400 py-2">There are no elements on this page.</p>
+}

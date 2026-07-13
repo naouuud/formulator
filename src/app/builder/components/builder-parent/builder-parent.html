@@ -11,10 +11,14 @@
   <div class="flex-1 flex flex-col overflow-hidden">
     @if (domainStore.activeSpread()) {
       <app-spread-header />
-      @if (uiStore.showJsonViewer()) {
+      @if (uiStore.viewer() === 'json') {
         <app-json-viewer class="flex flex-1 overflow-hidden" />
       } @else {
-        <app-page-canvas class="flex flex-col flex-1 overflow-hidden" />
+        @if (uiStore.viewer() === 'rendered') {
+          <app-rendered-parent></app-rendered-parent>
+        } @else {
+          <app-page-canvas class="flex flex-col flex-1 overflow-hidden" />
+        }
       }
     } @else {
       <div class="flex-1 flex items-center justify-center">

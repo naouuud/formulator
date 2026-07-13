@@ -24,6 +24,20 @@ export class SpreadHeader {
   }
 
   protected toggleJsonViewer(): void {
-    this.uiStore.toggleJsonViewer();
+    const current = this.uiStore.viewer();
+    if (current === 'json') {
+      this.uiStore.closeViewer();
+    } else {
+      this.uiStore.setJsonViewer();
+    }
+  }
+
+  protected toggleRenderedView(): void {
+    const current = this.uiStore.viewer();
+    if (current === 'rendered') {
+      this.uiStore.closeViewer();
+    } else {
+      this.uiStore.setRenderedViewer();
+    }
   }
 }

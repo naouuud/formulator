@@ -1,21 +1,41 @@
 <div class="flex items-center gap-3 border-b border-slate-200 px-6 py-3 bg-white shrink-0">
-  <input
-    class="flex-1 text-xl font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
-    [value]="domainStore.activeSpread()?.title ?? ''"
-    placeholder="Untitled spread"
-    (input)="onTitleInput($event)"
-  />
+  @if (!uiStore.viewer()) {
+    <input
+      class="flex-1 text-xl font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
+      [value]="domainStore.activeSpread()?.title ?? ''"
+      placeholder="Untitled spread"
+      (input)="onTitleInput($event)"
+    />
+  } @else {
+    <div
+      class="flex-1 text-xl font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
+    >
+      {{ domainStore.activeSpread()?.title }}
+    </div>
+  }
   @if (uiStore.spreadSavingError(); as error) {
     <span class="text-sm text-red-500">{{ error.message }}</span>
   }
   <button
     class="px-4 py-1.5 rounded-md border text-sm font-medium transition-colors"
-    [class.border-violet-300]="uiStore.showJsonViewer()"
-    [class.bg-violet-50]="uiStore.showJsonViewer()"
-    [class.text-violet-700]="uiStore.showJsonViewer()"
-    [class.border-slate-200]="!uiStore.showJsonViewer()"
-    [class.text-slate-600]="!uiStore.showJsonViewer()"
-    [class.hover:bg-slate-50]="!uiStore.showJsonViewer()"
+    [class.border-violet-300]="uiStore.viewer() === 'rendered'"
+    [class.bg-violet-50]="uiStore.viewer() === 'rendered'"
+    [class.text-violet-700]="uiStore.viewer() === 'rendered'"
+    [class.border-slate-200]="uiStore.viewer() !== 'rendered'"
+    [class.text-slate-600]="uiStore.viewer() !== 'rendered'"
+    [class.hover:bg-slate-50]="uiStore.viewer() !== 'rendered'"
+    (click)="toggleRenderedView()"
+  >
+    Preview
+  </button>
+  <button
+    class="px-4 py-1.5 rounded-md border text-sm font-medium transition-colors"
+    [class.border-violet-300]="uiStore.viewer() === 'json'"
+    [class.bg-violet-50]="uiStore.viewer() === 'json'"
+    [class.text-violet-700]="uiStore.viewer() === 'json'"
+    [class.border-slate-200]="uiStore.viewer() !== 'json'"
+    [class.text-slate-600]="uiStore.viewer() !== 'json'"
+    [class.hover:bg-slate-50]="uiStore.viewer() !== 'json'"
     (click)="toggleJsonViewer()"
   >
     JSON

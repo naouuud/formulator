@@ -6,10 +6,11 @@ import { JsonViewer } from '../json-viewer/json-viewer';
 import { MetadataList } from '../metadata-list/metadata-list';
 import { PageCanvas } from '../page-canvas/page-canvas';
 import { SpreadHeader } from '../spread-header/spread-header';
+import { RenderedParent } from '../rendered/rendered-parent/rendered-parent';
 
 @Component({
   selector: 'app-builder-parent',
-  imports: [CreateSpread, MetadataList, SpreadHeader, PageCanvas, JsonViewer],
+  imports: [CreateSpread, MetadataList, SpreadHeader, PageCanvas, JsonViewer, RenderedParent],
   templateUrl: './builder-parent.html',
 })
 export class BuilderParent {
@@ -21,7 +22,7 @@ export class BuilderParent {
     effect(() => {
       this.activeSpreadId();
       untracked(() => {
-        this.uiStore.closeJsonViewer();
+        this.uiStore.closeViewer();
         this.uiStore.clearSelectedElementId();
       });
     });

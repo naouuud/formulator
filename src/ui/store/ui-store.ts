@@ -5,7 +5,7 @@ type UiState = {
   spreadSavingError: { message: string; code?: string } | null;
   deletingSpreadId: string | null;
   deleteSpreadError: { message: string; code?: string } | null;
-  showJsonViewer: boolean;
+  viewer: 'json' | 'rendered' | null;
   selectedElementId: string | null;
 };
 
@@ -14,7 +14,7 @@ const initialState: UiState = {
   spreadSavingError: null,
   deletingSpreadId: null,
   deleteSpreadError: null,
-  showJsonViewer: false,
+  viewer: null,
   selectedElementId: null,
 };
 
@@ -46,11 +46,14 @@ export const UiStore = signalStore(
     stopDeletingSpread(): void {
       patchState(store, { deletingSpreadId: null });
     },
-    toggleJsonViewer(): void {
-      patchState(store, { showJsonViewer: !store.showJsonViewer() });
+    setJsonViewer(): void {
+      patchState(store, { viewer: 'json' });
     },
-    closeJsonViewer(): void {
-      patchState(store, { showJsonViewer: false });
+    setRenderedViewer(): void {
+      patchState(store, { viewer: 'rendered' });
+    },
+    closeViewer(): void {
+      patchState(store, { viewer: null });
     },
     setSelectedElementId(id: string) {
       patchState(store, { selectedElementId: id });

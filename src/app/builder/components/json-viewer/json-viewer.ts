@@ -18,6 +18,6 @@ export class JsonViewer {
 
   @HostListener('document:keydown.escape')
   protected onEscape(): void {
-    this.uiStore.closeJsonViewer();
+    this.uiStore.closeViewer();
   }
 }

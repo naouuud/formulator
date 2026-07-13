@@ -1,0 +1,38 @@
+@if (questionElement(); as element) {
+  @if (element.el; as question) {
+    <label [for]="element.id">{{ question.label }}</label>
+    @if (!isOptionsQuestion(question)) {
+      @switch (question.htmlType) {
+        @case ('text') {
+          <input type="text" [id]="element.id" />
+        }
+      }
+    } @else {
+      @switch (question.htmlType) {
+        @case ('radio') {
+          @for (option of question.options; track option.id) {
+            <label [for]="option.id"
+              ><input type="radio" [name]="element.id" [id]="option.id" [value]="option.value" />
+              {{ option.label }}</label
+            >
+          }
+        }
+        @case ('checkbox') {
+          @for (option of question.options; track option.id) {
+            <label [for]="option.id"
+              ><input type="checkbox" [name]="element.id" [id]="option.id" [value]="option.value" />
+              {{ option.label }}</label
+            >
+          }
+        }
+        @case ('select') {
+          <select [name]="element.id" [id]="element.id">
+            @for (option of question.options; track option.id) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        }
+      }
+    }
+  }
+}
