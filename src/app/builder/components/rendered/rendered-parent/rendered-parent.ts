@@ -1,4 +1,5 @@
 import { Component, computed, HostListener, inject, signal } from '@angular/core';
+import { toSnapPreview } from 'src/domain/model/snap-preview';
 import { DomainStore } from '../../../../../domain/store/domain-store';
 import { UiStore } from '../../../../../ui/store/ui-store';
 import { RenderedPage } from '../rendered-page/rendered-page';
@@ -11,12 +12,11 @@ import { RenderedPage } from '../rendered-page/rendered-page';
 export class RenderedParent {
   private readonly uiStore = inject(UiStore);
   protected readonly domainStore = inject(DomainStore);
-  protected readonly activeSpread = this.domainStore.activeSpread;
-  protected readonly pagesLength = computed(() => this.activeSpread()?.pages.length ?? 0);
-
+  protected readonly snap = computed(() => toSnapPreview(this.domainStore.activeSpread()!));
+  protected readonly pagesLength = computed(() => this.snap().schema.pages.length ?? 0);
   protected readonly activePageIdx = signal<number>(0);
-  protected readonly activePage = computed(() => this.activeSpread()?.pages[this.activePageIdx()]);
-  protected readonly spreadTitle = computed(() => this.activeSpread()?.title || 'Untitled spread');
+  protected readonly activePage = computed(() => this.snap().schema.pages[this.activePageIdx()]);
+  protected readonly spreadTitle = computed(() => this.snap().title || 'Untitled spread');
   protected readonly pageNumber = computed(() => this.activePageIdx() + 1);
   protected readonly hasMultiplePages = computed(() => this.pagesLength() > 1);
   protected readonly isFirstPage = computed(() => this.activePageIdx() <= 0);

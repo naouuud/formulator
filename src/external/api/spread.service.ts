@@ -1,14 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
+import { Spread } from 'src/domain/model/spread';
+import { SpreadDto, SpreadMetaDataDto } from 'src/domain/model/wire/spread.dto';
+import { parseSpread, parseSpreadMetaData } from 'src/domain/model/wire/spread.mapper';
 import { ENV } from '../../app/env';
-import {
-  parseSpread,
-  Spread,
-  SpreadDto,
-  SpreadMetaData,
-  SpreadMetaDataDto,
-} from '@formulator/schema';
+import { SpreadMetaData } from 'src/domain/model/spread-metadata';
 
 @Injectable({ providedIn: 'root' })
 export class SpreadService {
@@ -22,7 +19,7 @@ export class SpreadService {
   getAll(): Observable<SpreadMetaData[]> {
     return this.#http
       .get<SpreadMetaDataDto[]>(this.#baseUrl)
-      .pipe(map((dtos) => dtos.map(parseSpread)));
+      .pipe(map((dtos) => dtos.map(parseSpreadMetaData)));
   }
 
   getById(id: string): Observable<Spread> {

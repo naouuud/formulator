@@ -12,9 +12,5 @@ export * from './lib/note';
 export * from './lib/question';
 export * from './lib/element';
 export * from './lib/page';
-export * from './lib/spread';
 export * from './lib/tod';
-
-// Wire (de)serialization
-export * from './lib/wire/spread.dto';
-export * from './lib/wire/spread.mapper';
+export * from './lib/schema';

@@ -1,15 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject } from '@angular/core';
-import {
-  CreateElementParams,
-  newElement,
-  newOption,
-  newPage,
-  Spread,
-  SpreadMetaData,
-  toMetaData,
-  updateMetaData,
-} from '@formulator/schema';
+import { CreateElementParams, newElement, newOption, newPage } from '@formulator/schema';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { produce } from 'immer';
@@ -27,6 +18,8 @@ import {
 } from 'rxjs';
 import { SpreadService } from '../../external/api/spread.service';
 import { UiStore } from '../../ui/store/ui-store';
+import { Spread } from '../model/spread';
+import { SpreadMetaData, spreadToMetaData, updateMetaData } from '../model/spread-metadata';
 import { User } from '../model/user';
 
 type DomainState = {
@@ -149,7 +142,7 @@ export const DomainStore = signalStore(
                   activePageIdx: 0,
                   activeSpreadLoading: false,
                   createSpreadError: false,
-                  spreadsMetaData: [...store.spreadsMetaData(), toMetaData(created)],
+                  spreadsMetaData: [...store.spreadsMetaData(), spreadToMetaData(created)],
                 }),
               ),
               catchError((err: HttpErrorResponse) => {

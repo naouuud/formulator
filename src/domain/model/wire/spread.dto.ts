@@ -1,4 +1,5 @@
-import { Spread, SpreadMetaData } from '../spread';
+import { Spread } from '../spread';
+import { SpreadMetaData } from '../spread-metadata';
 
 type WireDates = {
   readonly createdAt: string | null;

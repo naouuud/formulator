@@ -1,7 +1,9 @@
 import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
+import { newPage } from '@formulator/schema';
 import { of } from 'rxjs';
+import { Spread } from 'src/domain/model/spread';
+import { SpreadMetaData, spreadToMetaData } from 'src/domain/model/spread-metadata';
 import { ENV } from '../../app/env';
-import { newPage, Spread, SpreadMetaData, toMetaData } from '@formulator/schema';
 import { spreadNotFound, versionConflict } from '../api/problem-detail';
 
 let mockSpreads: Spread[] = [
@@ -58,7 +60,7 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
 
   // GET /spreads
   if (req.method === 'GET' && url === '/spreads') {
-    const metaData: SpreadMetaData[] = mockSpreads.map(toMetaData);
+    const metaData: SpreadMetaData[] = mockSpreads.map(spreadToMetaData);
     return of(new HttpResponse({ status: 200, body: metaData }));
   }
 

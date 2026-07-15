@@ -1,4 +1,5 @@
 import { Component, computed, HostListener, inject } from '@angular/core';
+import { toSnapPreview } from 'src/domain/model/snap-preview';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { UiStore } from '../../../../ui/store/ui-store';
 
@@ -13,7 +14,9 @@ export class JsonViewer {
 
   protected readonly json = computed(() => {
     const spread = this.domainStore.activeSpread();
-    return spread ? JSON.stringify(spread, null, 2) : '';
+    if (!spread) return '';
+    const snap = toSnapPreview(spread);
+    return JSON.stringify(snap, null, 2);
   });
 
   @HostListener('document:keydown.escape')
