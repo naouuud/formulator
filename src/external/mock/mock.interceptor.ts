@@ -1,59 +1,30 @@
 import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { newPage } from '@formulator/schema';
+import { newPage, newSchema } from '@formulator/schema';
 import { of } from 'rxjs';
 import { Spread } from 'src/domain/model/spread';
 import { SpreadMetaData, spreadToMetaData } from 'src/domain/model/spread-metadata';
 import { ENV } from '../../app/env';
 import { spreadNotFound, versionConflict } from '../api/problem-detail';
 
-let mockSpreads: Spread[] = [
-  {
-    id: 'acc5810f-3efc-4cc6-9f0e-c22d08e1d7f8',
-    title: 'Cyberpunk 2077 Survey',
+const newMockSpread = (title?: string): Spread => {
+  const schema = newSchema();
+  if (title) schema.title = title;
+  return {
+    id: crypto.randomUUID(),
     version: 0,
     ectm: null,
-    pages: [newPage()],
-    createdAt: new Date('2026-07-04T22:25:09.661Z'),
-    lastModifiedAt: new Date('2026-07-04T22:25:09.661Z'),
-  },
-  {
-    id: '7e576682-59d5-4448-abc8-1c45f450e42e',
-    title: 'Paradise Killer Survey',
-    version: 0,
-    ectm: null,
-    pages: [newPage()],
-    createdAt: new Date('2026-07-04T22:25:09.830Z'),
-    lastModifiedAt: new Date('2026-07-04T22:25:09.830Z'),
-  },
-  {
-    id: 'dcb45081-da71-4691-a0dc-047c0f954a15',
-    title: 'Sayonara Wildhearts Survey',
-    version: 0,
-    ectm: null,
-    pages: [newPage()],
-    createdAt: new Date('2026-07-04T22:25:10.027Z'),
-    lastModifiedAt: new Date('2026-07-04T22:25:10.027Z'),
-  },
-  {
-    id: 'e79bd9f2-fe8e-4cf1-9b22-a75dec95be6e',
-    title: 'CrossCode Survey',
-    version: 0,
-    ectm: null,
-    pages: [newPage()],
-    createdAt: new Date('2026-07-04T22:25:10.231Z'),
-    lastModifiedAt: new Date('2026-07-04T22:25:10.231Z'),
-  },
-];
+    schema,
+    createdAt: new Date(),
+    lastModifiedAt: new Date(),
+  };
+};
 
-const newMockSpread = (): Spread => ({
-  id: crypto.randomUUID(),
-  title: '',
-  version: 0,
-  ectm: null,
-  pages: [newPage()],
-  createdAt: new Date(),
-  lastModifiedAt: new Date(),
-});
+let mockSpreads: Spread[] = [
+  newMockSpread('Cyberpunk Survey'),
+  newMockSpread('CrossCode Survey'),
+  newMockSpread('Sayonara Wildhearts Survey'),
+  newMockSpread('Paradise Killer Survey'),
+];
 
 export const mockInterceptor: HttpInterceptorFn = (req, next) => {
   const url = req.url.replace(ENV.API_URL, '');

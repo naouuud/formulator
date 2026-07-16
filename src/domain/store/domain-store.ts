@@ -50,7 +50,7 @@ export const DomainStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withComputed((state) => ({
-    activePage: computed(() => state.activeSpread()?.pages[state.activePageIdx()]),
+    activePage: computed(() => state.activeSpread()?.schema.pages[state.activePageIdx()]),
   })),
   withMethods((store, spreadService = inject(SpreadService), uiStore = inject(UiStore)) => {
     const performSave = (spread: Spread): Observable<Spread> => {
@@ -189,7 +189,7 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            draft.activeSpread!.title = title;
+            draft.activeSpread!.schema.title = title;
           }),
         );
         triggerAutoSave(store.activeSpread()!);
@@ -202,7 +202,7 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
             const element = page.elements.find((e) => e.id === elementId);
             if (element?.type === 'question') element.el.label = label;
           }),
@@ -214,7 +214,7 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
             const element = page.elements.find((e) => e.id === elementId);
             if (element?.type === 'note') element.el.value = value;
           }),
@@ -226,7 +226,7 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            draft.activeSpread!.pages.push(newPage());
+            draft.activeSpread!.schema.pages.push(newPage());
           }),
         );
         triggerAutoSave(store.activeSpread()!);
@@ -237,9 +237,11 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            const before = draft.activeSpread!.pages.length;
-            draft.activeSpread!.pages = draft.activeSpread!.pages.filter((p) => p.id !== pageId);
-            changed = draft.activeSpread!.pages.length !== before;
+            const before = draft.activeSpread!.schema.pages.length;
+            draft.activeSpread!.schema.pages = draft.activeSpread!.schema.pages.filter(
+              (p) => p.id !== pageId,
+            );
+            changed = draft.activeSpread!.schema.pages.length !== before;
           }),
         );
         if (changed) triggerAutoSave(store.activeSpread()!);
@@ -250,7 +252,7 @@ export const DomainStore = signalStore(
           store,
           produce<DomainState>((draft) => {
             const element = newElement(params);
-            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
             page.elements.push(element);
           }),
         );
@@ -262,7 +264,7 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
             const before = page.elements.length;
             page.elements = page.elements.filter((e) => e.id !== elementId);
             changed = page.elements.length !== before;
@@ -278,7 +280,7 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
             const element = page.elements.find((e) => e.id === elementId);
             if (element?.type === 'question' && 'options' in element.el) {
               const { optionValueType, options } = element.el;
@@ -309,7 +311,7 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
             const element = page.elements.find((e) => e.id === elementId);
             if (element?.type === 'question' && 'options' in element.el) {
               const before = element.el.options.length;
@@ -333,7 +335,7 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
             const element = page.elements.find((e) => e.id === elementId);
             if (element?.type === 'question' && 'options' in element.el) {
               const { optionValueType, options } = element.el;
@@ -371,7 +373,7 @@ export const DomainStore = signalStore(
         patchState(
           store,
           produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.pages[draft.activePageIdx];
+            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
             const element = page.elements.find((e) => e.id === elementId);
             if (element?.type === 'question' && element.el.validators.required !== value) {
               element.el.validators.required = value;

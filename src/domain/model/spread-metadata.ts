@@ -9,7 +9,7 @@ export interface SpreadMetaData {
 
 export const spreadToMetaData = (spread: Spread): SpreadMetaData => ({
   id: spread.id,
-  title: spread.title,
+  title: spread.schema.title,
   createdAt: spread.createdAt,
   lastModifiedAt: spread.lastModifiedAt,
 });

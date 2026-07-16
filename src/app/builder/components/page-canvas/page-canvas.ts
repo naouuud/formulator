@@ -42,13 +42,13 @@ export class PageCanvas {
   protected addPage(): void {
     this.domainStore.addPage();
     if (this.domainStore.activeSpread()) {
-      this.setActivePage(this.domainStore.activeSpread()!.pages.length - 1);
+      this.setActivePage(this.domainStore.activeSpread()!.schema.pages.length - 1);
     }
   }
 
   protected deletePage(id: string): void {
     this.domainStore.deletePage(id);
-    const pageCount = this.domainStore.activeSpread()?.pages.length ?? 0;
+    const pageCount = this.domainStore.activeSpread()?.schema.pages.length ?? 0;
     const updatedPageIdx = Math.min(this.domainStore.activePageIdx(), pageCount - 1);
     this.setActivePage(updatedPageIdx);
   }

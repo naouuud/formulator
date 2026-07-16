@@ -1,5 +1,8 @@
 import { Snap } from '../snap';
 
-export type SnapDto = Omit<Snap, 'createdAt'> & {
-  readonly createdAt: string;
+type WireDates = {
+  readonly publishedAt: string;
+  readonly closedAt: string | null;
 };
+
+export type SnapDto = Omit<Snap, 'publishedAt' | 'closedAt'> & WireDates;

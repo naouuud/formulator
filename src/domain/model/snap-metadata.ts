@@ -2,12 +2,18 @@ import { Snap } from './snap';
 
 export type SnapMetaData = {
   id: string;
-  createdAt: Date;
+  spreadId: string;
   title: string;
+  edition: number;
+  status: 'active' | 'closed';
+  publishedAt: Date;
 };
 
 export const snapToMetaData = (snap: Snap): SnapMetaData => ({
   id: snap.id,
-  createdAt: snap.createdAt,
-  title: snap.title,
+  spreadId: snap.spreadId,
+  title: snap.schema.title,
+  edition: snap.edition,
+  status: snap.status,
+  publishedAt: snap.publishedAt,
 });

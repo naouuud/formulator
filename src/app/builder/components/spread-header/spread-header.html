@@ -2,7 +2,7 @@
   @if (!uiStore.viewer()) {
     <input
       class="flex-1 text-xl font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
-      [value]="domainStore.activeSpread()?.title ?? ''"
+      [value]="domainStore.activeSpread()?.schema?.title ?? ''"
       placeholder="Untitled spread"
       (input)="onTitleInput($event)"
     />
@@ -10,7 +10,9 @@
     <div
       class="flex-1 text-xl font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
     >
-      <button (click)="uiStore.closeViewer()">{{ domainStore.activeSpread()?.title }}</button>
+      <button (click)="uiStore.closeViewer()">
+        {{ domainStore.activeSpread()?.schema?.title }}
+      </button>
     </div>
   }
   @if (uiStore.spreadSavingError(); as error) {
