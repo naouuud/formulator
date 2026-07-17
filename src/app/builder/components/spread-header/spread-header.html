@@ -7,17 +7,25 @@
       (input)="onTitleInput($event)"
     />
   } @else {
-    <div
-      class="flex-1 text-xl font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
+    <button
+      class="flex-1 text-xl text-left font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
+      (click)="uiStore.closeViewer()"
     >
-      <button (click)="uiStore.closeViewer()">
-        {{ domainStore.activeSpread()?.schema?.title }}
-      </button>
-    </div>
+      {{ domainStore.activeSpread()?.schema?.title ?? '' }}
+    </button>
   }
   @if (uiStore.spreadSavingError(); as error) {
     <span class="text-sm text-red-500">{{ error.message }}</span>
   }
+  <!-- Save Spinner -->
+  <div class="inline-flex items-center justify-center min-w-[2rem] px-1 py-1.5">
+    @if (uiStore.spreadSaving()) {
+      <span
+        class="w-4 h-4 border-2 border-violet-600/30 border-t-violet-600 rounded-full animate-spin"
+        aria-label="Saving"
+      ></span>
+    }
+  </div>
   <button
     class="px-4 py-1.5 rounded-md border text-sm font-medium transition-colors"
     [class.border-violet-300]="uiStore.viewer() === 'rendered'"
@@ -43,17 +51,17 @@
     JSON
   </button>
   <button
-    class="inline-flex items-center justify-center min-w-[4.5rem] px-4 py-1.5 rounded-md bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 disabled:opacity-50 transition-colors"
-    [disabled]="uiStore.spreadSaving()"
-    (click)="saveSpread()"
+    class="inline-flex items-center justify-center gap-2 min-w-[4.5rem] px-4 py-1.5 rounded-md bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 disabled:opacity-50 transition-colors"
+    [class.hover:bg-slate-50]="uiStore.viewer() !== 'rendered'"
+    [disabled]="uiStore.spreadSaving() || domainStore.activeSnapLoading()"
+    (click)="createSnap()"
   >
-    @if (uiStore.spreadSaving()) {
+    @if (domainStore.activeSnapLoading()) {
       <span
-        class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
-        aria-label="Saving"
+        class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+        aria-label="Publishing"
       ></span>
-    } @else {
-      Save
     }
+    Snap
   </button>
 </div>

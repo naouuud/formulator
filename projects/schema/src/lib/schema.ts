@@ -6,6 +6,6 @@ export type Schema = {
 };
 
 export const newSchema = (): Schema => ({
-  title: 'Untitled Schema',
+  title: '',
   pages: [newPage()],
 });

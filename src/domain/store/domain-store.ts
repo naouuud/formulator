@@ -11,13 +11,17 @@ import {
   EMPTY,
   exhaustMap,
   finalize,
+  forkJoin,
   Observable,
   pipe,
   switchMap,
   tap,
 } from 'rxjs';
+import { SnapService } from 'src/external/api/snap.service';
 import { SpreadService } from '../../external/api/spread.service';
 import { UiStore } from '../../ui/store/ui-store';
+import { Snap } from '../model/snap';
+import { SnapMetaData, snapToMetaData } from '../model/snap-metadata';
 import { Spread } from '../model/spread';
 import { SpreadMetaData, spreadToMetaData, updateMetaData } from '../model/spread-metadata';
 import { User } from '../model/user';
@@ -25,25 +29,37 @@ import { User } from '../model/user';
 type DomainState = {
   user: User | null;
   spreadsMetaData: SpreadMetaData[];
-  spreadsMetaDataLoading: boolean;
+  metaDataLoading: boolean;
   activeSpread: Spread | null;
   activeSpreadLoading: boolean;
   activePageIdx: number;
-  loadMetaDataError: boolean;
-  loadSpreadError: boolean;
+  snapsMetaData: SnapMetaData[];
+  activeSnap: Snap | null;
+  activeSnapLoading: boolean;
+  loadSpreadsMetaDataError: boolean;
   createSpreadError: boolean;
+  loadSpreadError: boolean;
+  loadSnapsMetaDataError: boolean;
+  createSnapError: boolean;
+  loadSnapError: boolean;
 };
 
 const initialState: DomainState = {
   user: null,
   spreadsMetaData: [],
-  spreadsMetaDataLoading: false,
+  metaDataLoading: false,
   activeSpread: null,
   activeSpreadLoading: false,
   activePageIdx: 0,
-  loadMetaDataError: false,
+  snapsMetaData: [],
+  activeSnap: null,
+  activeSnapLoading: false,
+  loadSpreadsMetaDataError: false,
   loadSpreadError: false,
   createSpreadError: false,
+  loadSnapsMetaDataError: false,
+  createSnapError: false,
+  loadSnapError: false,
 };
 
 export const DomainStore = signalStore(
@@ -51,338 +67,448 @@ export const DomainStore = signalStore(
   withState(initialState),
   withComputed((state) => ({
     activePage: computed(() => state.activeSpread()?.schema.pages[state.activePageIdx()]),
+    metaData: computed(() =>
+      state.spreadsMetaData().map((spread) => ({
+        ...spread,
+        snaps: state.snapsMetaData().filter((snap) => snap.spreadId === spread.id),
+      })),
+    ),
   })),
-  withMethods((store, spreadService = inject(SpreadService), uiStore = inject(UiStore)) => {
-    const performSave = (spread: Spread): Observable<Spread> => {
-      return spreadService.update(spread).pipe(
-        tap((updated) => {
-          patchState(store, { spreadsMetaData: updateMetaData(store.spreadsMetaData(), updated) });
-          const current = store.activeSpread();
-          if (!current || current.id !== updated.id) {
+  withMethods(
+    (
+      store,
+      spreadService = inject(SpreadService),
+      snapService = inject(SnapService),
+      uiStore = inject(UiStore),
+    ) => {
+      const performSave = (spread: Spread): Observable<Spread> => {
+        return spreadService.update(spread).pipe(
+          tap((updated) => {
+            patchState(store, {
+              spreadsMetaData: updateMetaData(store.spreadsMetaData(), updated),
+            });
+            const current = store.activeSpread();
+            if (!current || current.id !== updated.id) {
+              uiStore.stopSpreadSaving();
+              return;
+            }
+            const merged: Spread = {
+              ...current,
+              version: updated.version,
+              lastModifiedAt: updated.lastModifiedAt,
+            };
+            patchState(store, {
+              activeSpread: merged,
+            });
             uiStore.stopSpreadSaving();
-            return;
-          }
-          const merged: Spread = {
-            ...current,
-            version: updated.version,
-            lastModifiedAt: updated.lastModifiedAt,
-          };
-          patchState(store, {
-            activeSpread: merged,
-          });
-          uiStore.stopSpreadSaving();
-        }),
-        catchError((err: HttpErrorResponse) => {
-          uiStore.stopSpreadSaving();
-          uiStore.setSpreadSavingError(err.message, String(err.status));
-          return EMPTY;
-        }),
-      );
-    };
-
-    const triggerAutoSave = rxMethod<Spread>(
-      pipe(
-        debounceTime(1500),
-        tap(() => {
-          uiStore.startSpreadSaving();
-          uiStore.clearSpreadSavingError();
-        }),
-        switchMap((spread) => performSave(spread)),
-      ),
-    );
-
-    return {
-      loadMetaData: rxMethod<void>(
+          }),
+          catchError((err: HttpErrorResponse) => {
+            uiStore.stopSpreadSaving();
+            uiStore.setSpreadSavingError(err.message, String(err.status));
+            return EMPTY;
+          }),
+        );
+      };
+      const triggerAutoSave = rxMethod<Spread>(
         pipe(
-          tap(() => patchState(store, { spreadsMetaDataLoading: true })),
-          switchMap(() =>
-            spreadService.getAll().pipe(
-              tap((spreadsMetaData) => {
-                patchState(store, {
-                  spreadsMetaData: [...spreadsMetaData],
-                  spreadsMetaDataLoading: false,
-                });
-              }),
-              catchError((err: HttpErrorResponse) => {
-                patchState(store, { loadMetaDataError: true, spreadsMetaDataLoading: false });
-                return EMPTY;
-              }),
-            ),
-          ),
-        ),
-      ),
-      loadSpread: rxMethod<string>(
-        pipe(
-          tap(() => patchState(store, { activeSpreadLoading: true })),
-          switchMap((id) =>
-            spreadService.getById(id).pipe(
-              tap((spread) =>
-                patchState(store, {
-                  activeSpread: spread,
-                  activeSpreadLoading: false,
-                  activePageIdx: 0,
-                }),
-              ),
-              catchError((err: HttpErrorResponse) => {
-                patchState(store, { loadSpreadError: true, activeSpreadLoading: false });
-                return EMPTY;
-              }),
-            ),
-          ),
-        ),
-      ),
-      createSpread: rxMethod<void>(
-        pipe(
-          tap(() => patchState(store, { activeSpreadLoading: true })),
-          exhaustMap(() =>
-            spreadService.create().pipe(
-              tap((created) =>
-                patchState(store, {
-                  activeSpread: created,
-                  activePageIdx: 0,
-                  activeSpreadLoading: false,
-                  createSpreadError: false,
-                  spreadsMetaData: [...store.spreadsMetaData(), spreadToMetaData(created)],
-                }),
-              ),
-              catchError((err: HttpErrorResponse) => {
-                patchState(store, { createSpreadError: true, activeSpreadLoading: false });
-                return EMPTY;
-              }),
-            ),
-          ),
-        ),
-      ),
-      saveSpread: rxMethod<Spread>(
-        pipe(
+          debounceTime(1500),
           tap(() => {
             uiStore.startSpreadSaving();
             uiStore.clearSpreadSavingError();
           }),
-          concatMap((spread) => performSave(spread)),
+          switchMap((spread) => performSave(spread)),
         ),
-      ),
-      deleteSpread: rxMethod<string>(
-        pipe(
-          tap(() => uiStore.clearDeleteSpreadError()),
-          exhaustMap((id) => {
-            uiStore.startDeletingSpread(id);
-            return spreadService.delete(id).pipe(
-              tap(() => {
-                const isActive = store.activeSpread()?.id === id;
-                patchState(store, {
-                  spreadsMetaData: store.spreadsMetaData().filter((m) => m.id !== id),
-                  ...(isActive ? { activeSpread: null, activePageIdx: 0 } : {}),
-                });
-              }),
-              catchError((err: HttpErrorResponse) => {
-                uiStore.setDeleteSpreadError(err.message, String(err.status));
-                return EMPTY;
-              }),
-              finalize(() => uiStore.stopDeletingSpread()),
-            );
+      );
+      const loadSpreadsMetaData = () =>
+        spreadService.getAll().pipe(
+          tap((metaData) => {
+            patchState(store, {
+              spreadsMetaData: metaData,
+              loadSpreadsMetaDataError: false,
+            });
           }),
+          catchError((err: HttpErrorResponse) => {
+            patchState(store, {
+              loadSpreadsMetaDataError: true,
+            });
+            return EMPTY;
+          }),
+        );
+      const loadSnapsMetaData = () =>
+        snapService.getAll().pipe(
+          tap((metadata) =>
+            patchState(store, {
+              snapsMetaData: metadata,
+              loadSnapsMetaDataError: false,
+            }),
+          ),
+          catchError((err: HttpErrorResponse) => {
+            patchState(store, { loadSnapsMetaDataError: true });
+            return EMPTY;
+          }),
+        );
+      return {
+        loadMetaData: rxMethod<void>(
+          pipe(
+            tap(() => {
+              patchState(store, { metaDataLoading: true });
+            }),
+            switchMap(() =>
+              forkJoin([loadSpreadsMetaData(), loadSnapsMetaData()]).pipe(
+                finalize(() => patchState(store, { metaDataLoading: false })),
+              ),
+            ),
+          ),
         ),
-      ),
-      updateSpreadTitle(title: string): void {
-        if (!store.activeSpread()) return;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            draft.activeSpread!.schema.title = title;
-          }),
-        );
-        triggerAutoSave(store.activeSpread()!);
-      },
-      setActivePage(idx: number): void {
-        patchState(store, { activePageIdx: idx });
-      },
-      updateQuestionLabel(elementId: string, label: string): void {
-        if (!store.activeSpread()) return;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
-            const element = page.elements.find((e) => e.id === elementId);
-            if (element?.type === 'question') element.el.label = label;
-          }),
-        );
-        triggerAutoSave(store.activeSpread()!);
-      },
-      updateNoteValue(elementId: string, value: string): void {
-        if (!store.activeSpread()) return;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
-            const element = page.elements.find((e) => e.id === elementId);
-            if (element?.type === 'note') element.el.value = value;
-          }),
-        );
-        triggerAutoSave(store.activeSpread()!);
-      },
-      addPage(): void {
-        if (!store.activeSpread()) return;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            draft.activeSpread!.schema.pages.push(newPage());
-          }),
-        );
-        triggerAutoSave(store.activeSpread()!);
-      },
-      deletePage(pageId: string): void {
-        if (!store.activeSpread()) return;
-        let changed = false;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            const before = draft.activeSpread!.schema.pages.length;
-            draft.activeSpread!.schema.pages = draft.activeSpread!.schema.pages.filter(
-              (p) => p.id !== pageId,
-            );
-            changed = draft.activeSpread!.schema.pages.length !== before;
-          }),
-        );
-        if (changed) triggerAutoSave(store.activeSpread()!);
-      },
-      addElement(params: CreateElementParams): void {
-        if (!store.activeSpread()) return;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            const element = newElement(params);
-            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
-            page.elements.push(element);
-          }),
-        );
-        triggerAutoSave(store.activeSpread()!);
-      },
-      deleteElement(elementId: string): void {
-        if (!store.activeSpread()) return;
-        let changed = false;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
-            const before = page.elements.length;
-            page.elements = page.elements.filter((e) => e.id !== elementId);
-            changed = page.elements.length !== before;
-          }),
-        );
-        if (changed) triggerAutoSave(store.activeSpread()!);
-      },
-      addOption(elementId: string, label: string, value: string | number | boolean): void {
-        const trimmedLabel = label.trim();
-        if (!trimmedLabel || !store.activeSpread()) return;
-
-        let added = false;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
-            const element = page.elements.find((e) => e.id === elementId);
-            if (element?.type === 'question' && 'options' in element.el) {
-              const { optionValueType, options } = element.el;
-
-              const coercedValue =
-                optionValueType === 'number'
-                  ? Number(value)
-                  : optionValueType === 'boolean'
-                    ? Boolean(value)
-                    : String(value).trim();
-
-              if (
-                options.some((o) => o.value === coercedValue) ||
-                options.some((o) => o.label === trimmedLabel)
-              )
-                return;
-
-              options.push(newOption(trimmedLabel, coercedValue));
-              added = true;
-            }
-          }),
-        );
-        if (added) triggerAutoSave(store.activeSpread()!);
-      },
-      deleteOption(elementId: string, optionId: string) {
-        if (!store.activeSpread()) return;
-        let deleted = false;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
-            const element = page.elements.find((e) => e.id === elementId);
-            if (element?.type === 'question' && 'options' in element.el) {
-              const before = element.el.options.length;
-              element.el.options = element.el.options.filter((o) => o.id !== optionId);
-              deleted = element.el.options.length !== before;
-            }
-          }),
-        );
-        if (deleted) triggerAutoSave(store.activeSpread()!);
-      },
-      editOption(
-        elementId: string,
-        optionId: string,
-        label: string,
-        value: string | number | boolean,
-      ) {
-        const trimmedLabel = label.trim();
-        if (!trimmedLabel || !store.activeSpread()) return;
-
-        let changed = false;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
-            const element = page.elements.find((e) => e.id === elementId);
-            if (element?.type === 'question' && 'options' in element.el) {
-              const { optionValueType, options } = element.el;
-
-              const coercedValue =
-                optionValueType === 'number'
-                  ? Number(value)
-                  : optionValueType === 'boolean'
-                    ? Boolean(value)
-                    : String(value).trim();
-
-              const existing = options.find((o) => o.id === optionId);
-              if (!existing) return;
-
-              if (existing.label === trimmedLabel && existing.value === coercedValue) return;
-
-              if (
-                options.some((o) => o.id !== optionId && o.value === coercedValue) ||
-                options.some((o) => o.id !== optionId && o.label === trimmedLabel)
-              )
-                return;
-
-              element.el.options = options.map((o) =>
-                o.id === optionId ? { ...o, label: trimmedLabel, value: coercedValue } : o,
+        loadSpread: rxMethod<string>(
+          pipe(
+            tap(() => patchState(store, { activeSpreadLoading: true })),
+            switchMap((id) =>
+              spreadService.getById(id).pipe(
+                tap((spread) =>
+                  patchState(store, {
+                    activeSpread: spread,
+                    activePageIdx: 0,
+                    createSpreadError: false,
+                  }),
+                ),
+                catchError((err: HttpErrorResponse) => {
+                  patchState(store, { loadSpreadError: true });
+                  return EMPTY;
+                }),
+                finalize(() => patchState(store, { activeSpreadLoading: false })),
+              ),
+            ),
+          ),
+        ),
+        createSpread: rxMethod<void>(
+          pipe(
+            tap(() => patchState(store, { activeSpreadLoading: true })),
+            exhaustMap(() =>
+              spreadService.create().pipe(
+                tap((created) =>
+                  patchState(store, {
+                    activeSpread: created,
+                    activePageIdx: 0,
+                    spreadsMetaData: [...store.spreadsMetaData(), spreadToMetaData(created)],
+                    createSpreadError: false,
+                  }),
+                ),
+                catchError((err: HttpErrorResponse) => {
+                  patchState(store, { createSpreadError: true });
+                  return EMPTY;
+                }),
+                finalize(() => patchState(store, { activeSpreadLoading: false })),
+              ),
+            ),
+          ),
+        ),
+        saveSpread: rxMethod<Spread>(
+          pipe(
+            tap(() => {
+              uiStore.startSpreadSaving();
+              uiStore.clearSpreadSavingError();
+            }),
+            concatMap((spread) => performSave(spread)),
+          ),
+        ),
+        deleteSpread: rxMethod<string>(
+          pipe(
+            tap(() => uiStore.clearDeleteSpreadError()),
+            exhaustMap((id) => {
+              uiStore.startDeletingSpread(id);
+              return spreadService.delete(id).pipe(
+                tap(() => {
+                  const isActive = store.activeSpread()?.id === id;
+                  patchState(store, {
+                    spreadsMetaData: store.spreadsMetaData().filter((spread) => spread.id !== id),
+                    ...(isActive ? { activeSpread: null, activePageIdx: 0 } : {}),
+                  });
+                }),
+                catchError((err: HttpErrorResponse) => {
+                  uiStore.setDeleteSpreadError(err.message, String(err.status));
+                  return EMPTY;
+                }),
+                finalize(() => uiStore.stopDeletingSpread()),
               );
-              changed = true;
-            }
-          }),
-        );
-        if (changed) triggerAutoSave(store.activeSpread()!);
-      },
-      setValidatorRequired(elementId: string, value: boolean) {
-        if (!store.activeSpread()) return;
-        let changed = false;
-        patchState(
-          store,
-          produce<DomainState>((draft) => {
-            const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
-            const element = page.elements.find((e) => e.id === elementId);
-            if (element?.type === 'question' && element.el.validators.required !== value) {
-              element.el.validators.required = value;
-              changed = true;
-            }
-          }),
-        );
-        if (changed) triggerAutoSave(store.activeSpread()!);
-      },
-    };
-  }),
+            }),
+          ),
+        ),
+        loadSnap: rxMethod<string>(
+          pipe(
+            switchMap((id) =>
+              snapService.getById(id).pipe(
+                tap((snap) =>
+                  patchState(store, {
+                    activeSnap: snap,
+                    loadSnapError: false,
+                  }),
+                ),
+                catchError((err: HttpErrorResponse) => {
+                  patchState(store, { loadSnapError: true });
+                  return EMPTY;
+                }),
+              ),
+            ),
+          ),
+        ),
+        createSnap: rxMethod<string>(
+          pipe(
+            tap(() => {
+              patchState(store, { activeSnapLoading: true });
+              uiStore.clearSpreadSavingError();
+            }),
+            exhaustMap((spreadId) => {
+              const spread = store.activeSpread();
+              if (!spread || spread.id !== spreadId) {
+                patchState(store, { createSnapError: true, activeSnapLoading: false });
+                return EMPTY;
+              }
+
+              uiStore.startSpreadSaving();
+              return performSave(spread).pipe(
+                switchMap((saved) =>
+                  snapService.create(saved.id).pipe(
+                    tap((created) => {
+                      patchState(store, {
+                        activeSnap: created,
+                        snapsMetaData: [...store.snapsMetaData(), snapToMetaData(created)],
+                        createSnapError: false,
+                      });
+                    }),
+                    catchError((err: HttpErrorResponse) => {
+                      patchState(store, { createSnapError: true });
+                      return EMPTY;
+                    }),
+                  ),
+                ),
+                finalize(() => patchState(store, { activeSnapLoading: false })),
+              );
+            }),
+          ),
+        ),
+        deleteSnap: rxMethod<string>(
+          pipe(
+            tap((id) => uiStore.clearDeleteSnapError()),
+            exhaustMap((id) => {
+              uiStore.startDeletingSnap(id);
+              return snapService.delete(id).pipe(
+                tap(() => {
+                  const isActive = store.activeSnap()?.id === id;
+                  patchState(store, {
+                    snapsMetaData: store.snapsMetaData().filter((snap) => snap.id !== id),
+                    ...(isActive ? { activeSnap: null } : {}),
+                  });
+                }),
+                catchError((err: HttpErrorResponse) => {
+                  uiStore.setDeleteSnapError(err.message, String(err.status));
+                  return EMPTY;
+                }),
+                finalize(() => uiStore.stopDeletingSnap()),
+              );
+            }),
+          ),
+        ),
+        updateSpreadTitle(title: string): void {
+          if (!store.activeSpread()) return;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              draft.activeSpread!.schema.title = title;
+            }),
+          );
+          triggerAutoSave(store.activeSpread()!);
+        },
+        setActivePage(idx: number): void {
+          patchState(store, { activePageIdx: idx });
+        },
+        updateQuestionLabel(elementId: string, label: string): void {
+          if (!store.activeSpread()) return;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
+              const element = page.elements.find((e) => e.id === elementId);
+              if (element?.type === 'question') element.el.label = label;
+            }),
+          );
+          triggerAutoSave(store.activeSpread()!);
+        },
+        updateNoteValue(elementId: string, value: string): void {
+          if (!store.activeSpread()) return;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
+              const element = page.elements.find((e) => e.id === elementId);
+              if (element?.type === 'note') element.el.value = value;
+            }),
+          );
+          triggerAutoSave(store.activeSpread()!);
+        },
+        addPage(): void {
+          if (!store.activeSpread()) return;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              draft.activeSpread!.schema.pages.push(newPage());
+            }),
+          );
+          triggerAutoSave(store.activeSpread()!);
+        },
+        deletePage(pageId: string): void {
+          if (!store.activeSpread()) return;
+          let changed = false;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              const before = draft.activeSpread!.schema.pages.length;
+              draft.activeSpread!.schema.pages = draft.activeSpread!.schema.pages.filter(
+                (p) => p.id !== pageId,
+              );
+              changed = draft.activeSpread!.schema.pages.length !== before;
+            }),
+          );
+          if (changed) triggerAutoSave(store.activeSpread()!);
+        },
+        addElement(params: CreateElementParams): void {
+          if (!store.activeSpread()) return;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              const element = newElement(params);
+              const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
+              page.elements.push(element);
+            }),
+          );
+          triggerAutoSave(store.activeSpread()!);
+        },
+        deleteElement(elementId: string): void {
+          if (!store.activeSpread()) return;
+          let changed = false;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
+              const before = page.elements.length;
+              page.elements = page.elements.filter((e) => e.id !== elementId);
+              changed = page.elements.length !== before;
+            }),
+          );
+          if (changed) triggerAutoSave(store.activeSpread()!);
+        },
+        addOption(elementId: string, label: string, value: string | number | boolean): void {
+          const trimmedLabel = label.trim();
+          if (!trimmedLabel || !store.activeSpread()) return;
+
+          let added = false;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
+              const element = page.elements.find((e) => e.id === elementId);
+              if (element?.type === 'question' && 'options' in element.el) {
+                const { optionValueType, options } = element.el;
+
+                const coercedValue =
+                  optionValueType === 'number'
+                    ? Number(value)
+                    : optionValueType === 'boolean'
+                      ? Boolean(value)
+                      : String(value).trim();
+
+                if (
+                  options.some((o) => o.value === coercedValue) ||
+                  options.some((o) => o.label === trimmedLabel)
+                )
+                  return;
+
+                options.push(newOption(trimmedLabel, coercedValue));
+                added = true;
+              }
+            }),
+          );
+          if (added) triggerAutoSave(store.activeSpread()!);
+        },
+        deleteOption(elementId: string, optionId: string) {
+          if (!store.activeSpread()) return;
+          let deleted = false;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
+              const element = page.elements.find((e) => e.id === elementId);
+              if (element?.type === 'question' && 'options' in element.el) {
+                const before = element.el.options.length;
+                element.el.options = element.el.options.filter((o) => o.id !== optionId);
+                deleted = element.el.options.length !== before;
+              }
+            }),
+          );
+          if (deleted) triggerAutoSave(store.activeSpread()!);
+        },
+        editOption(
+          elementId: string,
+          optionId: string,
+          label: string,
+          value: string | number | boolean,
+        ) {
+          const trimmedLabel = label.trim();
+          if (!trimmedLabel || !store.activeSpread()) return;
+
+          let changed = false;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
+              const element = page.elements.find((e) => e.id === elementId);
+              if (element?.type === 'question' && 'options' in element.el) {
+                const { optionValueType, options } = element.el;
+
+                const coercedValue =
+                  optionValueType === 'number'
+                    ? Number(value)
+                    : optionValueType === 'boolean'
+                      ? Boolean(value)
+                      : String(value).trim();
+
+                const existing = options.find((o) => o.id === optionId);
+                if (!existing) return;
+
+                if (existing.label === trimmedLabel && existing.value === coercedValue) return;
+
+                if (
+                  options.some((o) => o.id !== optionId && o.value === coercedValue) ||
+                  options.some((o) => o.id !== optionId && o.label === trimmedLabel)
+                )
+                  return;
+
+                element.el.options = options.map((o) =>
+                  o.id === optionId ? { ...o, label: trimmedLabel, value: coercedValue } : o,
+                );
+                changed = true;
+              }
+            }),
+          );
+          if (changed) triggerAutoSave(store.activeSpread()!);
+        },
+        setValidatorRequired(elementId: string, value: boolean) {
+          if (!store.activeSpread()) return;
+          let changed = false;
+          patchState(
+            store,
+            produce<DomainState>((draft) => {
+              const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
+              const element = page.elements.find((e) => e.id === elementId);
+              if (element?.type === 'question' && element.el.validators.required !== value) {
+                element.el.validators.required = value;
+                changed = true;
+              }
+            }),
+          );
+          if (changed) triggerAutoSave(store.activeSpread()!);
+        },
+      };
+    },
+  ),
 );

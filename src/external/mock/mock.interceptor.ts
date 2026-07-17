@@ -1,10 +1,13 @@
 import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { newPage, newSchema } from '@formulator/schema';
-import { of } from 'rxjs';
+import { newSchema } from '@formulator/schema';
+import { delay, of } from 'rxjs';
+import { Snap } from 'src/domain/model/snap';
+import { snapToMetaData } from 'src/domain/model/snap-metadata';
 import { Spread } from 'src/domain/model/spread';
 import { SpreadMetaData, spreadToMetaData } from 'src/domain/model/spread-metadata';
 import { ENV } from '../../app/env';
-import { spreadNotFound, versionConflict } from '../api/problem-detail';
+import { snapNotFound, spreadNotFound, versionConflict } from '../api/problem-detail';
+import { mockSchema } from './mock-schema';
 
 const newMockSpread = (title?: string): Spread => {
   const schema = newSchema();
@@ -20,11 +23,14 @@ const newMockSpread = (title?: string): Spread => {
 };
 
 let mockSpreads: Spread[] = [
+  { ...newMockSpread(), schema: mockSchema },
   newMockSpread('Cyberpunk Survey'),
   newMockSpread('CrossCode Survey'),
   newMockSpread('Sayonara Wildhearts Survey'),
   newMockSpread('Paradise Killer Survey'),
 ];
+
+let mockSnaps: Snap[] = [];
 
 export const mockInterceptor: HttpInterceptorFn = (req, next) => {
   const url = req.url.replace(ENV.API_URL, '');
@@ -69,7 +75,7 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
       updated.version = existing.version + 1;
       updated.lastModifiedAt = new Date();
       mockSpreads = mockSpreads.map((spread) => (spread.id === id ? updated : spread));
-      return of(new HttpResponse({ status: 200, body: updated }));
+      return of(new HttpResponse({ status: 200, body: updated })).pipe(delay(1500));
     }
     return of(new HttpResponse({ status: 404, body: spreadNotFound(id) }));
   }
@@ -83,6 +89,63 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
       return of(new HttpResponse({ status: 204, body: null }));
     }
     return of(new HttpResponse({ status: 404, body: spreadNotFound(id) }));
+  }
+
+  // GET /snaps?spreadId=
+  if (req.method === 'GET' && (url === '/snaps' || url.startsWith('/snaps?'))) {
+    if (url === '/snaps') {
+      return of(new HttpResponse({ status: 200, body: mockSnaps.map(snapToMetaData) }));
+    }
+    const spreadId = new URLSearchParams(url.slice('snaps?'.length)).get('spreadId');
+    const snaps = spreadId ? mockSnaps.filter((snap) => snap.spreadId === spreadId) : mockSnaps;
+    return of(
+      new HttpResponse({
+        status: 200,
+        body: snaps.map(snapToMetaData),
+      }),
+    );
+  }
+
+  // GET /snaps/:id
+  if (req.method === 'GET' && url.startsWith('/snaps/')) {
+    const id = url.slice('/snaps/'.length);
+    const snap = mockSnaps.find((snap) => snap.id === id);
+    if (!snap) {
+      return of(new HttpResponse({ status: 404, body: snapNotFound(id) }));
+    }
+    return of(new HttpResponse({ status: 200, body: snap }));
+  }
+
+  // POST /snaps
+  if (req.method === 'POST' && url === '/snaps') {
+    const { spreadId } = req.body as { spreadId: string };
+    const spread = mockSpreads.find((s) => s.id === spreadId);
+    if (!spread) return of(new HttpResponse({ status: 404, body: spreadNotFound(spreadId) }));
+    const snaps = mockSnaps.filter((s) => s.spreadId === spreadId);
+    const latest = snaps.length ? Math.max(...snaps.map((s) => s.edition)) : 0;
+    const created: Snap = {
+      id: crypto.randomUUID(),
+      spreadId,
+      spreadVersion: spread.version,
+      edition: latest + 1,
+      schema: structuredClone(spread.schema),
+      status: 'active',
+      publishedAt: new Date(),
+      closedAt: null,
+    };
+    mockSnaps.push(created);
+    return of(new HttpResponse({ status: 201, body: created }));
+  }
+
+  // DELETE /snaps/:id
+  if (req.method === 'DELETE' && url.startsWith('/snaps/')) {
+    const id = url.slice('/snaps/'.length);
+    const exists = mockSnaps.find((snap) => snap.id === id);
+    if (exists) {
+      mockSnaps = mockSnaps.filter((snap) => snap.id !== id);
+      return of(new HttpResponse({ status: 204, body: null }));
+    }
+    return of(new HttpResponse({ status: 404, body: snapNotFound(id) }));
   }
 
   return next(req);

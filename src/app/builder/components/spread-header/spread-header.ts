@@ -23,6 +23,12 @@ export class SpreadHeader {
     }
   }
 
+  protected createSnap(): void {
+    if (this.uiStore.spreadSaving() || this.domainStore.activeSnapLoading()) return;
+    const spreadId = this.domainStore.activeSpread()?.id;
+    if (spreadId) this.domainStore.createSnap(spreadId);
+  }
+
   protected toggleJsonViewer(): void {
     const current = this.uiStore.viewer();
     if (current === 'json') {

@@ -5,6 +5,8 @@ type UiState = {
   spreadSavingError: { message: string; code?: string } | null;
   deletingSpreadId: string | null;
   deleteSpreadError: { message: string; code?: string } | null;
+  deletingSnapId: string | null;
+  deleteSnapError: { message: string; code?: string } | null;
   viewer: 'json' | 'rendered' | null;
   selectedElementId: string | null;
 };
@@ -14,6 +16,8 @@ const initialState: UiState = {
   spreadSavingError: null,
   deletingSpreadId: null,
   deleteSpreadError: null,
+  deletingSnapId: null,
+  deleteSnapError: null,
   viewer: null,
   selectedElementId: null,
 };
@@ -60,6 +64,18 @@ export const UiStore = signalStore(
     },
     clearSelectedElementId() {
       patchState(store, { selectedElementId: null });
+    },
+    startDeletingSnap(id: string): void {
+      patchState(store, { deletingSnapId: id });
+    },
+    stopDeletingSnap(): void {
+      patchState(store, { deletingSnapId: null });
+    },
+    setDeleteSnapError(message: string, code?: string): void {
+      patchState(store, { deleteSnapError: { message, code } });
+    },
+    clearDeleteSnapError(): void {
+      patchState(store, { deleteSnapError: null });
     },
   })),
 );

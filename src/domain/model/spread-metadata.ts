@@ -1,3 +1,4 @@
+import { SnapMetaData } from './snap-metadata';
 import { Spread } from './spread';
 
 export interface SpreadMetaData {

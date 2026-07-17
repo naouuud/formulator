@@ -1,4 +1,4 @@
-export type ProblemDetailCode = 'SPREAD_NOT_FOUND' | 'VERSION_CONFLICT';
+export type ProblemDetailCode = 'SPREAD_NOT_FOUND' | 'VERSION_CONFLICT' | 'SNAP_NOT_FOUND';
 
 export type ProblemDetail = {
   status: number;
@@ -18,6 +18,13 @@ export const spreadNotFound = (id: string): ProblemDetail => ({
   title: 'Spread not found',
   detail: `No spread exists with id ${id}.`,
   code: 'SPREAD_NOT_FOUND',
+});
+
+export const snapNotFound = (id: string): ProblemDetail => ({
+  status: 404,
+  title: 'Snap not found',
+  detail: `No snap exists with id ${id}`,
+  code: 'SNAP_NOT_FOUND',
 });
 
 export const versionConflict = (
