@@ -1,4 +1,8 @@
-export type ProblemDetailCode = 'SPREAD_NOT_FOUND' | 'VERSION_CONFLICT' | 'SNAP_NOT_FOUND';
+export type ProblemDetailCode =
+  | 'SPREAD_NOT_FOUND'
+  | 'VERSION_CONFLICT'
+  | 'SNAP_NOT_FOUND'
+  | 'INVALID_REQUEST';
 
 export type ProblemDetail = {
   status: number;
@@ -23,7 +27,7 @@ export const spreadNotFound = (id: string): ProblemDetail => ({
 export const snapNotFound = (id: string): ProblemDetail => ({
   status: 404,
   title: 'Snap not found',
-  detail: `No snap exists with id ${id}`,
+  detail: `No snap exists with id ${id}.`,
   code: 'SNAP_NOT_FOUND',
 });
 
@@ -37,4 +41,17 @@ export const versionConflict = (
   code: 'VERSION_CONFLICT',
   expectedVersion,
   actualVersion,
+});
+
+export const invalidRequestBody = (detail?: string): ProblemDetail => ({
+  status: 400,
+  title: 'Invalid request body',
+  detail,
+  code: 'INVALID_REQUEST',
+});
+
+export const spreadIdMismatch = (): ProblemDetail => ({
+  status: 400,
+  title: 'Spread id in path and body must match',
+  code: 'INVALID_REQUEST',
 });

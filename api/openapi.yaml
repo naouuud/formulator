@@ -1,12 +1,18 @@
 openapi: 3.1.0
 info:
-  title: Formulator Spreads API
-  version: 0.0.0
+  title: Formulator API
+  version: 0.1.0
   description: |
     REST API contract for the Formulator form builder application.
 
-    This specification is derived from the Angular client (`SpreadService`) and the
-    mock HTTP interceptor that simulates the backend during local development.
+    Derived from the Angular client (`SpreadService`, `SnapService`), wire DTOs,
+    and the mock HTTP interceptor that simulates the backend during local development.
+
+    **Spreads** are editable form drafts. **Snaps** are immutable published snapshots
+    of a spread's schema, used for response collection.
+
+    Deleting a spread does not delete its snaps; orphan snaps may reference a
+    spread that no longer exists.
 
 servers:
   - url: http://localhost:8080
@@ -14,7 +20,9 @@ servers:
 
 tags:
   - name: Spreads
-    description: CRUD operations for form/survey spreads
+    description: CRUD operations for editable form/survey spreads
+  - name: Snaps
+    description: Publish and manage immutable spread snapshots
 
 paths:
   /spreads:
@@ -23,7 +31,10 @@ paths:
         - Spreads
       operationId: listSpreads
       summary: List spread metadata
-      description: Returns metadata for all spreads without the full page/element tree.
+      description: |
+        Returns metadata for all spreads without the full page/element tree.
+
+        The `title` field is denormalized from `schema.title` on the full spread.
       responses:
         '200':
           description: List of spread metadata
@@ -40,8 +51,8 @@ paths:
       operationId: createSpread
       summary: Create a new spread
       description: |
-        Creates a new empty spread with a generated UUID, default title, version 0,
-        one empty page, and current timestamps.
+        Creates a new empty spread with a generated UUID, `version` 0, a default
+        schema (empty title, one empty page), and current timestamps.
       requestBody:
         required: true
         content:
@@ -67,7 +78,7 @@ paths:
         - Spreads
       operationId: getSpreadById
       summary: Get spread by ID
-      description: Returns the full spread including pages and elements.
+      description: Returns the full spread including its schema (title, pages, and elements).
       responses:
         '200':
           description: Spread found
@@ -86,6 +97,8 @@ paths:
       description: |
         Replaces a spread by ID. Used for auto-save.
 
+        The path `id` and request body `id` must match.
+
         Optimistic concurrency is enforced via the `version` field: the request body
         must carry the current version. On success the server increments `version`
         and updates `lastModifiedAt`.
@@ -102,6 +115,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SpreadDto'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
         '404':
           $ref: '#/components/responses/SpreadNotFound'
         '409':
@@ -112,14 +127,127 @@ paths:
         - Spreads
       operationId: deleteSpread
       summary: Delete spread
+      description: |
+        Deletes a spread by ID. Does not delete associated snaps; published snaps
+        may become orphans referencing a spread that no longer exists.
       responses:
         '204':
           description: Spread deleted
         '404':
           $ref: '#/components/responses/SpreadNotFound'
 
+  /snaps:
+    get:
+      tags:
+        - Snaps
+      operationId: listSnaps
+      summary: List snap metadata
+      description: |
+        Returns metadata for snaps. When `spreadId` is provided, returns only snaps
+        published from that spread. When omitted, returns all snaps.
+
+        The `title` field is denormalized from `schema.title` on the full snap.
+      parameters:
+        - $ref: '#/components/parameters/SpreadIdQuery'
+      responses:
+        '200':
+          description: List of snap metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SnapMetaDataDto'
+
+    post:
+      tags:
+        - Snaps
+      operationId: createSnap
+      summary: Publish a snap
+      description: |
+        Publishes an immutable snapshot of a spread's current schema.
+
+        - Deep-clones the spread's `schema` at publish time.
+        - Records `spreadVersion` from the spread's current `version`.
+        - Assigns `edition` as the highest existing edition for that spread plus
+          one (starting at 1).
+        - Creates the snap with `status: active` and `closedAt: null`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSnapRequest'
+      responses:
+        '201':
+          description: Snap published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SnapDto'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/SpreadNotFound'
+
+  /snaps/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SnapId'
+
+    get:
+      tags:
+        - Snaps
+      operationId: getSnapById
+      summary: Get snap by ID
+      description: Returns the full snap including its immutable schema snapshot.
+      responses:
+        '200':
+          description: Snap found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SnapDto'
+        '404':
+          $ref: '#/components/responses/SnapNotFound'
+
+    delete:
+      tags:
+        - Snaps
+      operationId: deleteSnap
+      summary: Delete snap
+      responses:
+        '204':
+          description: Snap deleted
+        '404':
+          $ref: '#/components/responses/SnapNotFound'
+
 components:
   responses:
+    InvalidRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          examples:
+            missingSpreadId:
+              value:
+                status: 400
+                title: Invalid request body
+                detail: spreadId is required.
+                code: INVALID_REQUEST
+            invalidSpreadId:
+              value:
+                status: 400
+                title: Invalid request body
+                detail: spreadId must be a valid UUID.
+                code: INVALID_REQUEST
+            spreadIdMismatch:
+              value:
+                status: 400
+                title: Spread id in path and body must match
+                code: INVALID_REQUEST
+
     SpreadNotFound:
       description: Spread not found
       content:
@@ -133,6 +261,20 @@ components:
                 title: Spread not found
                 detail: No spread exists with id 00000000-0000-0000-0000-000000000000.
                 code: SPREAD_NOT_FOUND
+
+    SnapNotFound:
+      description: Snap not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          examples:
+            snapNotFound:
+              value:
+                status: 404
+                title: Snap not found
+                detail: No snap exists with id 00000000-0000-0000-0000-000000000000.
+                code: SNAP_NOT_FOUND
 
     VersionConflict:
       description: Version conflict — the spread was modified since the client last read it
@@ -160,6 +302,24 @@ components:
         type: string
         format: uuid
 
+    SnapId:
+      name: id
+      in: path
+      required: true
+      description: Snap UUID
+      schema:
+        type: string
+        format: uuid
+
+    SpreadIdQuery:
+      name: spreadId
+      in: query
+      required: false
+      description: Filter snaps to those published from this spread
+      schema:
+        type: string
+        format: uuid
+
   schemas:
     SpreadMetaDataDto:
       type: object
@@ -174,6 +334,7 @@ components:
           format: uuid
         title:
           type: string
+          description: Denormalized from `schema.title`.
         createdAt:
           type: string
           format: date-time
@@ -184,26 +345,136 @@ components:
           nullable: true
 
     SpreadDto:
-      allOf:
-        - $ref: '#/components/schemas/SpreadMetaDataDto'
-        - type: object
-          required:
-            - version
-            - ectm
-            - pages
-          properties:
-            version:
-              type: integer
-              minimum: 0
-              description: Optimistic locking counter; incremented on each successful update.
-            ectm:
-              type: integer
-              nullable: true
-              description: Estimated completion time in minutes.
-            pages:
-              type: array
-              items:
-                $ref: '#/components/schemas/Page'
+      type: object
+      required:
+        - id
+        - version
+        - ectm
+        - schema
+        - createdAt
+        - lastModifiedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          minimum: 0
+          description: Optimistic locking counter; incremented on each successful update.
+        ectm:
+          type: integer
+          nullable: true
+          description: Estimated completion time in minutes.
+        schema:
+          $ref: '#/components/schemas/Schema'
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        lastModifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    Schema:
+      type: object
+      required:
+        - title
+        - pages
+      properties:
+        title:
+          type: string
+        pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Page'
+
+    CreateSnapRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - spreadId
+      properties:
+        spreadId:
+          type: string
+          format: uuid
+          description: ID of the spread to publish
+
+    SnapMetaDataDto:
+      type: object
+      required:
+        - id
+        - spreadId
+        - title
+        - edition
+        - status
+        - publishedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        spreadId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          description: Denormalized from `schema.title`.
+        edition:
+          type: integer
+          minimum: 1
+          description: Publish edition number for the source spread (1-based).
+        status:
+          type: string
+          enum:
+            - active
+            - closed
+        publishedAt:
+          type: string
+          format: date-time
+
+    SnapDto:
+      type: object
+      required:
+        - id
+        - spreadId
+        - spreadVersion
+        - edition
+        - schema
+        - status
+        - publishedAt
+        - closedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        spreadId:
+          type: string
+          format: uuid
+        spreadVersion:
+          type: integer
+          minimum: 0
+          description: Spread `version` at publish time.
+        edition:
+          type: integer
+          minimum: 1
+          description: Publish edition number for the source spread (1-based).
+        schema:
+          $ref: '#/components/schemas/Schema'
+          description: Immutable snapshot of the spread schema at publish time.
+        status:
+          type: string
+          enum:
+            - active
+            - closed
+          description: Server-set on create; no update endpoint yet.
+        publishedAt:
+          type: string
+          format: date-time
+        closedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Server-set; always null on create.
 
     Page:
       type: object
@@ -395,7 +666,9 @@ components:
           type: string
           enum:
             - SPREAD_NOT_FOUND
+            - SNAP_NOT_FOUND
             - VERSION_CONFLICT
+            - INVALID_REQUEST
           description: Machine-readable error code
 
     VersionConflictDetail:

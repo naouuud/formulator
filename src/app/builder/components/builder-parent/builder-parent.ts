@@ -5,12 +5,21 @@ import { CreateSpread } from '../create-spread/create-spread';
 import { JsonViewer } from '../json-viewer/json-viewer';
 import { MetadataList } from '../metadata-list/metadata-list';
 import { PageCanvas } from '../page-canvas/page-canvas';
+import { SnapViewer } from '../snap-viewer/snap-viewer';
 import { SpreadHeader } from '../spread-header/spread-header';
 import { RenderedParent } from '../rendered/rendered-parent/rendered-parent';
 
 @Component({
   selector: 'app-builder-parent',
-  imports: [CreateSpread, MetadataList, SpreadHeader, PageCanvas, JsonViewer, RenderedParent],
+  imports: [
+    CreateSpread,
+    MetadataList,
+    SpreadHeader,
+    PageCanvas,
+    JsonViewer,
+    RenderedParent,
+    SnapViewer,
+  ],
   templateUrl: './builder-parent.html',
 })
 export class BuilderParent {

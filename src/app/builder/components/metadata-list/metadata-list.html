@@ -17,6 +17,7 @@
               ? 'bg-violet-50 text-violet-700 font-medium'
               : 'text-slate-700 hover:bg-slate-100'
           "
+          [class.font-medium]=""
           [disabled]="uiStore.deletingSpreadId() === spread.id"
           (click)="domainStore.loadSpread(spread.id)"
         >

@@ -9,21 +9,29 @@
 
   <!-- Main panel -->
   <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
-    @if (domainStore.activeSpread()) {
-      <app-spread-header />
-      @if (uiStore.viewer() === 'json') {
-        <app-json-viewer class="flex flex-1 overflow-hidden" />
-      } @else {
-        @if (uiStore.viewer() === 'rendered') {
-          <app-rendered-parent class="flex flex-col flex-1 min-h-0 overflow-hidden" />
-        } @else {
-          <app-page-canvas class="flex flex-col flex-1 overflow-hidden" />
+    @switch (domainStore.activeView()) {
+      @case ('snap') {
+        <app-snap-viewer class="flex flex-col flex-1 min-h-0 overflow-hidden" />
+      }
+      @case ('spread') {
+        @if (domainStore.activeSpread()) {
+          <app-spread-header />
+          @if (uiStore.viewer() === 'json') {
+            <app-json-viewer class="flex flex-1 overflow-hidden" />
+          } @else {
+            @if (uiStore.viewer() === 'rendered') {
+              <app-rendered-parent class="flex flex-col flex-1 min-h-0 overflow-hidden" />
+            } @else {
+              <app-page-canvas class="flex flex-col flex-1 overflow-hidden" />
+            }
+          }
         }
       }
-    } @else {
-      <div class="flex-1 flex items-center justify-center">
-        <p class="text-slate-400 text-sm">Select a spread or create a new one</p>
-      </div>
+      @default {
+        <div class="flex-1 flex items-center justify-center">
+          <p class="text-slate-400 text-sm">Select a spread or create a new one</p>
+        </div>
+      }
     }
   </div>
 </div>

@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Formulator Spreads API",
-    "version": "0.0.0",
-    "description": "REST API contract for the Formulator form builder application.\n\nThis specification is derived from the Angular client (`SpreadService`) and the\nmock HTTP interceptor that simulates the backend during local development.\n"
+    "title": "Formulator API",
+    "version": "0.1.0",
+    "description": "REST API contract for the Formulator form builder application.\n\nDerived from the Angular client (`SpreadService`, `SnapService`), wire DTOs,\nand the mock HTTP interceptor that simulates the backend during local development.\n\n**Spreads** are editable form drafts. **Snaps** are immutable published snapshots\nof a spread's schema, used for response collection.\n\nDeleting a spread does not delete its snaps; orphan snaps may reference a\nspread that no longer exists.\n"
   },
   "servers": [
     {
@@ -14,16 +14,22 @@
   "tags": [
     {
       "name": "Spreads",
-      "description": "CRUD operations for form/survey spreads"
+      "description": "CRUD operations for editable form/survey spreads"
+    },
+    {
+      "name": "Snaps",
+      "description": "Publish and manage immutable spread snapshots"
     }
   ],
   "paths": {
     "/spreads": {
       "get": {
-        "tags": ["Spreads"],
+        "tags": [
+          "Spreads"
+        ],
         "operationId": "listSpreads",
         "summary": "List spread metadata",
-        "description": "Returns metadata for all spreads without the full page/element tree.",
+        "description": "Returns metadata for all spreads without the full page/element tree.\n\nThe `title` field is denormalized from `schema.title` on the full spread.\n",
         "responses": {
           "200": {
             "description": "List of spread metadata",
@@ -41,10 +47,12 @@
         }
       },
       "post": {
-        "tags": ["Spreads"],
+        "tags": [
+          "Spreads"
+        ],
         "operationId": "createSpread",
         "summary": "Create a new spread",
-        "description": "Creates a new empty spread with a generated UUID, default title, version 0,\none empty page, and current timestamps.\n",
+        "description": "Creates a new empty spread with a generated UUID, `version` 0, a default\nschema (empty title, one empty page), and current timestamps.\n",
         "requestBody": {
           "required": true,
           "content": {
@@ -78,10 +86,12 @@
         }
       ],
       "get": {
-        "tags": ["Spreads"],
+        "tags": [
+          "Spreads"
+        ],
         "operationId": "getSpreadById",
         "summary": "Get spread by ID",
-        "description": "Returns the full spread including pages and elements.",
+        "description": "Returns the full spread including its schema (title, pages, and elements).",
         "responses": {
           "200": {
             "description": "Spread found",
@@ -99,10 +109,12 @@
         }
       },
       "put": {
-        "tags": ["Spreads"],
+        "tags": [
+          "Spreads"
+        ],
         "operationId": "updateSpread",
         "summary": "Update spread",
-        "description": "Replaces a spread by ID. Used for auto-save.\n\nOptimistic concurrency is enforced via the `version` field: the request body\nmust carry the current version. On success the server increments `version`\nand updates `lastModifiedAt`.\n",
+        "description": "Replaces a spread by ID. Used for auto-save.\n\nThe path `id` and request body `id` must match.\n\nOptimistic concurrency is enforced via the `version` field: the request body\nmust carry the current version. On success the server increments `version`\nand updates `lastModifiedAt`.\n",
         "requestBody": {
           "required": true,
           "content": {
@@ -124,6 +136,9 @@
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
           "404": {
             "$ref": "#/components/responses/SpreadNotFound"
           },
@@ -133,9 +148,12 @@
         }
       },
       "delete": {
-        "tags": ["Spreads"],
+        "tags": [
+          "Spreads"
+        ],
         "operationId": "deleteSpread",
         "summary": "Delete spread",
+        "description": "Deletes a spread by ID. Does not delete associated snaps; published snaps\nmay become orphans referencing a spread that no longer exists.\n",
         "responses": {
           "204": {
             "description": "Spread deleted"
@@ -145,10 +163,156 @@
           }
         }
       }
+    },
+    "/snaps": {
+      "get": {
+        "tags": [
+          "Snaps"
+        ],
+        "operationId": "listSnaps",
+        "summary": "List snap metadata",
+        "description": "Returns metadata for snaps. When `spreadId` is provided, returns only snaps\npublished from that spread. When omitted, returns all snaps.\n\nThe `title` field is denormalized from `schema.title` on the full snap.\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SpreadIdQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of snap metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SnapMetaDataDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Snaps"
+        ],
+        "operationId": "createSnap",
+        "summary": "Publish a snap",
+        "description": "Publishes an immutable snapshot of a spread's current schema.\n\n- Deep-clones the spread's `schema` at publish time.\n- Records `spreadVersion` from the spread's current `version`.\n- Assigns `edition` as the highest existing edition for that spread plus\n  one (starting at 1).\n- Creates the snap with `status: active` and `closedAt: null`.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSnapRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Snap published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/SpreadNotFound"
+          }
+        }
+      }
+    },
+    "/snaps/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/SnapId"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Snaps"
+        ],
+        "operationId": "getSnapById",
+        "summary": "Get snap by ID",
+        "description": "Returns the full snap including its immutable schema snapshot.",
+        "responses": {
+          "200": {
+            "description": "Snap found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/SnapNotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Snaps"
+        ],
+        "operationId": "deleteSnap",
+        "summary": "Delete snap",
+        "responses": {
+          "204": {
+            "description": "Snap deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/SnapNotFound"
+          }
+        }
+      }
     }
   },
   "components": {
     "responses": {
+      "InvalidRequest": {
+        "description": "Invalid request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            },
+            "examples": {
+              "missingSpreadId": {
+                "value": {
+                  "status": 400,
+                  "title": "Invalid request body",
+                  "detail": "spreadId is required.",
+                  "code": "INVALID_REQUEST"
+                }
+              },
+              "invalidSpreadId": {
+                "value": {
+                  "status": 400,
+                  "title": "Invalid request body",
+                  "detail": "spreadId must be a valid UUID.",
+                  "code": "INVALID_REQUEST"
+                }
+              },
+              "spreadIdMismatch": {
+                "value": {
+                  "status": 400,
+                  "title": "Spread id in path and body must match",
+                  "code": "INVALID_REQUEST"
+                }
+              }
+            }
+          }
+        }
+      },
       "SpreadNotFound": {
         "description": "Spread not found",
         "content": {
@@ -169,8 +333,28 @@
           }
         }
       },
+      "SnapNotFound": {
+        "description": "Snap not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            },
+            "examples": {
+              "snapNotFound": {
+                "value": {
+                  "status": 404,
+                  "title": "Snap not found",
+                  "detail": "No snap exists with id 00000000-0000-0000-0000-000000000000.",
+                  "code": "SNAP_NOT_FOUND"
+                }
+              }
+            }
+          }
+        }
+      },
       "VersionConflict": {
-        "description": "Version conflict \u2014 the spread was modified since the client last read it",
+        "description": "Version conflict — the spread was modified since the client last read it",
         "content": {
           "application/json": {
             "schema": {
@@ -202,19 +386,45 @@
           "type": "string",
           "format": "uuid"
         }
+      },
+      "SnapId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Snap UUID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "SpreadIdQuery": {
+        "name": "spreadId",
+        "in": "query",
+        "required": false,
+        "description": "Filter snaps to those published from this spread",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
       }
     },
     "schemas": {
       "SpreadMetaDataDto": {
         "type": "object",
-        "required": ["id", "title", "createdAt", "lastModifiedAt"],
+        "required": [
+          "id",
+          "title",
+          "createdAt",
+          "lastModifiedAt"
+        ],
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid"
           },
           "title": {
-            "type": "string"
+            "type": "string",
+            "description": "Denormalized from `schema.title`."
           },
           "createdAt": {
             "type": "string",
@@ -229,37 +439,180 @@
         }
       },
       "SpreadDto": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/SpreadMetaDataDto"
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "ectm",
+          "schema",
+          "createdAt",
+          "lastModifiedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
           },
-          {
-            "type": "object",
-            "required": ["version", "ectm", "pages"],
-            "properties": {
-              "version": {
-                "type": "integer",
-                "minimum": 0,
-                "description": "Optimistic locking counter; incremented on each successful update."
-              },
-              "ectm": {
-                "type": "integer",
-                "nullable": true,
-                "description": "Estimated completion time in minutes."
-              },
-              "pages": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Page"
-                }
-              }
+          "version": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Optimistic locking counter; incremented on each successful update."
+          },
+          "ectm": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Estimated completion time in minutes."
+          },
+          "schema": {
+            "$ref": "#/components/schemas/Schema"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastModifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "Schema": {
+        "type": "object",
+        "required": [
+          "title",
+          "pages"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Page"
             }
           }
-        ]
+        }
+      },
+      "CreateSnapRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "spreadId"
+        ],
+        "properties": {
+          "spreadId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the spread to publish"
+          }
+        }
+      },
+      "SnapMetaDataDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "spreadId",
+          "title",
+          "edition",
+          "status",
+          "publishedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spreadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "description": "Denormalized from `schema.title`."
+          },
+          "edition": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Publish edition number for the source spread (1-based)."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "closed"
+            ]
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SnapDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "spreadId",
+          "spreadVersion",
+          "edition",
+          "schema",
+          "status",
+          "publishedAt",
+          "closedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spreadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "spreadVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Spread `version` at publish time."
+          },
+          "edition": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Publish edition number for the source spread (1-based)."
+          },
+          "schema": {
+            "$ref": "#/components/schemas/Schema",
+            "description": "Immutable snapshot of the spread schema at publish time."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "closed"
+            ],
+            "description": "Server-set on create; no update endpoint yet."
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Server-set; always null on create."
+          }
+        }
       },
       "Page": {
         "type": "object",
-        "required": ["id", "title", "elements"],
+        "required": [
+          "id",
+          "title",
+          "elements"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -295,7 +648,11 @@
       },
       "NoteElement": {
         "type": "object",
-        "required": ["id", "type", "el"],
+        "required": [
+          "id",
+          "type",
+          "el"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -312,7 +669,11 @@
       },
       "QuestionElement": {
         "type": "object",
-        "required": ["id", "type", "el"],
+        "required": [
+          "id",
+          "type",
+          "el"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -329,7 +690,9 @@
       },
       "Note": {
         "type": "object",
-        "required": ["value"],
+        "required": [
+          "value"
+        ],
         "properties": {
           "value": {
             "type": "string",
@@ -346,11 +709,19 @@
               },
               {
                 "type": "object",
-                "required": ["htmlType"],
+                "required": [
+                  "htmlType"
+                ],
                 "properties": {
                   "htmlType": {
                     "type": "string",
-                    "enum": ["text", "date", "date_time", "calendar_date", "clock_time"]
+                    "enum": [
+                      "text",
+                      "date",
+                      "date_time",
+                      "calendar_date",
+                      "clock_time"
+                    ]
                   }
                 }
               }
@@ -363,7 +734,11 @@
       },
       "BaseQuestion": {
         "type": "object",
-        "required": ["label", "htmlType", "validators"],
+        "required": [
+          "label",
+          "htmlType",
+          "validators"
+        ],
         "properties": {
           "label": {
             "type": "string",
@@ -394,15 +769,27 @@
           },
           {
             "type": "object",
-            "required": ["htmlType", "optionValueType", "options"],
+            "required": [
+              "htmlType",
+              "optionValueType",
+              "options"
+            ],
             "properties": {
               "htmlType": {
                 "type": "string",
-                "enum": ["select", "radio", "checkbox"]
+                "enum": [
+                  "select",
+                  "radio",
+                  "checkbox"
+                ]
               },
               "optionValueType": {
                 "type": "string",
-                "enum": ["string", "number", "boolean"]
+                "enum": [
+                  "string",
+                  "number",
+                  "boolean"
+                ]
               },
               "options": {
                 "type": "array",
@@ -416,7 +803,11 @@
       },
       "Option": {
         "type": "object",
-        "required": ["id", "label", "value"],
+        "required": [
+          "id",
+          "label",
+          "value"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -442,7 +833,9 @@
       },
       "Validators": {
         "type": "object",
-        "required": ["required"],
+        "required": [
+          "required"
+        ],
         "properties": {
           "required": {
             "type": "boolean"
@@ -462,7 +855,11 @@
       },
       "ProblemDetail": {
         "type": "object",
-        "required": ["status", "title", "code"],
+        "required": [
+          "status",
+          "title",
+          "code"
+        ],
         "properties": {
           "status": {
             "type": "integer",
@@ -478,7 +875,12 @@
           },
           "code": {
             "type": "string",
-            "enum": ["SPREAD_NOT_FOUND", "VERSION_CONFLICT"],
+            "enum": [
+              "SPREAD_NOT_FOUND",
+              "SNAP_NOT_FOUND",
+              "VERSION_CONFLICT",
+              "INVALID_REQUEST"
+            ],
             "description": "Machine-readable error code"
           }
         }
@@ -490,7 +892,11 @@
           },
           {
             "type": "object",
-            "required": ["code", "expectedVersion", "actualVersion"],
+            "required": [
+              "code",
+              "expectedVersion",
+              "actualVersion"
+            ],
             "properties": {
               "code": {
                 "type": "string",

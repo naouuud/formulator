@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { SnapMetaData } from '../../../../domain/model/snap-metadata';
@@ -14,13 +14,15 @@ export class MetadataList {
   protected readonly uiStore = inject(UiStore);
   protected readonly openMenuSpreadId = signal<string | null>(null);
   protected readonly openMenuSnapId = signal<string | null>(null);
+  readonly #datePipe = new DatePipe('en-US');
 
   protected sortedSnaps(snaps: SnapMetaData[]): SnapMetaData[] {
     return [...snaps].sort((a, b) => b.edition - a.edition);
   }
 
   protected snapDisplayName(snap: SnapMetaData): string {
-    return `Edition ${snap.edition}`;
+    const date = this.#datePipe.transform(snap.publishedAt, 'MMM d');
+    return `#${snap.edition} · ${date}`;
   }
 
   protected snapStatusLabel(status: SnapMetaData['status']): string {

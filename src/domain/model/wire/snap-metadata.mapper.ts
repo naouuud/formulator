@@ -7,3 +7,11 @@ export function parseSnapMetaData(metaData: SnapMetaDataDto): SnapMetaData {
     publishedAt: new Date(metaData.publishedAt),
   };
 }
+
+export function toSnapMetaDataDto(metaData: SnapMetaData): SnapMetaDataDto {
+  const { publishedAt, ...rest } = metaData;
+  return {
+    ...rest,
+    publishedAt: publishedAt.toISOString(),
+  };
+}

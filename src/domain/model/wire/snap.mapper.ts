@@ -8,3 +8,12 @@ export function parseSnap(dto: SnapDto): Snap {
     closedAt: dto.closedAt ? new Date(dto.closedAt) : null,
   };
 }
+
+export function toSnapDto(snap: Snap): SnapDto {
+  const { publishedAt, closedAt, ...rest } = snap;
+  return {
+    ...rest,
+    publishedAt: publishedAt.toISOString(),
+    closedAt: closedAt?.toISOString() ?? null,
+  };
+}

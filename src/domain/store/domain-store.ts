@@ -67,6 +67,9 @@ export const DomainStore = signalStore(
   withState(initialState),
   withComputed((state) => ({
     activePage: computed(() => state.activeSpread()?.schema.pages[state.activePageIdx()]),
+    activeView: computed<'spread' | 'snap' | null>(() =>
+      state.activeSnap() ? 'snap' : state.activeSpread() ? 'spread' : null,
+    ),
     metaData: computed(() =>
       state.spreadsMetaData().map((spread) => ({
         ...spread,
@@ -168,6 +171,7 @@ export const DomainStore = signalStore(
                 tap((spread) =>
                   patchState(store, {
                     activeSpread: spread,
+                    activeSnap: null,
                     activePageIdx: 0,
                     createSpreadError: false,
                   }),
@@ -189,6 +193,7 @@ export const DomainStore = signalStore(
                 tap((created) =>
                   patchState(store, {
                     activeSpread: created,
+                    activeSnap: null,
                     activePageIdx: 0,
                     spreadsMetaData: [...store.spreadsMetaData(), spreadToMetaData(created)],
                     createSpreadError: false,
@@ -241,6 +246,8 @@ export const DomainStore = signalStore(
                 tap((snap) =>
                   patchState(store, {
                     activeSnap: snap,
+                    activeSpread: null,
+                    activePageIdx: 0,
                     loadSnapError: false,
                   }),
                 ),
@@ -272,6 +279,7 @@ export const DomainStore = signalStore(
                     tap((created) => {
                       patchState(store, {
                         activeSnap: created,
+                        activeSpread: null,
                         snapsMetaData: [...store.snapsMetaData(), snapToMetaData(created)],
                         createSnapError: false,
                       });
