@@ -21,9 +21,9 @@ import { SnapService } from 'src/external/api/snap.service';
 import { SpreadService } from '../../external/api/spread.service';
 import { UiStore } from '../../ui/store/ui-store';
 import { Snap } from '../model/snap';
-import { SnapMetaData, snapToMetaData } from '../model/snap-metadata';
+import { SnapMetaData, toSnapMetaData } from '../model/snap-metadata';
 import { Spread } from '../model/spread';
-import { SpreadMetaData, spreadToMetaData, updateMetaData } from '../model/spread-metadata';
+import { SpreadMetaData, toSpreadMetaData, updateMetaData } from '../model/spread-metadata';
 import { User } from '../model/user';
 
 type DomainState = {
@@ -195,7 +195,7 @@ export const DomainStore = signalStore(
                     activeSpread: created,
                     activeSnap: null,
                     activePageIdx: 0,
-                    spreadsMetaData: [...store.spreadsMetaData(), spreadToMetaData(created)],
+                    spreadsMetaData: [...store.spreadsMetaData(), toSpreadMetaData(created)],
                     createSpreadError: false,
                   }),
                 ),
@@ -271,7 +271,6 @@ export const DomainStore = signalStore(
                 patchState(store, { createSnapError: true, activeSnapLoading: false });
                 return EMPTY;
               }
-
               uiStore.startSpreadSaving();
               return performSave(spread).pipe(
                 switchMap((saved) =>
@@ -280,7 +279,7 @@ export const DomainStore = signalStore(
                       patchState(store, {
                         activeSnap: created,
                         activeSpread: null,
-                        snapsMetaData: [...store.snapsMetaData(), snapToMetaData(created)],
+                        snapsMetaData: [...store.snapsMetaData(), toSnapMetaData(created)],
                         createSnapError: false,
                       });
                     }),

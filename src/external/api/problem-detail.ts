@@ -2,7 +2,8 @@ export type ProblemDetailCode =
   | 'SPREAD_NOT_FOUND'
   | 'VERSION_CONFLICT'
   | 'SNAP_NOT_FOUND'
-  | 'INVALID_REQUEST';
+  | 'INVALID_REQUEST'
+  | 'INTERNAL_ERROR';
 
 export type ProblemDetail = {
   status: number;
@@ -49,6 +50,8 @@ export const invalidRequestBody = (detail?: string): ProblemDetail => ({
   detail,
   code: 'INVALID_REQUEST',
 });
+
+export const invalidUuid = (field: string) => invalidRequestBody(`${field} must be a valid UUID.`);
 
 export const spreadIdMismatch = (): ProblemDetail => ({
   status: 400,

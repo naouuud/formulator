@@ -86,6 +86,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SpreadDto'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
         '404':
           $ref: '#/components/responses/SpreadNotFound'
 
@@ -133,6 +135,8 @@ paths:
       responses:
         '204':
           description: Spread deleted
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
         '404':
           $ref: '#/components/responses/SpreadNotFound'
 
@@ -158,6 +162,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SnapMetaDataDto'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
 
     post:
       tags:
@@ -171,7 +177,7 @@ paths:
         - Records `spreadVersion` from the spread's current `version`.
         - Assigns `edition` as the highest existing edition for that spread plus
           one (starting at 1).
-        - Creates the snap with `status: active` and `closedAt: null`.
+        - Creates the snap with `status: ready` and `closedAt: null`.
       requestBody:
         required: true
         content:
@@ -207,6 +213,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SnapDto'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
         '404':
           $ref: '#/components/responses/SnapNotFound'
 
@@ -218,6 +226,8 @@ paths:
       responses:
         '204':
           description: Snap deleted
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
         '404':
           $ref: '#/components/responses/SnapNotFound'
 
@@ -230,6 +240,11 @@ components:
           schema:
             $ref: '#/components/schemas/ProblemDetail'
           examples:
+            invalidRequestBody:
+              value:
+                status: 400
+                title: Invalid request body
+                code: INVALID_REQUEST
             missingSpreadId:
               value:
                 status: 400
@@ -242,11 +257,30 @@ components:
                 title: Invalid request body
                 detail: spreadId must be a valid UUID.
                 code: INVALID_REQUEST
+            invalidId:
+              value:
+                status: 400
+                title: Invalid request body
+                detail: id must be a valid UUID.
+                code: INVALID_REQUEST
             spreadIdMismatch:
               value:
                 status: 400
                 title: Spread id in path and body must match
                 code: INVALID_REQUEST
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          examples:
+            internalError:
+              value:
+                status: 500
+                title: Internal server error
+                code: INTERNAL_ERROR
 
     SpreadNotFound:
       description: Spread not found
@@ -409,6 +443,7 @@ components:
         - edition
         - status
         - publishedAt
+        - closedAt
       properties:
         id:
           type: string
@@ -426,11 +461,16 @@ components:
         status:
           type: string
           enum:
+            - ready
             - active
             - closed
         publishedAt:
           type: string
           format: date-time
+        closedAt:
+          type: string
+          format: date-time
+          nullable: true
 
     SnapDto:
       type: object
@@ -464,6 +504,7 @@ components:
         status:
           type: string
           enum:
+            - ready
             - active
             - closed
           description: Server-set on create; no update endpoint yet.
@@ -669,6 +710,7 @@ components:
             - SNAP_NOT_FOUND
             - VERSION_CONFLICT
             - INVALID_REQUEST
+            - INTERNAL_ERROR
           description: Machine-readable error code
 
     VersionConflictDetail:

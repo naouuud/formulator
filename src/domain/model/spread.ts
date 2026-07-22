@@ -1,5 +1,4 @@
 import { Schema } from '@formulator/schema';
-import { Snap } from './snap';
 
 export interface Spread {
   readonly id: string;

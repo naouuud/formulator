@@ -6,7 +6,7 @@ export type Snap = {
   readonly spreadVersion: number;
   readonly edition: number;
   readonly schema: Schema;
-  readonly status: 'active' | 'closed';
+  readonly status: 'ready' | 'active' | 'closed';
   readonly publishedAt: Date;
   readonly closedAt: Date | null;
 };

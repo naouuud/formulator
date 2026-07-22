@@ -15,31 +15,28 @@ import (
 const createSpread = `-- name: CreateSpread :one
 INSERT INTO spreads (
     id,
-    title,
     version,
     ectm,
-    pages,
+    schema,
     created_at,
     last_modified_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7
+    $1, $2, $3, $4, $5, $6
 )
 RETURNING
     id,
-    title,
     version,
     ectm,
-    pages,
+    schema,
     created_at,
     last_modified_at
 `
 
 type CreateSpreadParams struct {
 	ID             pgtype.UUID        `json:"id"`
-	Title          string             `json:"title"`
 	Version        int32              `json:"version"`
 	Ectm           pgtype.Int4        `json:"ectm"`
-	Pages          json.RawMessage    `json:"pages"`
+	Schema         json.RawMessage    `json:"schema"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	LastModifiedAt pgtype.Timestamptz `json:"last_modified_at"`
 }
@@ -47,20 +44,18 @@ type CreateSpreadParams struct {
 func (q *Queries) CreateSpread(ctx context.Context, arg CreateSpreadParams) (Spread, error) {
 	row := q.db.QueryRow(ctx, createSpread,
 		arg.ID,
-		arg.Title,
 		arg.Version,
 		arg.Ectm,
-		arg.Pages,
+		arg.Schema,
 		arg.CreatedAt,
 		arg.LastModifiedAt,
 	)
 	var i Spread
 	err := row.Scan(
 		&i.ID,
-		&i.Title,
 		&i.Version,
 		&i.Ectm,
-		&i.Pages,
+		&i.Schema,
 		&i.CreatedAt,
 		&i.LastModifiedAt,
 	)
@@ -83,10 +78,9 @@ func (q *Queries) DeleteSpread(ctx context.Context, id pgtype.UUID) (int64, erro
 const getSpread = `-- name: GetSpread :one
 SELECT
     id,
-    title,
     version,
     ectm,
-    pages,
+    schema,
     created_at,
     last_modified_at
 FROM spreads
@@ -98,10 +92,9 @@ func (q *Queries) GetSpread(ctx context.Context, id pgtype.UUID) (Spread, error)
 	var i Spread
 	err := row.Scan(
 		&i.ID,
-		&i.Title,
 		&i.Version,
 		&i.Ectm,
-		&i.Pages,
+		&i.Schema,
 		&i.CreatedAt,
 		&i.LastModifiedAt,
 	)
@@ -124,7 +117,7 @@ func (q *Queries) GetSpreadVersion(ctx context.Context, id pgtype.UUID) (int32, 
 const listSpreadMetaData = `-- name: ListSpreadMetaData :many
 SELECT
     id,
-    title,
+    schema,
     created_at,
     last_modified_at
 FROM spreads
@@ -133,7 +126,7 @@ ORDER BY last_modified_at DESC
 
 type ListSpreadMetaDataRow struct {
 	ID             pgtype.UUID        `json:"id"`
-	Title          string             `json:"title"`
+	Schema         json.RawMessage    `json:"schema"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	LastModifiedAt pgtype.Timestamptz `json:"last_modified_at"`
 }
@@ -149,7 +142,7 @@ func (q *Queries) ListSpreadMetaData(ctx context.Context) ([]ListSpreadMetaDataR
 		var i ListSpreadMetaDataRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.Title,
+			&i.Schema,
 			&i.CreatedAt,
 			&i.LastModifiedAt,
 		); err != nil {
@@ -166,45 +159,40 @@ func (q *Queries) ListSpreadMetaData(ctx context.Context) ([]ListSpreadMetaDataR
 const updateSpread = `-- name: UpdateSpread :one
 UPDATE spreads
 SET
-    title = $2,
-    ectm = $3,
-    pages = $4,
+    ectm = $2,
+    schema = $3,
     version = version + 1,
     last_modified_at = NOW()
-WHERE id = $1 AND version = $5
+WHERE id = $1 AND version = $4
 RETURNING
     id,
-    title,
     version,
     ectm,
-    pages,
+    schema,
     created_at,
     last_modified_at
 `
 
 type UpdateSpreadParams struct {
 	ID      pgtype.UUID     `json:"id"`
-	Title   string          `json:"title"`
 	Ectm    pgtype.Int4     `json:"ectm"`
-	Pages   json.RawMessage `json:"pages"`
+	Schema  json.RawMessage `json:"schema"`
 	Version int32           `json:"version"`
 }
 
 func (q *Queries) UpdateSpread(ctx context.Context, arg UpdateSpreadParams) (Spread, error) {
 	row := q.db.QueryRow(ctx, updateSpread,
 		arg.ID,
-		arg.Title,
 		arg.Ectm,
-		arg.Pages,
+		arg.Schema,
 		arg.Version,
 	)
 	var i Spread
 	err := row.Scan(
 		&i.ID,
-		&i.Title,
 		&i.Version,
 		&i.Ectm,
-		&i.Pages,
+		&i.Schema,
 		&i.CreatedAt,
 		&i.LastModifiedAt,
 	)

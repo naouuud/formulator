@@ -48,6 +48,15 @@ func (s *Server) Router() http.Handler {
 		})
 	})
 
+	r.Route("/snaps", func(r chi.Router) {
+		r.Get("/", s.handleListSnaps)
+		r.Post("/", s.handleCreateSnap)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", s.handleGetSnap)
+			r.Delete("/", s.handleDeleteSnap)
+		})
+	})
+
 	return r
 }
 
@@ -59,11 +68,7 @@ func (s *Server) handleListSpreads(w http.ResponseWriter, r *http.Request) {
 	spreads, err := s.store.ListSpreadMetaData(r.Context())
 	if err != nil {
 		s.logger.Error("list spreads", "error", err)
-		writeJSON(w, http.StatusInternalServerError, apperrors.ProblemDetail{
-			Status: http.StatusInternalServerError,
-			Title:  "Internal server error",
-			Code:   "INTERNAL_ERROR",
-		})
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 		return
 	}
 
@@ -72,22 +77,14 @@ func (s *Server) handleListSpreads(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleCreateSpread(w http.ResponseWriter, r *http.Request) {
 	if _, err := io.ReadAll(r.Body); err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.ProblemDetail{
-			Status: http.StatusBadRequest,
-			Title:  "Invalid request body",
-			Code:   "INVALID_REQUEST",
-		})
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
 		return
 	}
 
 	spread, err := s.store.CreateSpread(r.Context())
 	if err != nil {
 		s.logger.Error("create spread", "error", err)
-		writeJSON(w, http.StatusInternalServerError, apperrors.ProblemDetail{
-			Status: http.StatusInternalServerError,
-			Title:  "Internal server error",
-			Code:   "INTERNAL_ERROR",
-		})
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 		return
 	}
 
@@ -98,11 +95,7 @@ func (s *Server) handleGetSpread(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	parsedID, err := api.ParseUUID(id)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.ProblemDetail{
-			Status: http.StatusBadRequest,
-			Title:  "Invalid spread id",
-			Code:   "INVALID_REQUEST",
-		})
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("id"))
 		return
 	}
 
@@ -114,11 +107,7 @@ func (s *Server) handleGetSpread(w http.ResponseWriter, r *http.Request) {
 		}
 
 		s.logger.Error("get spread", "error", err, "id", id)
-		writeJSON(w, http.StatusInternalServerError, apperrors.ProblemDetail{
-			Status: http.StatusInternalServerError,
-			Title:  "Internal server error",
-			Code:   "INTERNAL_ERROR",
-		})
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 		return
 	}
 
@@ -130,20 +119,12 @@ func (s *Server) handleUpdateSpread(w http.ResponseWriter, r *http.Request) {
 
 	var spread api.SpreadDto
 	if err := json.NewDecoder(r.Body).Decode(&spread); err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.ProblemDetail{
-			Status: http.StatusBadRequest,
-			Title:  "Invalid request body",
-			Code:   "INVALID_REQUEST",
-		})
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
 		return
 	}
 
 	if spread.ID != id {
-		writeJSON(w, http.StatusBadRequest, apperrors.ProblemDetail{
-			Status: http.StatusBadRequest,
-			Title:  "Spread id in path and body must match",
-			Code:   "INVALID_REQUEST",
-		})
+		writeJSON(w, http.StatusBadRequest, apperrors.SpreadIdMismatch())
 		return
 	}
 
@@ -157,11 +138,7 @@ func (s *Server) handleUpdateSpread(w http.ResponseWriter, r *http.Request) {
 			writeJSON(w, http.StatusNotFound, apperrors.SpreadNotFound(id))
 		default:
 			s.logger.Error("update spread", "error", err, "id", id)
-			writeJSON(w, http.StatusInternalServerError, apperrors.ProblemDetail{
-				Status: http.StatusInternalServerError,
-				Title:  "Internal server error",
-				Code:   "INTERNAL_ERROR",
-			})
+			writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 		}
 		return
 	}
@@ -173,11 +150,7 @@ func (s *Server) handleDeleteSpread(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	parsedID, err := api.ParseUUID(id)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.ProblemDetail{
-			Status: http.StatusBadRequest,
-			Title:  "Invalid spread id",
-			Code:   "INVALID_REQUEST",
-		})
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("id"))
 		return
 	}
 
@@ -188,11 +161,124 @@ func (s *Server) handleDeleteSpread(w http.ResponseWriter, r *http.Request) {
 		}
 
 		s.logger.Error("delete spread", "error", err, "id", id)
-		writeJSON(w, http.StatusInternalServerError, apperrors.ProblemDetail{
-			Status: http.StatusInternalServerError,
-			Title:  "Internal server error",
-			Code:   "INTERNAL_ERROR",
-		})
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) handleListSnaps(w http.ResponseWriter, r *http.Request) {
+	hasSpreadID := r.URL.Query().Has("spreadId")
+	if !hasSpreadID {
+		metaDataList, err := s.store.ListSnapMetaData(r.Context())
+		if err != nil {
+			s.logger.Error("list snaps", "error", err)
+			writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+			return
+		}
+		writeJSON(w, http.StatusOK, metaDataList)
+		return
+	}
+	spreadID := r.URL.Query().Get("spreadId")
+	if len(spreadID) == 0 {
+		writeJSON(w, http.StatusBadRequest, apperrors.SpreadIdRequired())
+		return
+	}
+	parsedID, err := api.ParseUUID(spreadID)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("spreadId"))
+		return
+	}
+	metaDataList, err := s.store.ListSnapMetaDataBySpreadId(r.Context(), parsedID)
+	if err != nil {
+		s.logger.Error("list snaps", "error", err)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, metaDataList)
+}
+
+func (s *Server) handleCreateSnap(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
+		return
+	}
+
+	var req struct {
+		SpreadID string `json:"spreadId"`
+	}
+	if err := json.Unmarshal(body, &req); err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
+		return
+	}
+
+	if req.SpreadID == "" {
+		writeJSON(w, http.StatusBadRequest, apperrors.SpreadIdRequired())
+		return
+	}
+
+	parsedID, err := api.ParseUUID(req.SpreadID)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("spreadId"))
+		return
+	}
+
+	snap, err := s.store.CreateSnap(r.Context(), parsedID)
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			writeJSON(w, http.StatusNotFound, apperrors.SpreadNotFound(req.SpreadID))
+			return
+		}
+		s.logger.Error("create snap", "error", err)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, snap)
+}
+
+func (s *Server) handleGetSnap(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	parsedID, err := api.ParseUUID(id)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("id"))
+		return
+	}
+
+	snap, err := s.store.GetSnap(r.Context(), parsedID)
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			writeJSON(w, http.StatusNotFound, apperrors.SnapNotFound(id))
+			return
+		}
+
+		s.logger.Error("get snap", "error", err, "id", id)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, snap)
+}
+
+func (s *Server) handleDeleteSnap(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	parsedID, err := api.ParseUUID(id)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("id"))
+		return
+	}
+
+	if err := s.store.DeleteSnap(r.Context(), parsedID); err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			writeJSON(w, http.StatusNotFound, apperrors.SnapNotFound(id))
+			return
+		}
+
+		s.logger.Error("delete snap", "error", err, "id", id)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 		return
 	}
 

@@ -17,7 +17,7 @@
               [class.bg-slate-100]="snap.status !== 'active'"
               [class.text-slate-500]="snap.status !== 'active'"
             >
-              {{ snap.status === 'active' ? 'Live' : 'Closed' }}
+              {{ snap.status }}
             </span>
           </div>
           <h1 class="mt-1 text-xl font-semibold text-slate-800 truncate">{{ title() }}</h1>

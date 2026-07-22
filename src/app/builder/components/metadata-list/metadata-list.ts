@@ -25,10 +25,6 @@ export class MetadataList {
     return `#${snap.edition} · ${date}`;
   }
 
-  protected snapStatusLabel(status: SnapMetaData['status']): string {
-    return status === 'active' ? 'Live' : 'Closed';
-  }
-
   protected toggleSpreadMenu(spreadId: string, event: Event): void {
     event.stopPropagation();
     if (this.uiStore.deletingSpreadId() === spreadId) return;

@@ -103,6 +103,9 @@
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
           "404": {
             "$ref": "#/components/responses/SpreadNotFound"
           }
@@ -158,6 +161,9 @@
           "204": {
             "description": "Spread deleted"
           },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
           "404": {
             "$ref": "#/components/responses/SpreadNotFound"
           }
@@ -190,6 +196,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
           }
         }
       },
@@ -199,7 +208,7 @@
         ],
         "operationId": "createSnap",
         "summary": "Publish a snap",
-        "description": "Publishes an immutable snapshot of a spread's current schema.\n\n- Deep-clones the spread's `schema` at publish time.\n- Records `spreadVersion` from the spread's current `version`.\n- Assigns `edition` as the highest existing edition for that spread plus\n  one (starting at 1).\n- Creates the snap with `status: active` and `closedAt: null`.\n",
+        "description": "Publishes an immutable snapshot of a spread's current schema.\n\n- Deep-clones the spread's `schema` at publish time.\n- Records `spreadVersion` from the spread's current `version`.\n- Assigns `edition` as the highest existing edition for that spread plus\n  one (starting at 1).\n- Creates the snap with `status: ready` and `closedAt: null`.\n",
         "requestBody": {
           "required": true,
           "content": {
@@ -254,6 +263,9 @@
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
           "404": {
             "$ref": "#/components/responses/SnapNotFound"
           }
@@ -268,6 +280,9 @@
         "responses": {
           "204": {
             "description": "Snap deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
           },
           "404": {
             "$ref": "#/components/responses/SnapNotFound"
@@ -286,6 +301,13 @@
               "$ref": "#/components/schemas/ProblemDetail"
             },
             "examples": {
+              "invalidRequestBody": {
+                "value": {
+                  "status": 400,
+                  "title": "Invalid request body",
+                  "code": "INVALID_REQUEST"
+                }
+              },
               "missingSpreadId": {
                 "value": {
                   "status": 400,
@@ -302,11 +324,38 @@
                   "code": "INVALID_REQUEST"
                 }
               },
+              "invalidId": {
+                "value": {
+                  "status": 400,
+                  "title": "Invalid request body",
+                  "detail": "id must be a valid UUID.",
+                  "code": "INVALID_REQUEST"
+                }
+              },
               "spreadIdMismatch": {
                 "value": {
                   "status": 400,
                   "title": "Spread id in path and body must match",
                   "code": "INVALID_REQUEST"
+                }
+              }
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            },
+            "examples": {
+              "internalError": {
+                "value": {
+                  "status": 500,
+                  "title": "Internal server error",
+                  "code": "INTERNAL_ERROR"
                 }
               }
             }
@@ -354,7 +403,7 @@
         }
       },
       "VersionConflict": {
-        "description": "Version conflict — the spread was modified since the client last read it",
+        "description": "Version conflict \u2014 the spread was modified since the client last read it",
         "content": {
           "application/json": {
             "schema": {
@@ -518,7 +567,8 @@
           "title",
           "edition",
           "status",
-          "publishedAt"
+          "publishedAt",
+          "closedAt"
         ],
         "properties": {
           "id": {
@@ -541,6 +591,7 @@
           "status": {
             "type": "string",
             "enum": [
+              "ready",
               "active",
               "closed"
             ]
@@ -548,6 +599,11 @@
           "publishedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "closedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         }
       },
@@ -589,6 +645,7 @@
           "status": {
             "type": "string",
             "enum": [
+              "ready",
               "active",
               "closed"
             ],
@@ -879,7 +936,8 @@
               "SPREAD_NOT_FOUND",
               "SNAP_NOT_FOUND",
               "VERSION_CONFLICT",
-              "INVALID_REQUEST"
+              "INVALID_REQUEST",
+              "INTERNAL_ERROR"
             ],
             "description": "Machine-readable error code"
           }

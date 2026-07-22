@@ -1,4 +1,3 @@
-import { SnapMetaData } from './snap-metadata';
 import { Spread } from './spread';
 
 export interface SpreadMetaData {
@@ -8,7 +7,7 @@ export interface SpreadMetaData {
   readonly lastModifiedAt: Date | null;
 }
 
-export const spreadToMetaData = (spread: Spread): SpreadMetaData => ({
+export const toSpreadMetaData = (spread: Spread): SpreadMetaData => ({
   id: spread.id,
   title: spread.schema.title,
   createdAt: spread.createdAt,
@@ -17,5 +16,5 @@ export const spreadToMetaData = (spread: Spread): SpreadMetaData => ({
 
 export const updateMetaData = (metaData: SpreadMetaData[], updated: Spread): SpreadMetaData[] =>
   metaData.map((spreadMetaData) =>
-    spreadMetaData.id === updated.id ? spreadToMetaData(updated) : spreadMetaData,
+    spreadMetaData.id === updated.id ? toSpreadMetaData(updated) : spreadMetaData,
   );

@@ -10,12 +10,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Snap struct {
+	ID            pgtype.UUID        `json:"id"`
+	SpreadID      pgtype.UUID        `json:"spread_id"`
+	SpreadVersion int32              `json:"spread_version"`
+	Edition       int32              `json:"edition"`
+	Schema        json.RawMessage    `json:"schema"`
+	Status        string             `json:"status"`
+	PublishedAt   pgtype.Timestamptz `json:"published_at"`
+	ClosedAt      pgtype.Timestamptz `json:"closed_at"`
+}
+
 type Spread struct {
 	ID             pgtype.UUID        `json:"id"`
-	Title          string             `json:"title"`
 	Version        int32              `json:"version"`
 	Ectm           pgtype.Int4        `json:"ectm"`
-	Pages          json.RawMessage    `json:"pages"`
+	Schema         json.RawMessage    `json:"schema"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	LastModifiedAt pgtype.Timestamptz `json:"last_modified_at"`
 }

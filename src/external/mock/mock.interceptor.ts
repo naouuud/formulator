@@ -2,15 +2,16 @@ import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { newSchema } from '@formulator/schema';
 import { of } from 'rxjs';
 import { Snap } from 'src/domain/model/snap';
-import { snapToMetaData } from 'src/domain/model/snap-metadata';
+import { toSnapMetaData } from 'src/domain/model/snap-metadata';
 import { Spread } from 'src/domain/model/spread';
-import { spreadToMetaData } from 'src/domain/model/spread-metadata';
+import { toSpreadMetaData } from 'src/domain/model/spread-metadata';
 import { toSnapDto } from 'src/domain/model/wire/snap.mapper';
 import { toSnapMetaDataDto } from 'src/domain/model/wire/snap-metadata.mapper';
 import { toSpreadDto, toSpreadMetaDataDto } from 'src/domain/model/wire/spread.mapper';
 import { ENV } from '../../app/env';
 import {
   invalidRequestBody,
+  invalidUuid,
   snapNotFound,
   spreadIdMismatch,
   spreadNotFound,
@@ -18,8 +19,7 @@ import {
 } from '../api/problem-detail';
 import { mockSchema } from './mock-schema';
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const isUuid = (value: unknown): value is string =>
   typeof value === 'string' && UUID_RE.test(value);
@@ -52,30 +52,38 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
 
   // GET /spreads
   if (req.method === 'GET' && url === '/spreads') {
-    const metaData = mockSpreads.map((spread) => toSpreadMetaDataDto(spreadToMetaData(spread)));
+    const metaData = mockSpreads.map((spread) =>
+      toSpreadMetaDataDto(toSpreadMetaData(structuredClone(spread))),
+    );
     return of(new HttpResponse({ status: 200, body: metaData }));
   }
 
   // GET /spreads/:id
   if (req.method === 'GET' && url.startsWith('/spreads/')) {
     const id = url.slice('/spreads/'.length);
+    if (!isUuid(id)) {
+      return of(new HttpResponse({ status: 400, body: invalidUuid('id') }));
+    }
     const spread = mockSpreads.find((s) => s.id === id);
     if (!spread) {
       return of(new HttpResponse({ status: 404, body: spreadNotFound(id) }));
     }
-    return of(new HttpResponse({ status: 200, body: toSpreadDto(spread) }));
+    return of(new HttpResponse({ status: 200, body: toSpreadDto(structuredClone(spread)) }));
   }
 
   // POST /spreads
   if (req.method === 'POST' && url === '/spreads') {
     const created = newMockSpread();
     mockSpreads.push(created);
-    return of(new HttpResponse({ status: 201, body: toSpreadDto(created) }));
+    return of(new HttpResponse({ status: 201, body: toSpreadDto(structuredClone(created)) }));
   }
 
   // PUT /spreads/:id
   if (req.method === 'PUT' && url.startsWith('/spreads/')) {
     const id = url.slice('/spreads/'.length);
+    if (!isUuid(id)) {
+      return of(new HttpResponse({ status: 400, body: invalidUuid('id') }));
+    }
     const payload = req.body as Spread | null;
     if (!payload?.id) {
       return of(new HttpResponse({ status: 400, body: invalidRequestBody() }));
@@ -84,30 +92,33 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
       return of(new HttpResponse({ status: 400, body: spreadIdMismatch() }));
     }
     const existing = mockSpreads.find((spread) => spread.id === id);
-    if (existing) {
-      const body = structuredClone(payload);
-      if (body.version !== existing.version) {
-        return of(
-          new HttpResponse({
-            status: 409,
-            body: versionConflict(body.version, existing.version),
-          }),
-        );
-      }
-      const updated: Spread = {
-        ...body,
-        version: body.version + 1,
-        lastModifiedAt: new Date(),
-      };
-      mockSpreads = mockSpreads.map((spread) => (spread.id === id ? updated : spread));
-      return of(new HttpResponse({ status: 200, body: toSpreadDto(updated) }));
+    if (!existing) {
+      return of(new HttpResponse({ status: 404, body: spreadNotFound(id) }));
     }
-    return of(new HttpResponse({ status: 404, body: spreadNotFound(id) }));
+    const body = structuredClone(payload);
+    if (body.version !== existing.version) {
+      return of(
+        new HttpResponse({
+          status: 409,
+          body: versionConflict(body.version, existing.version),
+        }),
+      );
+    }
+    const updated: Spread = {
+      ...body,
+      version: body.version + 1,
+      lastModifiedAt: new Date(),
+    };
+    mockSpreads = mockSpreads.map((spread) => (spread.id === id ? updated : spread));
+    return of(new HttpResponse({ status: 200, body: toSpreadDto(structuredClone(updated)) }));
   }
 
   // DELETE /spreads/:id
   if (req.method === 'DELETE' && url.startsWith('/spreads/')) {
     const id = url.slice('/spreads/'.length);
+    if (!isUuid(id)) {
+      return of(new HttpResponse({ status: 400, body: invalidUuid('id') }));
+    }
     const exists = mockSpreads.some((spread) => spread.id === id);
     if (exists) {
       mockSpreads = mockSpreads.filter((spread) => spread.id !== id);
@@ -122,16 +133,41 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
       return of(
         new HttpResponse({
           status: 200,
-          body: mockSnaps.map((snap) => toSnapMetaDataDto(snapToMetaData(snap))),
+          body: mockSnaps.map((snap) => toSnapMetaDataDto(toSnapMetaData(structuredClone(snap)))),
         }),
       );
     }
-    const spreadId = new URLSearchParams(url.slice('snaps?'.length)).get('spreadId');
-    const snaps = spreadId ? mockSnaps.filter((snap) => snap.spreadId === spreadId) : mockSnaps;
+    const params = new URLSearchParams(url.slice('snaps?'.length));
+    if (params.has('spreadId')) {
+      const spreadId = params.get('spreadId');
+      if (!spreadId) {
+        return of(
+          new HttpResponse({
+            status: 400,
+            body: invalidRequestBody('spreadId is required.'),
+          }),
+        );
+      }
+      if (!isUuid(spreadId)) {
+        return of(
+          new HttpResponse({
+            status: 400,
+            body: invalidUuid('spreadId'),
+          }),
+        );
+      }
+      const snaps = mockSnaps.filter((snap) => snap.spreadId === spreadId);
+      return of(
+        new HttpResponse({
+          status: 200,
+          body: snaps.map((snap) => toSnapMetaDataDto(toSnapMetaData(structuredClone(snap)))),
+        }),
+      );
+    }
     return of(
       new HttpResponse({
         status: 200,
-        body: snaps.map((snap) => toSnapMetaDataDto(snapToMetaData(snap))),
+        body: mockSnaps.map((snap) => toSnapMetaDataDto(toSnapMetaData(structuredClone(snap)))),
       }),
     );
   }
@@ -139,11 +175,14 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
   // GET /snaps/:id
   if (req.method === 'GET' && url.startsWith('/snaps/')) {
     const id = url.slice('/snaps/'.length);
+    if (!isUuid(id)) {
+      return of(new HttpResponse({ status: 400, body: invalidUuid('id') }));
+    }
     const snap = mockSnaps.find((snap) => snap.id === id);
     if (!snap) {
       return of(new HttpResponse({ status: 404, body: snapNotFound(id) }));
     }
-    return of(new HttpResponse({ status: 200, body: toSnapDto(snap) }));
+    return of(new HttpResponse({ status: 200, body: toSnapDto(structuredClone(snap)) }));
   }
 
   // POST /snaps
@@ -161,7 +200,7 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
       return of(
         new HttpResponse({
           status: 400,
-          body: invalidRequestBody('spreadId must be a valid UUID.'),
+          body: invalidUuid('spreadId'),
         }),
       );
     }
@@ -175,17 +214,20 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
       spreadVersion: spread.version,
       edition: latest + 1,
       schema: structuredClone(spread.schema),
-      status: 'active',
+      status: 'ready',
       publishedAt: new Date(),
       closedAt: null,
     };
     mockSnaps.push(created);
-    return of(new HttpResponse({ status: 201, body: toSnapDto(created) }));
+    return of(new HttpResponse({ status: 201, body: toSnapDto(structuredClone(created)) }));
   }
 
   // DELETE /snaps/:id
   if (req.method === 'DELETE' && url.startsWith('/snaps/')) {
     const id = url.slice('/snaps/'.length);
+    if (!isUuid(id)) {
+      return of(new HttpResponse({ status: 400, body: invalidUuid('id') }));
+    }
     const exists = mockSnaps.find((snap) => snap.id === id);
     if (exists) {
       mockSnaps = mockSnaps.filter((snap) => snap.id !== id);
