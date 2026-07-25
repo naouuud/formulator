@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"formulator/backend/internal/api"
 	"formulator/backend/internal/apperrors"
@@ -57,6 +58,14 @@ func (s *Server) Router() http.Handler {
 		})
 	})
 
+	r.Route("/spills", func(r chi.Router) {
+		r.Get("/", s.handleListSpills)
+		r.Post("/", s.handleCreateSpill)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Delete("/", s.handleDeleteSpill)
+		})
+	})
+
 	return r
 }
 
@@ -76,13 +85,44 @@ func (s *Server) handleListSpreads(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleCreateSpread(w http.ResponseWriter, r *http.Request) {
-	if _, err := io.ReadAll(r.Body); err != nil {
+	var req struct {
+		ID string `json:"id"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
 		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
 		return
 	}
 
-	spread, err := s.store.CreateSpread(r.Context())
+	if req.ID == "" {
+		spread, err := s.store.CreateSpread(r.Context())
+		if err != nil {
+			s.logger.Error("create spread", "error", err)
+			writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+			return
+		}
+
+		writeJSON(w, http.StatusCreated, spread)
+		return
+	}
+
+	parsedID, err := api.ParseUUID(req.ID)
 	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("id must be a valid UUID."))
+		return
+	}
+
+	spread, err := s.store.CreateSpreadWithId(r.Context(), parsedID)
+	if err != nil {
+    if errors.Is(err, store.ErrDuplicateSpreadID) {
+      writeJSON(w, http.StatusConflict, apperrors.ProblemDetail{
+        Status: http.StatusConflict,
+        Title: "Conflict",
+        Detail: "duplicate id",
+        Code: apperrors.CodeConflict,
+      })
+      return
+    }
 		s.logger.Error("create spread", "error", err)
 		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 		return
@@ -93,9 +133,8 @@ func (s *Server) handleCreateSpread(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleGetSpread(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	parsedID, err := api.ParseUUID(id)
-	if err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("id"))
+	parsedID := checkUUID(w, id, "id")
+	if !parsedID.Valid {
 		return
 	}
 
@@ -148,9 +187,8 @@ func (s *Server) handleUpdateSpread(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleDeleteSpread(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	parsedID, err := api.ParseUUID(id)
-	if err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("id"))
+	parsedID := checkUUID(w, id, "id")
+	if !parsedID.Valid {
 		return
 	}
 
@@ -181,15 +219,11 @@ func (s *Server) handleListSnaps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	spreadID := r.URL.Query().Get("spreadId")
-	if len(spreadID) == 0 {
-		writeJSON(w, http.StatusBadRequest, apperrors.SpreadIdRequired())
+	parsedID := checkUUID(w, spreadID, "spreadId")
+	if !parsedID.Valid {
 		return
 	}
-	parsedID, err := api.ParseUUID(spreadID)
-	if err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("spreadId"))
-		return
-	}
+
 	metaDataList, err := s.store.ListSnapMetaDataBySpreadId(r.Context(), parsedID)
 	if err != nil {
 		s.logger.Error("list snaps", "error", err)
@@ -207,29 +241,29 @@ func (s *Server) handleCreateSnap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
+	var payload struct {
 		SpreadID string `json:"spreadId"`
 	}
-	if err := json.Unmarshal(body, &req); err != nil {
+	if err := json.Unmarshal(body, &payload); err != nil {
 		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
 		return
 	}
 
-	if req.SpreadID == "" {
-		writeJSON(w, http.StatusBadRequest, apperrors.SpreadIdRequired())
+	if payload.SpreadID == "" {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("spreadId is required"))
 		return
 	}
 
-	parsedID, err := api.ParseUUID(req.SpreadID)
+	parsedID, err := api.ParseUUID(payload.SpreadID)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("spreadId"))
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("spreadId must be a valid UUID"))
 		return
 	}
 
 	snap, err := s.store.CreateSnap(r.Context(), parsedID)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
-			writeJSON(w, http.StatusNotFound, apperrors.SpreadNotFound(req.SpreadID))
+			writeJSON(w, http.StatusNotFound, apperrors.SpreadNotFound(payload.SpreadID))
 			return
 		}
 		s.logger.Error("create snap", "error", err)
@@ -242,9 +276,8 @@ func (s *Server) handleCreateSnap(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleGetSnap(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	parsedID, err := api.ParseUUID(id)
-	if err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("id"))
+	parsedID := checkUUID(w, id, "id")
+	if !parsedID.Valid {
 		return
 	}
 
@@ -265,9 +298,8 @@ func (s *Server) handleGetSnap(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleDeleteSnap(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	parsedID, err := api.ParseUUID(id)
-	if err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID("id"))
+	parsedID := checkUUID(w, id, "id")
+	if !parsedID.Valid {
 		return
 	}
 
@@ -278,6 +310,85 @@ func (s *Server) handleDeleteSnap(w http.ResponseWriter, r *http.Request) {
 		}
 
 		s.logger.Error("delete snap", "error", err, "id", id)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) handleListSpills(w http.ResponseWriter, r *http.Request) {
+	snapID := r.URL.Query().Get("snapId")
+	parsedID := checkUUID(w, snapID, "snapId")
+	if !parsedID.Valid {
+		return
+	}
+
+	spills, err := s.store.ListSpillMetaData(r.Context(), parsedID)
+	if err != nil {
+		s.logger.Error("list spills", "error", err)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, spills)
+}
+
+type CreateSpillRequest struct {
+	SnapID    string `json:"snapId"`
+	Email     string `json:"email"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
+
+func (s *Server) handleCreateSpill(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
+		return
+	}
+	var req CreateSpillRequest
+	if err := json.Unmarshal(body, &req); err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
+		return
+	}
+	if req.SnapID == "" || req.Email == "" {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("snapId and email are required"))
+		return
+	}
+	parsedID, err := api.ParseUUID(req.SnapID)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("snapId must be a valid UUID"))
+		return
+	}
+
+	spill, err := s.store.CreateSpill(r.Context(), parsedID, req.Email, req.FirstName, req.LastName)
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			writeJSON(w, http.StatusNotFound, apperrors.SnapNotFound(req.SnapID))
+			return
+		}
+		s.logger.Error("create spill", "error", err)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, spill)
+}
+
+func (s *Server) handleDeleteSpill(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	parsedID := checkUUID(w, id, "id")
+	if !parsedID.Valid {
+		return
+	}
+
+	if err := s.store.DeleteSpill(r.Context(), parsedID); err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			writeJSON(w, http.StatusNotFound, apperrors.SpillNotFound(id))
+			return
+		}
+		s.logger.Error("delete spill", "error", err)
 		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 		return
 	}
@@ -298,6 +409,18 @@ func (s *Server) corsMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func checkUUID(w http.ResponseWriter, id string, field string) (parsedID pgtype.UUID) {
+	if id == "" {
+		writeJSON(w, http.StatusBadRequest, apperrors.MissingUUID(field))
+		return
+	}
+	parsedID, err := api.ParseUUID(id)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidUUID(field))
+	}
+	return
 }
 
 func writeJSON(w http.ResponseWriter, status int, payload any) {

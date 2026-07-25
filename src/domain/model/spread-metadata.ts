@@ -3,7 +3,7 @@ import { Spread } from './spread';
 export interface SpreadMetaData {
   readonly id: string;
   readonly title: string;
-  readonly createdAt: Date | null;
+  readonly createdAt: Date;
   readonly lastModifiedAt: Date | null;
 }
 

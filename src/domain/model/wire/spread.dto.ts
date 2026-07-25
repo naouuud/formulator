@@ -2,7 +2,7 @@ import { Spread } from '../spread';
 import { SpreadMetaData } from '../spread-metadata';
 
 type WireDates = {
-  readonly createdAt: string | null;
+  readonly createdAt: string;
   readonly lastModifiedAt: string | null;
 };
 

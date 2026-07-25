@@ -53,7 +53,9 @@
   <div class="relative group">
     <button
       class="inline-flex items-center justify-center gap-2 min-w-[4.5rem] px-4 py-1.5 rounded-md bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 disabled:opacity-50 transition-colors"
-      [disabled]="uiStore.spreadSaving() || domainStore.activeSnapLoading()"
+      [disabled]="
+        uiStore.spreadSaving() || domainStore.activeSnapLoading() || !publishRequirementsMet()
+      "
       (click)="createSnap()"
     >
       @if (domainStore.activeSnapLoading()) {

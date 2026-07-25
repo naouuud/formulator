@@ -5,14 +5,14 @@ info:
   description: |
     REST API contract for the Formulator form builder application.
 
-    Derived from the Angular client (`SpreadService`, `SnapService`), wire DTOs,
+    Derived from the Angular client (`SpreadService`, `SnapService`, `SpillService`), wire DTOs,
     and the mock HTTP interceptor that simulates the backend during local development.
 
     **Spreads** are editable form drafts. **Snaps** are immutable published snapshots
-    of a spread's schema, used for response collection.
+    of a spread's schema, used for response collection. A **spill** is an unique instance of a snap shared for response collection, and contains the response schema.
 
     Deleting a spread does not delete its snaps; orphan snaps may reference a
-    spread that no longer exists.
+    spread that no longer exists. Deleting a snap does not affect any of its spills.
 
 servers:
   - url: http://localhost:8080
@@ -23,6 +23,8 @@ tags:
     description: CRUD operations for editable form/survey spreads
   - name: Snaps
     description: Publish and manage immutable spread snapshots
+  - name: Spills
+    description: Share a snap to collect responses
 
 paths:
   /spreads:
@@ -177,7 +179,6 @@ paths:
         - Records `spreadVersion` from the spread's current `version`.
         - Assigns `edition` as the highest existing edition for that spread plus
           one (starting at 1).
-        - Creates the snap with `status: ready` and `closedAt: null`.
       requestBody:
         required: true
         content:
@@ -223,13 +224,91 @@ paths:
         - Snaps
       operationId: deleteSnap
       summary: Delete snap
+      description: |
+        Removes the snap from the builder. After a successful delete, list and get
+        requests for that snap return 404 — a hard delete from the client's perspective.
+
+        The server retains the snap record internally (soft-close) so existing spills
+        can still resolve the published schema for response data.
       responses:
         '204':
-          description: Snap deleted
+          description: Snap removed from the client; no longer returned by list or get
         '400':
           $ref: '#/components/responses/InvalidRequest'
         '404':
           $ref: '#/components/responses/SnapNotFound'
+
+  /spills:
+    get:
+      tags:
+        - Spills
+      operationId: listSpills
+      summary: List spill metadata
+      description: |
+        Returns metadata for all spills matching the provided `snapId`, omitting the response schema.
+      parameters:
+        - $ref: '#/components/parameters/SnapIdQuery'
+      responses:
+        '200':
+          description: List of spill metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpillMetaDataDto'
+
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+
+    post:
+      tags:
+        - Spills
+      operationId: createSpill
+      summary: Share a spill
+      description: |
+        Creates a unique response collection record for a responder.
+
+        - Request body must provide `snapId` and `email` (responder's email).
+        - Optionally, `firstName` and `lastName` (of responder) can be provided.
+        - Creates `rSchema` (response schema)  holding references to schema questions by id and answers initialized to empty string.
+        - Originating schema is inferred from `snapId`, no clone is created.
+        - Properties `lastModifiedAt` and `completedAt` are initialized to null.
+        - Spill `id` acts as the unique token when sharing the spill instance with responder.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSpillRequest'
+      responses:
+        '201':
+          description: Spill created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpillMetaDataDto'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/SnapNotFound'
+
+  /spills/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SpillId'
+
+    delete:
+      tags:
+        - Spills
+      operationId: deleteSpill
+      summary: Delete spill
+      responses:
+        '204':
+          description: Spill deleted
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/SpillNotFound'
 
 components:
   responses:
@@ -267,6 +346,18 @@ components:
               value:
                 status: 400
                 title: Spread id in path and body must match
+                code: INVALID_REQUEST
+            missingSnapId:
+              value:
+                status: 400
+                title: Invalid request body
+                detail: snapId is required.
+                code: INVALID_REQUEST
+            invalidSnapId:
+              value:
+                status: 400
+                title: Invalid request body
+                detail: snapId must be a valid UUID.
                 code: INVALID_REQUEST
 
     InternalError:
@@ -310,6 +401,20 @@ components:
                 detail: No snap exists with id 00000000-0000-0000-0000-000000000000.
                 code: SNAP_NOT_FOUND
 
+    SpillNotFound:
+      description: Spill not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          examples:
+            spillNotFound:
+              value:
+                status: 404
+                title: Spill not found
+                detail: No spill exists with id 00000000-0000-0000-0000-000000000000.
+                code: SPILL_NOT_FOUND
+
     VersionConflict:
       description: Version conflict — the spread was modified since the client last read it
       content:
@@ -345,11 +450,29 @@ components:
         type: string
         format: uuid
 
+    SpillId:
+      name: id
+      in: path
+      required: true
+      description: Spill UUID
+      schema:
+        type: string
+        format: uuid
+
     SpreadIdQuery:
       name: spreadId
       in: query
       required: false
       description: Filter snaps to those published from this spread
+      schema:
+        type: string
+        format: uuid
+
+    SnapIdQuery:
+      name: snapId
+      in: query
+      required: true
+      description: Filter spills to those created from this snap
       schema:
         type: string
         format: uuid
@@ -372,7 +495,6 @@ components:
         createdAt:
           type: string
           format: date-time
-          nullable: true
         lastModifiedAt:
           type: string
           format: date-time
@@ -404,7 +526,6 @@ components:
         createdAt:
           type: string
           format: date-time
-          nullable: true
         lastModifiedAt:
           type: string
           format: date-time
@@ -439,11 +560,10 @@ components:
       required:
         - id
         - spreadId
+        - spreadVersion
         - title
         - edition
-        - status
         - publishedAt
-        - closedAt
       properties:
         id:
           type: string
@@ -451,6 +571,10 @@ components:
         spreadId:
           type: string
           format: uuid
+        spreadVersion:
+          type: integer
+          minimum: 0
+          description: Spread `version` at publish time.
         title:
           type: string
           description: Denormalized from `schema.title`.
@@ -458,19 +582,9 @@ components:
           type: integer
           minimum: 1
           description: Publish edition number for the source spread (1-based).
-        status:
-          type: string
-          enum:
-            - ready
-            - active
-            - closed
         publishedAt:
           type: string
           format: date-time
-        closedAt:
-          type: string
-          format: date-time
-          nullable: true
 
     SnapDto:
       type: object
@@ -480,9 +594,7 @@ components:
         - spreadVersion
         - edition
         - schema
-        - status
         - publishedAt
-        - closedAt
       properties:
         id:
           type: string
@@ -501,21 +613,83 @@ components:
         schema:
           $ref: '#/components/schemas/Schema'
           description: Immutable snapshot of the spread schema at publish time.
-        status:
-          type: string
-          enum:
-            - ready
-            - active
-            - closed
-          description: Server-set on create; no update endpoint yet.
         publishedAt:
           type: string
           format: date-time
-        closedAt:
+
+    CreateSpillRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - snapId
+        - email
+      properties:
+        snapId:
+          type: string
+          format: uuid
+          description: ID of the snap being shared
+        email:
+          type: string
+          format: email
+          description: Responder email
+        firstName:
+          type: string
+          description: Responder first name
+        lastName:
+          type: string
+          description: Responder last name
+    SpillMetaDataDto:
+      type: object
+      required:
+        - id
+        - snapId
+        - firstName
+        - lastName
+        - email
+        - createdAt
+        - lastModifiedAt
+        - completedAt
+        - sentAt
+        - expiredAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        snapId:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+          description: Responder first name, can be empty string.
+        lastName:
+          type: string
+          description: Responder last name, can be empty string.
+        email:
+          type: string
+          format: email
+          description: Responder email for spill sharing.
+        createdAt:
+          type: string
+          format: date-time
+        lastModifiedAt:
           type: string
           format: date-time
           nullable: true
-          description: Server-set; always null on create.
+          description: Last modification by responder; null on create.
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        sentAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Reserved; null on create until scheduling slice.
+        expiredAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Reserved; null on create until scheduling slice.
 
     Page:
       type: object
@@ -579,9 +753,9 @@ components:
     Note:
       type: object
       required:
-        - value
+        - label
       properties:
-        value:
+        label:
           type: string
           description: Rich text content.
 
@@ -708,6 +882,7 @@ components:
           enum:
             - SPREAD_NOT_FOUND
             - SNAP_NOT_FOUND
+            - SPILL_NOT_FOUND
             - VERSION_CONFLICT
             - INVALID_REQUEST
             - INTERNAL_ERROR

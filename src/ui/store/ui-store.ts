@@ -3,10 +3,13 @@ import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 type UiState = {
   spreadSaving: boolean;
   spreadSavingError: { message: string; code?: string } | null;
+
   deletingSpreadId: string | null;
   deleteSpreadError: { message: string; code?: string } | null;
+
   deletingSnapId: string | null;
   deleteSnapError: { message: string; code?: string } | null;
+
   viewer: 'json' | 'rendered' | null;
   selectedElementId: string | null;
 };
@@ -14,10 +17,13 @@ type UiState = {
 const initialState: UiState = {
   spreadSaving: false,
   spreadSavingError: null,
+
   deletingSpreadId: null,
   deleteSpreadError: null,
+
   deletingSnapId: null,
   deleteSnapError: null,
+
   viewer: null,
   selectedElementId: null,
 };

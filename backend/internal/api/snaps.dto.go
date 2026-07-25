@@ -9,13 +9,12 @@ import (
 )
 
 type SnapMetaDataDto struct {
-	ID          string     `json:"id"`
-	SpreadID    string     `json:"spreadId"`
-	Edition     int32      `json:"edition"`
-	Title       string     `json:"title"`
-	Status      string     `json:"status"`
-	PublishedAt *time.Time `json:"publishedAt"`
-	ClosedAt    *time.Time `json:"closedAt"`
+	ID            string     `json:"id"`
+	SpreadID      string     `json:"spreadId"`
+	SpreadVersion int32      `json:"spreadVersion"`
+	Edition       int32      `json:"edition"`
+	Title         string     `json:"title"`
+	PublishedAt   *time.Time `json:"publishedAt"`
 }
 
 type SnapDto struct {
@@ -24,17 +23,14 @@ type SnapDto struct {
 	SpreadVersion int32           `json:"spreadVersion"`
 	Edition       int32           `json:"edition"`
 	Schema        json.RawMessage `json:"schema"`
-	Status        string          `json:"status"`
 	PublishedAt   *time.Time      `json:"publishedAt"`
-	ClosedAt      *time.Time      `json:"closedAt"`
 }
 
 func snapMetaDataDtoFromFields(
 	id, spreadID pgtype.UUID,
 	schema json.RawMessage,
-	edition int32,
-	status string,
-	publishedAt, closedAt pgtype.Timestamptz,
+	spreadVersion, edition int32,
+	publishedAt pgtype.Timestamptz,
 ) (SnapMetaDataDto, error) {
 	var parsed struct {
 		Title string `json:"title"`
@@ -45,33 +41,39 @@ func snapMetaDataDtoFromFields(
 	}
 
 	return SnapMetaDataDto{
-		ID:          uuidToString(id),
-		SpreadID:    uuidToString(spreadID),
-		Edition:     edition,
-		Title:       parsed.Title,
-		Status:      status,
-		PublishedAt: timestamptzToPtr(publishedAt),
-		ClosedAt:    timestamptzToPtr(closedAt),
+		ID:            uuidToString(id),
+		SpreadID:      uuidToString(spreadID),
+		SpreadVersion: spreadVersion,
+		Edition:       edition,
+		Title:         parsed.Title,
+		PublishedAt:   timestamptzToPtr(publishedAt),
 	}, nil
 }
 
 func SnapMetaDataDtoFromRow(row db.ListSnapMetaDataRow) (SnapMetaDataDto, error) {
-	return snapMetaDataDtoFromFields(row.ID, row.SpreadID, row.Schema, row.Edition, row.Status, row.PublishedAt, row.ClosedAt)
+	return snapMetaDataDtoFromFields(row.ID, row.SpreadID, row.Schema, row.SpreadVersion, row.Edition, row.PublishedAt)
 }
 
 func SnapMetaDataDtoFromBySpreadIdRow(row db.ListSnapMetaDataBySpreadIdRow) (SnapMetaDataDto, error) {
-	return snapMetaDataDtoFromFields(row.ID, row.SpreadID, row.Schema, row.Edition, row.Status, row.PublishedAt, row.ClosedAt)
+	return snapMetaDataDtoFromFields(row.ID, row.SpreadID, row.Schema, row.SpreadVersion, row.Edition, row.PublishedAt)
 }
 
-func SnapDtoFromRow(row db.Snap) SnapDto {
+func snapDtoFromFields(
+	ID, spreadID pgtype.UUID, spreadVersion, edition int32, schema json.RawMessage, publishedAt pgtype.Timestamptz) SnapDto {
 	return SnapDto{
-		ID:            uuidToString(row.ID),
-		SpreadID:      uuidToString(row.SpreadID),
-		SpreadVersion: row.SpreadVersion,
-		Edition:       row.Edition,
-		Schema:        append(json.RawMessage(nil), row.Schema...),
-		Status:        row.Status,
-		PublishedAt:   timestamptzToPtr(row.PublishedAt),
-		ClosedAt:      timestamptzToPtr(row.ClosedAt),
+		ID:            uuidToString(ID),
+		SpreadID:      uuidToString(spreadID),
+		SpreadVersion: spreadVersion,
+		Edition:       edition,
+		Schema:        append(json.RawMessage(nil), schema...),
+		PublishedAt:   timestamptzToPtr(publishedAt),
 	}
+}
+
+func SnapDtoFromGetSnapRow(row db.GetSnapRow) SnapDto {
+	return snapDtoFromFields(row.ID, row.SpreadID, row.SpreadVersion, row.Edition, row.Schema, row.PublishedAt)
+}
+
+func SnapDtoFromCreateSnapRow(row db.CreateSnapRow) SnapDto {
+	return snapDtoFromFields(row.ID, row.SpreadID, row.SpreadVersion, row.Edition, row.Schema, row.PublishedAt)
 }

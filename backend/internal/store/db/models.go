@@ -16,9 +16,22 @@ type Snap struct {
 	SpreadVersion int32              `json:"spread_version"`
 	Edition       int32              `json:"edition"`
 	Schema        json.RawMessage    `json:"schema"`
-	Status        string             `json:"status"`
 	PublishedAt   pgtype.Timestamptz `json:"published_at"`
 	ClosedAt      pgtype.Timestamptz `json:"closed_at"`
+}
+
+type Spill struct {
+	ID             pgtype.UUID        `json:"id"`
+	SnapID         pgtype.UUID        `json:"snap_id"`
+	FirstName      string             `json:"first_name"`
+	LastName       string             `json:"last_name"`
+	Email          string             `json:"email"`
+	RSchema        []byte             `json:"r_schema"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	LastModifiedAt pgtype.Timestamptz `json:"last_modified_at"`
+	CompletedAt    pgtype.Timestamptz `json:"completed_at"`
+	SentAt         pgtype.Timestamptz `json:"sent_at"`
+	ExpiredAt      pgtype.Timestamptz `json:"expired_at"`
 }
 
 type Spread struct {

@@ -1,19 +1,35 @@
-import { Snap } from '../snap';
-import { SnapDto } from './snap.dto';
+import { DEFAULT_SNAP_STATUS, Snap } from '../snap';
+import { SnapMetaData } from '../snap-metadata';
+import { SnapDto, SnapMetaDataDto } from './snap.dto';
 
 export function parseSnap(dto: SnapDto): Snap {
   return {
     ...dto,
+    status: DEFAULT_SNAP_STATUS,
     publishedAt: new Date(dto.publishedAt),
-    closedAt: dto.closedAt ? new Date(dto.closedAt) : null,
   };
 }
 
-export function toSnapDto(snap: Snap): SnapDto {
-  const { publishedAt, closedAt, ...rest } = snap;
+export function toSnapDto(snap: Omit<Snap, 'status'>): SnapDto {
+  const { publishedAt, ...rest } = snap;
   return {
     ...rest,
     publishedAt: publishedAt.toISOString(),
-    closedAt: closedAt?.toISOString() ?? null,
+  };
+}
+
+export function parseSnapMetaData(metaData: SnapMetaDataDto): SnapMetaData {
+  return {
+    ...metaData,
+    status: DEFAULT_SNAP_STATUS,
+    publishedAt: new Date(metaData.publishedAt),
+  };
+}
+
+export function toSnapMetaDataDto(metaData: SnapMetaData): SnapMetaDataDto {
+  const { status, publishedAt, ...rest } = metaData;
+  return {
+    ...rest,
+    publishedAt: publishedAt.toISOString(),
   };
 }

@@ -6,6 +6,6 @@ export interface Spread {
   /** @property Estimated completion time in minutes */
   readonly ectm: number | null;
   readonly schema: Schema;
-  readonly createdAt: Date | null;
+  readonly createdAt: Date;
   readonly lastModifiedAt: Date | null;
 }

@@ -2,25 +2,25 @@
 SELECT
     id,
     spread_id,
+    spread_version,
     schema,
     edition,
-    status,
-    published_at,
-    closed_at
+    published_at
 FROM snaps
+WHERE closed_at IS NULL
 ORDER BY published_at DESC;
 
 -- name: ListSnapMetaDataBySpreadId :many
 SELECT
     id,
     spread_id,
+    spread_version,
     schema,
     edition,
-    status,
-    published_at,
-    closed_at
+    published_at
 FROM snaps
 WHERE spread_id = $1
+AND closed_at IS NULL
 ORDER BY edition DESC;
 
 -- name: GetSnap :one
@@ -30,11 +30,10 @@ SELECT
     spread_version,
     edition,
     schema,
-    status,
-    published_at,
-    closed_at
+    published_at
 FROM snaps
-WHERE id = $1;
+WHERE id = $1
+AND closed_at IS NULL;
 
 -- name: CreateSnap :one
 INSERT INTO snaps (
@@ -53,13 +52,13 @@ RETURNING
     spread_version,
     edition,
     schema,
-    status,
-    published_at,
-    closed_at;
+    published_at;
 
 -- name: DeleteSnap :execrows
-DELETE FROM snaps
-WHERE id = $1;
+UPDATE snaps
+SET closed_at = NOW()
+WHERE id = $1
+AND closed_at IS NULL;
 
 -- name: LatestEdition :one
 SELECT
@@ -69,3 +68,7 @@ WHERE spread_id = $1
 ORDER BY edition DESC
 LIMIT 1;
 
+-- name: NullSpreadId :execrows
+UPDATE snaps
+SET spread_id = NULL
+WHERE spread_id = $1;

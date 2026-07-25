@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { UiStore } from '../../../../ui/store/ui-store';
+import { meetsPublishingRequirements } from '@formulator/schema';
 
 @Component({
   selector: 'app-spread-header',
@@ -10,6 +11,12 @@ import { UiStore } from '../../../../ui/store/ui-store';
 export class SpreadHeader {
   protected readonly domainStore = inject(DomainStore);
   protected readonly uiStore = inject(UiStore);
+
+  protected readonly publishRequirementsMet = computed(() => {
+    const activeSpread = this.domainStore.activeSpread();
+    if (!activeSpread) return false;
+    return meetsPublishingRequirements(activeSpread.schema);
+  });
 
   protected onTitleInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;

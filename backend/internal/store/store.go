@@ -16,13 +16,15 @@ import (
 )
 
 var ErrNotFound = errors.New("not found")
+var ErrDuplicateSpreadID = errors.New("duplicate spreadID")
 
 type Store struct {
+	pool    *pgxpool.Pool
 	queries *db.Queries
 }
 
 func New(pool *pgxpool.Pool) *Store {
-	return &Store{queries: db.New(pool)}
+	return &Store{pool: pool, queries: db.New(pool)}
 }
 
 func (s *Store) ListSpreadMetaData(ctx context.Context) ([]api.SpreadMetaDataDto, error) {
@@ -63,9 +65,36 @@ func (s *Store) CreateSpread(ctx context.Context) (api.SpreadDto, error) {
 
 	now := time.Now().UTC()
 	id := uuid.New()
-
 	row, err := s.queries.CreateSpread(ctx, db.CreateSpreadParams{
 		ID:             pgtype.UUID{Bytes: id, Valid: true},
+		Version:        0,
+		Ectm:           pgtype.Int4{},
+		Schema:         schema,
+		CreatedAt:      api.TimeToPgTimestamptz(now),
+		LastModifiedAt: api.TimeToPgTimestamptz(now),
+	})
+	if err != nil {
+		return api.SpreadDto{}, err
+	}
+
+	return api.SpreadDtoFromRow(row), nil
+}
+
+func (s *Store) CreateSpreadWithId(ctx context.Context, id pgtype.UUID) (api.SpreadDto, error) {
+	schema, err := api.DefaultSchemaJSON()
+	if err != nil {
+		return api.SpreadDto{}, err
+	}
+
+  if _, err := s.queries.GetSpread(ctx, id); err == nil {
+    return api.SpreadDto{}, ErrDuplicateSpreadID
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+    return api.SpreadDto{}, err
+  }
+
+	now := time.Now().UTC()
+	row, err := s.queries.CreateSpread(ctx, db.CreateSpreadParams{
+		ID:             id,
 		Version:        0,
 		Ectm:           pgtype.Int4{},
 		Schema:         schema,
@@ -119,7 +148,19 @@ func (s *Store) UpdateSpread(ctx context.Context, spread api.SpreadDto) (api.Spr
 }
 
 func (s *Store) DeleteSpread(ctx context.Context, id pgtype.UUID) error {
-	rows, err := s.queries.DeleteSpread(ctx, id)
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	qtx := s.queries.WithTx(tx)
+
+	if _, err := qtx.NullSpreadId(ctx, id); err != nil {
+		return err
+	}
+
+	rows, err := qtx.DeleteSpread(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -128,7 +169,7 @@ func (s *Store) DeleteSpread(ctx context.Context, id pgtype.UUID) error {
 		return ErrNotFound
 	}
 
-	return nil
+	return tx.Commit(ctx)
 }
 
 func (s *Store) ListSnapMetaData(ctx context.Context) ([]api.SnapMetaDataDto, error) {
@@ -176,7 +217,7 @@ func (s *Store) GetSnap(ctx context.Context, id pgtype.UUID) (api.SnapDto, error
 		return api.SnapDto{}, err
 	}
 
-	return api.SnapDtoFromRow(row), nil
+	return api.SnapDtoFromGetSnapRow(row), nil
 }
 
 func (s *Store) CreateSnap(ctx context.Context, spreadID pgtype.UUID) (api.SnapDto, error) {
@@ -210,11 +251,64 @@ func (s *Store) CreateSnap(ctx context.Context, spreadID pgtype.UUID) (api.SnapD
 		return api.SnapDto{}, err
 	}
 
-	return api.SnapDtoFromRow(row), nil
+	return api.SnapDtoFromCreateSnapRow(row), nil
 }
 
 func (s *Store) DeleteSnap(ctx context.Context, id pgtype.UUID) error {
 	rows, err := s.queries.DeleteSnap(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return ErrNotFound
+	}
+
+	return nil
+}
+
+func (s *Store) ListSpillMetaData(ctx context.Context, snapID pgtype.UUID) ([]api.SpillMetaDataDto, error) {
+	rows, err := s.queries.ListSpillMetaDataBySnapId(ctx, snapID)
+	if err != nil {
+		return nil, err
+	}
+
+	spillMetaData := make([]api.SpillMetaDataDto, 0, len(rows))
+	for _, row := range rows {
+		spillMetaData = append(spillMetaData, api.SpillMetaDataDtoFromList(row))
+	}
+
+	return spillMetaData, nil
+}
+
+func (s *Store) CreateSpill(ctx context.Context, snapID pgtype.UUID, email, firstName, lastName string) (api.SpillMetaDataDto, error) {
+	_, err := s.queries.GetSnap(ctx, snapID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return api.SpillMetaDataDto{}, ErrNotFound
+		}
+		return api.SpillMetaDataDto{}, err
+	}
+
+	id := uuid.New()
+  rSchema := []byte("{}")
+	spill, err := s.queries.CreateSpill(ctx, db.CreateSpillParams{
+		ID:        pgtype.UUID{Bytes: id, Valid: true},
+		SnapID:    snapID,
+		Email:     email,
+		FirstName: firstName,
+		LastName:  lastName,
+		RSchema:   rSchema,
+	})
+	if err != nil {
+		return api.SpillMetaDataDto{}, err
+	}
+
+	return api.SpillMetaDataDtoFromCreate(spill), nil
+}
+
+func (s *Store) DeleteSpill(ctx context.Context, spillID pgtype.UUID) error {
+	rows, err := s.queries.DeleteSpill(ctx, spillID)
 	if err != nil {
 		return err
 	}

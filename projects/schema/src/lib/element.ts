@@ -40,7 +40,3 @@ export const newElement = (params: CreateElementParams): Element => {
         el: newQuestion(params.htmlType),
       };
 };
-
-// export function isNote(el: Question | Note | null | undefined): el is Note {
-//   return !!el && 'value' in el;
-// }

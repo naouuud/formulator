@@ -4,10 +4,8 @@ import { map, Observable } from 'rxjs';
 import { ENV } from 'src/app/env';
 import { Snap } from 'src/domain/model/snap';
 import { SnapMetaData } from 'src/domain/model/snap-metadata';
-import { SnapMetaDataDto } from 'src/domain/model/wire/snap-metadata.dto';
-import { parseSnapMetaData } from 'src/domain/model/wire/snap-metadata.mapper';
-import { SnapDto } from 'src/domain/model/wire/snap.dto';
-import { parseSnap } from 'src/domain/model/wire/snap.mapper';
+import { SnapDto, SnapMetaDataDto } from 'src/domain/model/wire/snap.dto';
+import { parseSnap, parseSnapMetaData } from 'src/domain/model/wire/snap.mapper';
 
 @Injectable({ providedIn: 'root' })
 export class SnapService {

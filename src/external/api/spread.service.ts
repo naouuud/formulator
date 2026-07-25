@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Spread } from 'src/domain/model/spread';
 import { SpreadDto, SpreadMetaDataDto } from 'src/domain/model/wire/spread.dto';
-import { parseSpread, parseSpreadMetaData } from 'src/domain/model/wire/spread.mapper';
+import { parseSpread, parseSpreadMetaData, toSpreadDto } from 'src/domain/model/wire/spread.mapper';
 import { ENV } from '../../app/env';
 import { SpreadMetaData } from 'src/domain/model/spread-metadata';
 
@@ -28,7 +28,7 @@ export class SpreadService {
 
   update(spread: Spread): Observable<Spread> {
     return this.#http
-      .put<SpreadDto>(`${this.#baseUrl}/${spread.id}`, spread)
+      .put<SpreadDto>(`${this.#baseUrl}/${spread.id}`, toSpreadDto(spread))
       .pipe(map(parseSpread));
   }
 

@@ -1,8 +1,10 @@
 import { Snap } from '../snap';
+import { SnapMetaData } from '../snap-metadata';
 
-type WireDates = {
+export type SnapDto = Omit<Snap, 'status' | 'publishedAt'> & {
   readonly publishedAt: string;
-  readonly closedAt: string | null;
 };
 
-export type SnapDto = Omit<Snap, 'publishedAt' | 'closedAt'> & WireDates;
+export type SnapMetaDataDto = Omit<SnapMetaData, 'status' | 'publishedAt'> & {
+  publishedAt: string;
+};

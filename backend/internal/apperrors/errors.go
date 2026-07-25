@@ -1,13 +1,17 @@
 package apperrors
 
-import "strconv"
+import (
+	"strconv"
+)
 
 const (
 	CodeSpreadNotFound  = "SPREAD_NOT_FOUND"
 	CodeSnapNotFound    = "SNAP_NOT_FOUND"
+	CodeSpillNotFound   = "SPILL_NOT_FOUND"
 	CodeVersionConflict = "VERSION_CONFLICT"
 	CodeInvalidRequest  = "INVALID_REQUEST"
 	CodeInternalError   = "INTERNAL_ERROR"
+  CodeConflict        = "CONFLICT"
 )
 
 type ProblemDetail struct {
@@ -48,20 +52,29 @@ func InvalidRequestBodyDetail(detail string) ProblemDetail {
 	}
 }
 
-func InvalidUUID(field string) ProblemDetail {
-	return InvalidRequestBodyDetail(field + " must be a valid UUID.")
-}
-
-func SpreadIdRequired() ProblemDetail {
-	return InvalidRequestBodyDetail("spreadId is required.")
-}
-
-func SpreadIdMismatch() ProblemDetail {
+func InvalidRequest() ProblemDetail {
 	return ProblemDetail{
 		Status: 400,
-		Title:  "Spread id in path and body must match",
+		Title:  "Invalid request",
 		Code:   CodeInvalidRequest,
 	}
+}
+
+func InvalidRequestDetail(detail string) ProblemDetail {
+	return ProblemDetail{
+		Status: 400,
+		Title:  "Invalid request",
+		Detail: detail,
+		Code:   CodeInvalidRequest,
+	}
+}
+
+func MissingUUID(field string) ProblemDetail {
+	return InvalidRequestDetail(field + " is required.")
+}
+
+func InvalidUUID(field string) ProblemDetail {
+	return InvalidRequestDetail(field + " must be a valid UUID.")
 }
 
 func SpreadNotFound(id string) ProblemDetail {
@@ -79,6 +92,23 @@ func SnapNotFound(id string) ProblemDetail {
 		Title:  "Snap not found",
 		Detail: "No snap exists with id " + id + ".",
 		Code:   CodeSnapNotFound,
+	}
+}
+
+func SpillNotFound(id string) ProblemDetail {
+	return ProblemDetail{
+		Status: 404,
+		Title:  "Spill not found",
+		Detail: "No spill exists with id " + id + ".",
+		Code:   CodeSpillNotFound,
+	}
+}
+
+func SpreadIdMismatch() ProblemDetail {
+	return ProblemDetail{
+		Status: 400,
+		Title:  "Spread id in path and body must match.",
+		Code:   CodeInvalidRequest,
 	}
 }
 

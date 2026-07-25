@@ -1,6 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject } from '@angular/core';
-import { CreateElementParams, newElement, newOption, newPage } from '@formulator/schema';
+import {
+  CreateElementParams,
+  meetsPublishingRequirements,
+  newElement,
+  newOption,
+  newPage,
+} from '@formulator/schema';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { produce } from 'immer';
@@ -28,43 +34,52 @@ import { User } from '../model/user';
 
 type DomainState = {
   user: User | null;
+
   spreadsMetaData: SpreadMetaData[];
+  snapsMetaData: SnapMetaData[];
   metaDataLoading: boolean;
+  loadSpreadsMetaDataError: boolean;
+  loadSnapsMetaDataError: boolean;
+
   activeSpread: Spread | null;
   activeSpreadLoading: boolean;
+  loadSpreadError: boolean;
   activePageIdx: number;
-  snapsMetaData: SnapMetaData[];
+
   activeSnap: Snap | null;
   activeSnapLoading: boolean;
-  loadSpreadsMetaDataError: boolean;
-  createSpreadError: boolean;
-  loadSpreadError: boolean;
-  loadSnapsMetaDataError: boolean;
-  createSnapError: boolean;
   loadSnapError: boolean;
+
+  createSpreadError: boolean;
+  createSnapError: boolean;
 };
 
 const initialState: DomainState = {
   user: null,
+
   spreadsMetaData: [],
+  snapsMetaData: [],
   metaDataLoading: false,
+  loadSpreadsMetaDataError: false,
+  loadSnapsMetaDataError: false,
+
   activeSpread: null,
   activeSpreadLoading: false,
+  loadSpreadError: false,
   activePageIdx: 0,
-  snapsMetaData: [],
+
   activeSnap: null,
   activeSnapLoading: false,
-  loadSpreadsMetaDataError: false,
-  loadSpreadError: false,
-  createSpreadError: false,
-  loadSnapsMetaDataError: false,
-  createSnapError: false,
   loadSnapError: false,
+
+  createSpreadError: false,
+  createSnapError: false,
 };
 
 export const DomainStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
+
   withComputed((state) => ({
     activePage: computed(() => state.activeSpread()?.schema.pages[state.activePageIdx()]),
     activeView: computed<'spread' | 'snap' | null>(() =>
@@ -77,6 +92,7 @@ export const DomainStore = signalStore(
       })),
     ),
   })),
+
   withMethods(
     (
       store,
@@ -112,6 +128,7 @@ export const DomainStore = signalStore(
           }),
         );
       };
+
       const triggerAutoSave = rxMethod<Spread>(
         pipe(
           debounceTime(1500),
@@ -122,6 +139,7 @@ export const DomainStore = signalStore(
           switchMap((spread) => performSave(spread)),
         ),
       );
+
       const loadSpreadsMetaData = () =>
         spreadService.getAll().pipe(
           tap((metaData) => {
@@ -137,6 +155,7 @@ export const DomainStore = signalStore(
             return EMPTY;
           }),
         );
+
       const loadSnapsMetaData = () =>
         snapService.getAll().pipe(
           tap((metadata) =>
@@ -150,6 +169,7 @@ export const DomainStore = signalStore(
             return EMPTY;
           }),
         );
+
       return {
         loadMetaData: rxMethod<void>(
           pipe(
@@ -163,6 +183,7 @@ export const DomainStore = signalStore(
             ),
           ),
         ),
+
         loadSpread: rxMethod<string>(
           pipe(
             tap(() => patchState(store, { activeSpreadLoading: true })),
@@ -185,6 +206,7 @@ export const DomainStore = signalStore(
             ),
           ),
         ),
+
         createSpread: rxMethod<void>(
           pipe(
             tap(() => patchState(store, { activeSpreadLoading: true })),
@@ -208,6 +230,7 @@ export const DomainStore = signalStore(
             ),
           ),
         ),
+
         saveSpread: rxMethod<Spread>(
           pipe(
             tap(() => {
@@ -217,6 +240,7 @@ export const DomainStore = signalStore(
             concatMap((spread) => performSave(spread)),
           ),
         ),
+
         deleteSpread: rxMethod<string>(
           pipe(
             tap(() => uiStore.clearDeleteSpreadError()),
@@ -239,6 +263,7 @@ export const DomainStore = signalStore(
             }),
           ),
         ),
+
         loadSnap: rxMethod<string>(
           pipe(
             switchMap((id) =>
@@ -259,6 +284,7 @@ export const DomainStore = signalStore(
             ),
           ),
         ),
+
         createSnap: rxMethod<string>(
           pipe(
             tap(() => {
@@ -273,8 +299,12 @@ export const DomainStore = signalStore(
               }
               uiStore.startSpreadSaving();
               return performSave(spread).pipe(
-                switchMap((saved) =>
-                  snapService.create(saved.id).pipe(
+                switchMap((saved) => {
+                  if (!meetsPublishingRequirements(saved.schema)) {
+                    patchState(store, { createSnapError: true, activeSnapLoading: false });
+                    return EMPTY;
+                  }
+                  return snapService.create(saved.id).pipe(
                     tap((created) => {
                       patchState(store, {
                         activeSnap: created,
@@ -287,13 +317,14 @@ export const DomainStore = signalStore(
                       patchState(store, { createSnapError: true });
                       return EMPTY;
                     }),
-                  ),
-                ),
+                  );
+                }),
                 finalize(() => patchState(store, { activeSnapLoading: false })),
               );
             }),
           ),
         ),
+
         deleteSnap: rxMethod<string>(
           pipe(
             tap((id) => uiStore.clearDeleteSnapError()),
@@ -316,6 +347,7 @@ export const DomainStore = signalStore(
             }),
           ),
         ),
+
         updateSpreadTitle(title: string): void {
           if (!store.activeSpread()) return;
           patchState(
@@ -326,9 +358,11 @@ export const DomainStore = signalStore(
           );
           triggerAutoSave(store.activeSpread()!);
         },
+
         setActivePage(idx: number): void {
           patchState(store, { activePageIdx: idx });
         },
+
         updateQuestionLabel(elementId: string, label: string): void {
           if (!store.activeSpread()) return;
           patchState(
@@ -341,6 +375,7 @@ export const DomainStore = signalStore(
           );
           triggerAutoSave(store.activeSpread()!);
         },
+
         updateNoteValue(elementId: string, value: string): void {
           if (!store.activeSpread()) return;
           patchState(
@@ -348,11 +383,12 @@ export const DomainStore = signalStore(
             produce<DomainState>((draft) => {
               const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
               const element = page.elements.find((e) => e.id === elementId);
-              if (element?.type === 'note') element.el.value = value;
+              if (element?.type === 'note') element.el.label = value;
             }),
           );
           triggerAutoSave(store.activeSpread()!);
         },
+
         addPage(): void {
           if (!store.activeSpread()) return;
           patchState(
@@ -363,6 +399,7 @@ export const DomainStore = signalStore(
           );
           triggerAutoSave(store.activeSpread()!);
         },
+
         deletePage(pageId: string): void {
           if (!store.activeSpread()) return;
           let changed = false;
@@ -378,6 +415,7 @@ export const DomainStore = signalStore(
           );
           if (changed) triggerAutoSave(store.activeSpread()!);
         },
+
         addElement(params: CreateElementParams): void {
           if (!store.activeSpread()) return;
           patchState(
@@ -390,6 +428,7 @@ export const DomainStore = signalStore(
           );
           triggerAutoSave(store.activeSpread()!);
         },
+
         deleteElement(elementId: string): void {
           if (!store.activeSpread()) return;
           let changed = false;
@@ -404,6 +443,7 @@ export const DomainStore = signalStore(
           );
           if (changed) triggerAutoSave(store.activeSpread()!);
         },
+
         addOption(elementId: string, label: string, value: string | number | boolean): void {
           const trimmedLabel = label.trim();
           if (!trimmedLabel || !store.activeSpread()) return;
@@ -437,6 +477,7 @@ export const DomainStore = signalStore(
           );
           if (added) triggerAutoSave(store.activeSpread()!);
         },
+
         deleteOption(elementId: string, optionId: string) {
           if (!store.activeSpread()) return;
           let deleted = false;
@@ -454,6 +495,7 @@ export const DomainStore = signalStore(
           );
           if (deleted) triggerAutoSave(store.activeSpread()!);
         },
+
         editOption(
           elementId: string,
           optionId: string,
@@ -499,6 +541,7 @@ export const DomainStore = signalStore(
           );
           if (changed) triggerAutoSave(store.activeSpread()!);
         },
+
         setValidatorRequired(elementId: string, value: boolean) {
           if (!store.activeSpread()) return;
           let changed = false;

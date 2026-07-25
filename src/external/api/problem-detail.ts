@@ -1,9 +1,10 @@
 export type ProblemDetailCode =
-  | 'SPREAD_NOT_FOUND'
-  | 'VERSION_CONFLICT'
-  | 'SNAP_NOT_FOUND'
+  | 'INTERNAL_ERROR'
   | 'INVALID_REQUEST'
-  | 'INTERNAL_ERROR';
+  | 'SPREAD_NOT_FOUND'
+  | 'SNAP_NOT_FOUND'
+  | 'SPILL_NOT_FOUND'
+  | 'VERSION_CONFLICT';
 
 export type ProblemDetail = {
   status: number;
@@ -17,6 +18,23 @@ export type VersionConflictDetail = ProblemDetail & {
   expectedVersion: number;
   actualVersion: number;
 };
+
+export const invalidRequestBody = (detail?: string): ProblemDetail => ({
+  status: 400,
+  title: 'Invalid request body',
+  detail,
+  code: 'INVALID_REQUEST',
+});
+
+export const invalidRequest = (detail?: string): ProblemDetail => ({
+  status: 400,
+  title: 'Invalid request',
+  detail,
+  code: 'INVALID_REQUEST',
+});
+
+export const missingUuid = (field: string) => invalidRequest(`${field} is required.`);
+export const invalidUuid = (field: string) => invalidRequest(`${field} must be a valid UUID.`);
 
 export const spreadNotFound = (id: string): ProblemDetail => ({
   status: 404,
@@ -32,6 +50,19 @@ export const snapNotFound = (id: string): ProblemDetail => ({
   code: 'SNAP_NOT_FOUND',
 });
 
+export const spillNotFound = (id: string): ProblemDetail => ({
+  status: 404,
+  title: 'Spill not found',
+  detail: `No spill exists with id ${id}.`,
+  code: 'SPILL_NOT_FOUND',
+});
+
+export const spreadIdMismatch = (): ProblemDetail => ({
+  status: 400,
+  title: 'Spread id in path and body must match',
+  code: 'INVALID_REQUEST',
+});
+
 export const versionConflict = (
   expectedVersion: number,
   actualVersion: number,
@@ -42,19 +73,4 @@ export const versionConflict = (
   code: 'VERSION_CONFLICT',
   expectedVersion,
   actualVersion,
-});
-
-export const invalidRequestBody = (detail?: string): ProblemDetail => ({
-  status: 400,
-  title: 'Invalid request body',
-  detail,
-  code: 'INVALID_REQUEST',
-});
-
-export const invalidUuid = (field: string) => invalidRequestBody(`${field} must be a valid UUID.`);
-
-export const spreadIdMismatch = (): ProblemDetail => ({
-  status: 400,
-  title: 'Spread id in path and body must match',
-  code: 'INVALID_REQUEST',
 });

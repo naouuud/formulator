@@ -1,4 +1,5 @@
 import { Schema } from '@formulator/schema';
+import { Spread } from 'src/domain/model/spread';
 
 export const mockSchema: Schema = {
   title: 'Super Amazing Rainbows and Unicorns Forever',
@@ -47,7 +48,7 @@ export const mockSchema: Schema = {
         },
         {
           el: {
-            value:
+            label:
               'Please note that the existence of unicorns has not been proven by empirical science. Your claims to have ridden one does not change that.',
           },
           id: '58a9f1a6-7aca-426b-9b9b-d5ccd3812717',

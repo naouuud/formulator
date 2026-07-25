@@ -3,7 +3,7 @@
   "info": {
     "title": "Formulator API",
     "version": "0.1.0",
-    "description": "REST API contract for the Formulator form builder application.\n\nDerived from the Angular client (`SpreadService`, `SnapService`), wire DTOs,\nand the mock HTTP interceptor that simulates the backend during local development.\n\n**Spreads** are editable form drafts. **Snaps** are immutable published snapshots\nof a spread's schema, used for response collection.\n\nDeleting a spread does not delete its snaps; orphan snaps may reference a\nspread that no longer exists.\n"
+    "description": "REST API contract for the Formulator form builder application.\n\nDerived from the Angular client (`SpreadService`, `SnapService`, `SpillService`), wire DTOs,\nand the mock HTTP interceptor that simulates the backend during local development.\n\n**Spreads** are editable form drafts. **Snaps** are immutable published snapshots\nof a spread's schema, used for response collection. A **spill** is an unique instance of a snap shared for response collection, and contains the response schema.\n\nDeleting a spread does not delete its snaps; orphan snaps may reference a\nspread that no longer exists. Deleting a snap does not affect any of its spills.\n"
   },
   "servers": [
     {
@@ -19,6 +19,10 @@
     {
       "name": "Snaps",
       "description": "Publish and manage immutable spread snapshots"
+    },
+    {
+      "name": "Spills",
+      "description": "Share a snap to collect responses"
     }
   ],
   "paths": {
@@ -208,7 +212,7 @@
         ],
         "operationId": "createSnap",
         "summary": "Publish a snap",
-        "description": "Publishes an immutable snapshot of a spread's current schema.\n\n- Deep-clones the spread's `schema` at publish time.\n- Records `spreadVersion` from the spread's current `version`.\n- Assigns `edition` as the highest existing edition for that spread plus\n  one (starting at 1).\n- Creates the snap with `status: ready` and `closedAt: null`.\n",
+        "description": "Publishes an immutable snapshot of a spread's current schema.\n\n- Deep-clones the spread's `schema` at publish time.\n- Records `spreadVersion` from the spread's current `version`.\n- Assigns `edition` as the highest existing edition for that spread plus\n  one (starting at 1).\n",
         "requestBody": {
           "required": true,
           "content": {
@@ -277,15 +281,110 @@
         ],
         "operationId": "deleteSnap",
         "summary": "Delete snap",
+        "description": "Removes the snap from the builder. After a successful delete, list and get\nrequests for that snap return 404 \u2014 a hard delete from the client's perspective.\n\nThe server retains the snap record internally (soft-close) so existing spills\ncan still resolve the published schema for response data.\n",
         "responses": {
           "204": {
-            "description": "Snap deleted"
+            "description": "Snap removed from the client; no longer returned by list or get"
           },
           "400": {
             "$ref": "#/components/responses/InvalidRequest"
           },
           "404": {
             "$ref": "#/components/responses/SnapNotFound"
+          }
+        }
+      }
+    },
+    "/spills": {
+      "get": {
+        "tags": [
+          "Spills"
+        ],
+        "operationId": "listSpills",
+        "summary": "List spill metadata",
+        "description": "Returns metadata for all spills matching the provided `snapId`, omitting the response schema.\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SnapIdQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of spill metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SpillMetaDataDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Spills"
+        ],
+        "operationId": "createSpill",
+        "summary": "Share a spill",
+        "description": "Creates a unique response collection record for a responder.\n\n- Request body must provide `snapId` and `email` (responder's email).\n- Optionally, `firstName` and `lastName` (of responder) can be provided.\n- Creates `rSchema` (response schema)  holding references to schema questions by id and answers initialized to empty string.\n- Originating schema is inferred from `snapId`, no clone is created.\n- Properties `lastModifiedAt` and `completedAt` are initialized to null.\n- Spill `id` acts as the unique token when sharing the spill instance with responder.\n",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSpillRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Spill created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpillMetaDataDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/SnapNotFound"
+          }
+        }
+      }
+    },
+    "/spills/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/SpillId"
+        }
+      ],
+      "delete": {
+        "tags": [
+          "Spills"
+        ],
+        "operationId": "deleteSpill",
+        "summary": "Delete spill",
+        "responses": {
+          "204": {
+            "description": "Spill deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/SpillNotFound"
           }
         }
       }
@@ -336,6 +435,22 @@
                 "value": {
                   "status": 400,
                   "title": "Spread id in path and body must match",
+                  "code": "INVALID_REQUEST"
+                }
+              },
+              "missingSnapId": {
+                "value": {
+                  "status": 400,
+                  "title": "Invalid request body",
+                  "detail": "snapId is required.",
+                  "code": "INVALID_REQUEST"
+                }
+              },
+              "invalidSnapId": {
+                "value": {
+                  "status": 400,
+                  "title": "Invalid request body",
+                  "detail": "snapId must be a valid UUID.",
                   "code": "INVALID_REQUEST"
                 }
               }
@@ -402,6 +517,26 @@
           }
         }
       },
+      "SpillNotFound": {
+        "description": "Spill not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ProblemDetail"
+            },
+            "examples": {
+              "spillNotFound": {
+                "value": {
+                  "status": 404,
+                  "title": "Spill not found",
+                  "detail": "No spill exists with id 00000000-0000-0000-0000-000000000000.",
+                  "code": "SPILL_NOT_FOUND"
+                }
+              }
+            }
+          }
+        }
+      },
       "VersionConflict": {
         "description": "Version conflict \u2014 the spread was modified since the client last read it",
         "content": {
@@ -446,11 +581,31 @@
           "format": "uuid"
         }
       },
+      "SpillId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Spill UUID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
       "SpreadIdQuery": {
         "name": "spreadId",
         "in": "query",
         "required": false,
         "description": "Filter snaps to those published from this spread",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "SnapIdQuery": {
+        "name": "snapId",
+        "in": "query",
+        "required": true,
+        "description": "Filter spills to those created from this snap",
         "schema": {
           "type": "string",
           "format": "uuid"
@@ -564,11 +719,10 @@
         "required": [
           "id",
           "spreadId",
+          "spreadVersion",
           "title",
           "edition",
-          "status",
-          "publishedAt",
-          "closedAt"
+          "publishedAt"
         ],
         "properties": {
           "id": {
@@ -579,6 +733,11 @@
             "type": "string",
             "format": "uuid"
           },
+          "spreadVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Spread `version` at publish time."
+          },
           "title": {
             "type": "string",
             "description": "Denormalized from `schema.title`."
@@ -588,22 +747,9 @@
             "minimum": 1,
             "description": "Publish edition number for the source spread (1-based)."
           },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ready",
-              "active",
-              "closed"
-            ]
-          },
           "publishedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "closedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           }
         }
       },
@@ -615,9 +761,7 @@
           "spreadVersion",
           "edition",
           "schema",
-          "status",
-          "publishedAt",
-          "closedAt"
+          "publishedAt"
         ],
         "properties": {
           "id": {
@@ -642,24 +786,102 @@
             "$ref": "#/components/schemas/Schema",
             "description": "Immutable snapshot of the spread schema at publish time."
           },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ready",
-              "active",
-              "closed"
-            ],
-            "description": "Server-set on create; no update endpoint yet."
-          },
           "publishedAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "CreateSpillRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "snapId",
+          "email"
+        ],
+        "properties": {
+          "snapId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the snap being shared"
           },
-          "closedAt": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Responder email"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Responder first name"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Responder last name"
+          }
+        }
+      },
+      "SpillMetaDataDto": {
+        "type": "object",
+        "required": [
+          "id",
+          "snapId",
+          "firstName",
+          "lastName",
+          "email",
+          "createdAt",
+          "lastModifiedAt",
+          "completedAt",
+          "sentAt",
+          "expiredAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "snapId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Responder first name, can be empty string."
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Responder last name, can be empty string."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Responder email for spill sharing."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedAt": {
             "type": "string",
             "format": "date-time",
             "nullable": true,
-            "description": "Server-set; always null on create."
+            "description": "Last modification by responder; null on create."
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Reserved; null on create until scheduling slice."
+          },
+          "expiredAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Reserved; null on create until scheduling slice."
           }
         }
       },
@@ -748,10 +970,10 @@
       "Note": {
         "type": "object",
         "required": [
-          "value"
+          "label"
         ],
         "properties": {
-          "value": {
+          "label": {
             "type": "string",
             "description": "Rich text content."
           }
@@ -935,6 +1157,7 @@
             "enum": [
               "SPREAD_NOT_FOUND",
               "SNAP_NOT_FOUND",
+              "SPILL_NOT_FOUND",
               "VERSION_CONFLICT",
               "INVALID_REQUEST",
               "INTERNAL_ERROR"

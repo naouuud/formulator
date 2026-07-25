@@ -12,7 +12,7 @@ export class NoteEditor {
 
   protected readonly domainStore = inject(DomainStore);
 
-  protected readonly noteValue = computed(() => String(this.element().el.value));
+  protected readonly noteValue = computed(() => String(this.element().el.label));
 
   protected onValueInput(event: Event): void {
     const value = (event.target as HTMLTextAreaElement).value;
