@@ -1,0 +1,96 @@
+Endpoint: /spills
+
+Methods:
+1. GET /spills
+Description: List Spill Metadata by SnapId
+Query params:
+	- snapId (UUID string, required)
+
+2. POST /spills
+Description: Create Spill
+Request body:
+Type: object
+Properties:
+	-snapId (UUID string, required)
+	-email (string, required)
+	-firstName (string, optional)
+	-lastName (string, optional)
+
+3. DELETE /spills/:id
+Description: Delete Spill
+URL params:
+	-id (UUID string, required)
+
+Prep:
+Run:
+SPREAD_ID=3f444358-8d48-4264-bdb6-8d8236d82eb8
+BASE_URL=http://localhost:8080
+curl -s -X DELETE "$BASE_URL/spreads/$SPREAD_ID"
+curl -s -X POST "$BASE_URL/spreads" -H 'Content-Type: application/json' -d "{\"id\":\"$SPREAD_ID\"}" | jq
+curl -s -X PUT "$BASE_URL/spreads/$SPREAD_ID" -H 'Content-Type: application/json' -d @fixtures/mockspread.json | jq
+curl -s -X GET "$BASE_URL/spreads/$SPREAD_ID" | jq
+curl -s -X POST "$BASE_URL/snaps" -H 'Content-Type: application/json' -d "{\"spreadId\":\"$SPREAD_ID\"}"
+
+After Snap creation, run:
+SNAP_ID=<uuid>
+
+After Spill creation, run:
+SPILL_ID=<uuid>
+
+Results:
+Test                            curl Query    	Description                              	                  Expected    	  Passed?
+------------------------------------------------------------------------------------------------------------------------------------
+POST /spills (happy path)     	1		            Create spill with email, firstName and lastName             201           	[x]
+POST /spills (happy path)       2               Create spill with email only                                201             [x]
+POST /spills (no body)          3               Create spill with no body                                   400             [x]
+POST /spills (invalid json)     4               Create spill with invalid json                              400             [x]
+POST /spills (no snapId)        5               Create spill with snapId missing from body                  400             [x]
+POST /spills (no email)         6               Create spill with email missing from body                   400             [x]
+POST /spills (invalid UUID)     7               Create spill with invalid UUID                              400             [x]
+POST /spills (missing snap)     8               Create spill with non-existent snapId                       404             [x]
+GET /spills (no snapId)       	9 	            Missing required query param       	                        400        	  	[x]
+GET /spills (empty snapId)      10              Query param snapId is empty string                          400             [x]
+GET /spills (invalid snapId)    11              Invalid snapId query param                                  400             [x]
+GET /spills?snapId=<uuid>       12              List spills for snap                     	                  200 [{...}]     [x]
+GET /spills?snapId=<uuid>     	13              List spills for non-existent snap                           200 []         	[x]
+DELETE /spills/:id            	14              Delete existing spill                    	                  204        	    [x]
+DELETE /spills/:id              15              Delete non-existent spill                                   404             [x]
+
+curl Queries:
+1. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json' \
+-d "{\"snapId\": \"$SNAP_ID\",\"email\":\"naoude@gmail.com\",\"firstName\":\"Nour\",\"lastName\":\"Aoude\"}"
+
+2. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json' \
+-d "{\"snapId\": \"$SNAP_ID\",\"email\":\"naoude@gmail.com\"}"
+
+3. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json'
+
+4. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json' \
+-d "{\"snapId\": \"$SNAP_ID\",\"email\":naoude@gmail.com}"
+
+5. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json' \
+-d "{\"snapId\": \"\",\"email\":\"naoude@gmail.com\"}"
+
+6. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json' \
+-d "{\"snapId\": \"$SNAP_ID\",\"email\":\"\"}"
+
+7. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json' \
+-d "{\"snapId\": \"12345678\",\"email\":\"naoude@gmail.com\"}"
+
+8. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json' \
+-d "{\"snapId\": \"00000000-0000-4000-8000-000000000099\",\"email\":\"naoude@gmail.com\"}"
+
+9. curl -s -i -X GET "$BASE_URL/spills"
+
+10. curl -s -i -X GET "$BASE_URL/spills?snapId="
+
+11. curl -s -i -X GET "$BASE_URL/spills?snapId=12345678"
+
+12. curl -s -i -X GET "$BASE_URL/spills?snapId=$SNAP_ID"
+
+13. curl -s -i -X GET "$BASE_URL/spills?snapId=00000000-0000-4000-8000-000000000099"
+
+14. curl -s -i -X DELETE "$BASE_URL/spills/$SPILL_ID"
+
+15. curl -s -i -X DELETE "$BASE_URL/spills/00000000-0000-4000-8000-000000000099"
+

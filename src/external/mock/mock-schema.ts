@@ -1,5 +1,4 @@
 import { Schema } from '@formulator/schema';
-import { Spread } from 'src/domain/model/spread';
 
 export const mockSchema: Schema = {
   title: 'Super Amazing Rainbows and Unicorns Forever',

@@ -1,0 +1,203 @@
+{
+  "id": "3f444358-8d48-4264-bdb6-8d8236d82eb8",
+  "version": 0,
+  "ectm": null,
+  "schema": {
+    "title": "Super Amazing Rainbows and Unicorns Forever",
+    "pages": [
+      {
+        "id": "bda33b8b-a223-4130-90f9-964eadfbb9a5",
+        "title": "",
+        "elements": [
+          {
+            "el": {
+              "label": "What's your favourite type of unicorn?",
+              "htmlType": "text",
+              "validators": {
+                "required": true
+              }
+            },
+            "id": "973b90e2-cdcc-43f8-9e7a-9e7d9afb6ab4",
+            "type": "question"
+          },
+          {
+            "el": {
+              "label": "How many times have you ridden a unicorn?",
+              "options": [
+                {
+                  "id": "8dda9037-f5be-44d6-93c5-7f0b85383af3",
+                  "label": "Once",
+                  "value": "Once"
+                },
+                {
+                  "id": "4418ec44-a2e7-4071-94c5-f51531a611e4",
+                  "label": "Twice",
+                  "value": "Twice"
+                },
+                {
+                  "id": "d0fd213b-20a2-46fb-835c-f294d48f4051",
+                  "label": "Less than 10 times",
+                  "value": "Less than 10 times"
+                },
+                {
+                  "id": "af6ab85c-3e01-4303-9a36-06044771051c",
+                  "label": "Less than 100 times",
+                  "value": "Less than 100 times"
+                },
+                {
+                  "id": "db0d4c06-7f15-4152-ada4-fab29e9ce270",
+                  "label": "I lost count",
+                  "value": "I lost count"
+                }
+              ],
+              "htmlType": "radio",
+              "validators": {
+                "required": true
+              },
+              "optionValueType": "string"
+            },
+            "id": "1443ae63-c3e6-4372-ad6c-89e58f774b2a",
+            "type": "question"
+          },
+          {
+            "el": {
+              "label": "Please note that the existence of unicorns has not been proven by empirical science. Your claims to have ridden one does not change that."
+            },
+            "id": "58a9f1a6-7aca-426b-9b9b-d5ccd3812717",
+            "type": "note"
+          },
+          {
+            "el": {
+              "label": "What is your favourite rainbow band color?",
+              "options": [
+                {
+                  "id": "6e2a1445-8f19-47b5-b84f-07bda9782fd1",
+                  "label": "Red",
+                  "value": "Red"
+                },
+                {
+                  "id": "b25eba9d-bf40-4e40-a081-665876c187b7",
+                  "label": "Orange",
+                  "value": "Orange"
+                },
+                {
+                  "id": "3014e77a-47d7-42a1-bc4a-f2f7b523b2fa",
+                  "label": "Yellow",
+                  "value": "Yellow"
+                },
+                {
+                  "id": "5b644c02-6a97-4623-bab5-5c0155729891",
+                  "label": "Green",
+                  "value": "Green"
+                },
+                {
+                  "id": "c2a0b1c4-ec3a-4aeb-9e59-14a1b616cae1",
+                  "label": "Blue",
+                  "value": "Blue"
+                },
+                {
+                  "id": "1e28d796-2892-4f0d-8dea-c962a438d695",
+                  "label": "Indigo",
+                  "value": "Indigo"
+                },
+                {
+                  "id": "984cd150-f744-44fd-bdb3-e26b245c86dc",
+                  "label": "Violet",
+                  "value": "Violet"
+                },
+                {
+                  "id": "7fa15949-76e0-4e35-92a3-f3db2a49f756",
+                  "label": "Octarine",
+                  "value": "Octarine"
+                }
+              ],
+              "htmlType": "select",
+              "validators": {
+                "required": true
+              },
+              "optionValueType": "string"
+            },
+            "id": "9e8d9cae-e00d-4acc-97a6-7842f2ee43ff",
+            "type": "question"
+          },
+          {
+            "el": {
+              "label": "Which mythical creatures have you spotted in the wild?",
+              "options": [
+                {
+                  "id": "31b5cee4-263c-47d2-a953-86bf56efa645",
+                  "label": "Unicorns",
+                  "value": "Unicorns"
+                },
+                {
+                  "id": "19aeec8f-293d-425a-abb0-5ba5c2a89ab4",
+                  "label": "Griffins",
+                  "value": "Griffins"
+                },
+                {
+                  "id": "b1cc49a0-4edb-43ff-a060-de8a68d9d6a1",
+                  "label": "Dragons",
+                  "value": "Dragons"
+                }
+              ],
+              "htmlType": "checkbox",
+              "validators": {
+                "required": true
+              },
+              "optionValueType": "string"
+            },
+            "id": "15e1e81b-9515-4dbb-8f0c-4a49c463165c",
+            "type": "question"
+          }
+        ]
+      },
+      {
+        "id": "7529e8c5-5b05-430f-a403-37cf2db4f23e",
+        "title": "",
+        "elements": [
+          {
+            "el": {
+              "label": "Thank you for taking the survey, please let us know how you enjoyed it.",
+              "options": [
+                {
+                  "id": "669173fe-f8b6-46af-a1b7-ffca6b1add91",
+                  "label": "It was horrible",
+                  "value": "It was horrible"
+                },
+                {
+                  "id": "6edf9bb0-f6e4-41fc-8957-7dfe289a7b57",
+                  "label": "Meh",
+                  "value": "Meh"
+                },
+                {
+                  "id": "6078267b-108b-4f91-b71b-2d1bba8c890e",
+                  "label": "Could do better",
+                  "value": "Could do better"
+                },
+                {
+                  "id": "4c323c8a-be40-4fa9-bd53-0a8e508c37cf",
+                  "label": "Not bad",
+                  "value": "Not bad"
+                },
+                {
+                  "id": "97629647-7c3a-4c72-b20c-113469d54af7",
+                  "label": "Terrific, send me more!",
+                  "value": "Terrific, send me more!"
+                }
+              ],
+              "htmlType": "select",
+              "validators": {
+                "required": true
+              },
+              "optionValueType": "string"
+            },
+            "id": "f4f2fe77-ea21-4a96-bce3-8eea09c89264",
+            "type": "question"
+          }
+        ]
+      }
+    ]
+  },
+  "createdAt": "2026-07-25T16:07:37.006Z",
+  "lastModifiedAt": null
+}
