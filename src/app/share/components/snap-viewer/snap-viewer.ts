@@ -1,13 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { DomainStore } from '../../../../domain/store/domain-store';
-import { RenderedPage } from '../rendered/rendered-page/rendered-page';
+import { RenderedPage } from '../../../builder/components/rendered/rendered-page/rendered-page';
+import { SpillList } from '../spill-list/spill-list';
 
-type SnapTab = 'preview' | 'responses';
+type SnapTab = 'preview' | 'spills';
 
 @Component({
   selector: 'app-snap-viewer',
-  imports: [DatePipe, RenderedPage],
+  imports: [DatePipe, RenderedPage, SpillList],
   templateUrl: './snap-viewer.html',
 })
 export class SnapViewer {
@@ -16,7 +17,7 @@ export class SnapViewer {
   protected readonly snap = computed(() => this.domainStore.activeSnap());
   protected readonly schema = computed(() => this.snap()?.schema);
   protected readonly pages = computed(() => this.schema()?.pages ?? []);
-  protected readonly title = computed(() => this.schema()?.title?.trim() || 'Untitled snap');
+  protected readonly title = computed(() => this.schema()?.title?.trim() || 'Untitled edition');
 
   protected readonly tab = signal<SnapTab>('preview');
   protected readonly activePageIdx = signal(0);

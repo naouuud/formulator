@@ -1,0 +1,78 @@
+<div class="flex flex-col gap-1 w-full">
+  @if (openMenuSpreadId()) {
+    <div class="fixed inset-0 z-10" (click)="closeMenus()"></div>
+  }
+
+  @for (spread of domainStore.spreadsMetaData(); track spread.id) {
+    <div
+      class="group flex gap-1 items-center w-full min-w-0"
+      [class.opacity-50]="uiStore.deletingSpreadId() === spread.id"
+    >
+      <button
+        type="button"
+        class="flex-1 min-w-0 text-left px-3 py-2 rounded-md text-sm transition-colors disabled:cursor-not-allowed"
+        [ngClass]="
+          domainStore.activeSpread()?.id === spread.id
+            ? 'bg-violet-50 text-violet-700 font-medium'
+            : 'text-slate-700 hover:bg-slate-100'
+        "
+        [disabled]="uiStore.deletingSpreadId() === spread.id"
+        (click)="domainStore.loadSpread(spread.id)"
+      >
+        {{ spread.title || 'Untitled spread' }}
+      </button>
+
+      <div class="relative w-8 shrink-0 flex justify-end">
+        <button
+          type="button"
+          class="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all disabled:cursor-not-allowed"
+          [class.opacity-100]="
+            openMenuSpreadId() === spread.id || uiStore.deletingSpreadId() === spread.id
+          "
+          [class.text-slate-600]="openMenuSpreadId() === spread.id"
+          [class.bg-slate-100]="openMenuSpreadId() === spread.id"
+          [disabled]="uiStore.deletingSpreadId() === spread.id"
+          (click)="toggleSpreadMenu(spread.id, $event)"
+          title="Spread actions"
+        >
+          @if (uiStore.deletingSpreadId() === spread.id) {
+            <span
+              class="block w-3.5 h-3.5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"
+              aria-label="Deleting spread"
+            ></span>
+          } @else {
+            <svg
+              class="w-3.5 h-3.5 transition-transform"
+              [class.rotate-180]="openMenuSpreadId() === spread.id"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          }
+        </button>
+
+        @if (openMenuSpreadId() === spread.id && uiStore.deletingSpreadId() !== spread.id) {
+          <div
+            class="absolute right-0 top-full mt-1 z-20 w-28 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden"
+          >
+            <button
+              type="button"
+              class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+              (click)="deleteSpread(spread.id, $event)"
+            >
+              Delete
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  } @empty {
+    <p class="text-xs text-slate-400 px-3">No spreads yet</p>
+  }
+</div>

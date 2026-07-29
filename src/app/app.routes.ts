@@ -4,6 +4,6 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./builder/components/builder-parent/builder-parent').then((m) => m.BuilderParent),
+      import('./app-shell/app-shell').then((m) => m.AppShell),
   },
 ];

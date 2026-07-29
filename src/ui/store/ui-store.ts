@@ -1,6 +1,9 @@
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 
+export type AppWorkspace = 'build' | 'share';
+
 type UiState = {
+  workspace: AppWorkspace;
   spreadSaving: boolean;
   spreadSavingError: { message: string; code?: string } | null;
 
@@ -15,6 +18,7 @@ type UiState = {
 };
 
 const initialState: UiState = {
+  workspace: 'build',
   spreadSaving: false,
   spreadSavingError: null,
 
@@ -32,6 +36,9 @@ export const UiStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withMethods((store) => ({
+    setWorkspace(workspace: AppWorkspace): void {
+      patchState(store, { workspace });
+    },
     startSpreadSaving(): void {
       patchState(store, { spreadSaving: true });
     },

@@ -29,7 +29,11 @@
       } @else {
         @switch (question.htmlType) {
           @case ('radio') {
-            <div class="flex flex-col gap-2" role="radiogroup" [attr.aria-required]="question.validators.required">
+            <div
+              class="flex flex-col gap-2"
+              role="radiogroup"
+              [attr.aria-required]="question.validators.required"
+            >
               @for (option of question.options; track option.id) {
                 <label
                   [for]="option.id"

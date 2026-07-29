@@ -85,6 +85,15 @@ export const DomainStore = signalStore(
     activeView: computed<'spread' | 'snap' | null>(() =>
       state.activeSnap() ? 'snap' : state.activeSpread() ? 'spread' : null,
     ),
+    snapGroups: computed(() =>
+      state.spreadsMetaData().map((spread) => ({
+        spread,
+        snaps: state
+          .snapsMetaData()
+          .filter((snap) => snap.spreadId === spread.id)
+          .sort((a, b) => b.edition - a.edition),
+      })),
+    ),
     metaData: computed(() =>
       state.spreadsMetaData().map((spread) => ({
         ...spread,
@@ -312,6 +321,7 @@ export const DomainStore = signalStore(
                         snapsMetaData: [...store.snapsMetaData(), toSnapMetaData(created)],
                         createSnapError: false,
                       });
+                      uiStore.setWorkspace('share');
                     }),
                     catchError((err: HttpErrorResponse) => {
                       patchState(store, { createSnapError: true });
@@ -361,6 +371,14 @@ export const DomainStore = signalStore(
 
         setActivePage(idx: number): void {
           patchState(store, { activePageIdx: idx });
+        },
+
+        deselectSpread(): void {
+          patchState(store, { activeSpread: null, activePageIdx: 0 });
+        },
+
+        deselectSnap(): void {
+          patchState(store, { activeSnap: null });
         },
 
         updateQuestionLabel(elementId: string, label: string): void {

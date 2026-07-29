@@ -1,0 +1,103 @@
+<div class="flex flex-col h-screen bg-slate-50 font-sans">
+  <!-- Top navigation -->
+  <header class="shrink-0 border-b border-slate-200 bg-white">
+    <div class="flex items-center gap-6 px-4 h-12">
+      <span class="text-[0.875rem] font-semibold text-slate-800">Formulator</span>
+
+      <nav class="flex items-center gap-1">
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          [class.bg-violet-50]="uiStore.workspace() === 'build'"
+          [class.text-violet-700]="uiStore.workspace() === 'build'"
+          [class.text-slate-600]="uiStore.workspace() !== 'build'"
+          [class.hover:bg-slate-100]="uiStore.workspace() !== 'build'"
+          (click)="setWorkspace('build')"
+        >
+          Build
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+          [class.bg-emerald-50]="uiStore.workspace() === 'share'"
+          [class.text-emerald-700]="uiStore.workspace() === 'share'"
+          [class.text-slate-600]="uiStore.workspace() !== 'share'"
+          [class.hover:bg-slate-100]="uiStore.workspace() !== 'share'"
+          (click)="setWorkspace('share')"
+        >
+          Share
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="flex flex-1 min-h-0">
+    <!-- Sidebar -->
+    <aside
+      class="w-72 shrink-0 border-r border-slate-200 bg-white flex flex-col gap-4 p-4 overflow-auto"
+    >
+      @if (uiStore.workspace() === 'build') {
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-1 mb-3">
+            Spreads
+          </p>
+          <app-create-spread />
+        </div>
+        <app-spread-list />
+      } @else {
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-1 mb-3">
+            Published editions
+          </p>
+          <p class="text-xs text-slate-500 px-1 mb-3 leading-relaxed">
+            Published editions grouped by spread. Select one to preview the form or review
+            responses.
+          </p>
+        </div>
+        <app-snap-browser />
+      }
+    </aside>
+
+    <!-- Main panel -->
+    <main class="flex-1 flex flex-col min-h-0 overflow-hidden">
+      @if (uiStore.workspace() === 'build') {
+        @if (domainStore.activeSpread()) {
+          <app-spread-header />
+          @if (uiStore.viewer() === 'json') {
+            <app-json-viewer class="flex flex-1 overflow-hidden" />
+          } @else {
+            @if (uiStore.viewer() === 'rendered') {
+              <app-rendered-parent class="flex flex-col flex-1 min-h-0 overflow-hidden" />
+            } @else {
+              <app-page-canvas class="flex flex-col flex-1 overflow-hidden" />
+            }
+          }
+        } @else {
+          <div class="flex-1 flex items-center justify-center">
+            <div class="text-center max-w-sm px-6">
+              <p class="text-slate-600 text-sm font-medium">Build a spread</p>
+              <p class="text-slate-400 text-xs mt-1">
+                Create or select a spread to design your form. Publish when ready to share a
+                published edition.
+              </p>
+            </div>
+          </div>
+        }
+      } @else {
+        @if (domainStore.activeSnap()) {
+          <app-snap-viewer class="flex flex-col flex-1 min-h-0 overflow-hidden" />
+        } @else {
+          <div class="flex-1 flex items-center justify-center bg-slate-100">
+            <div class="text-center max-w-sm px-6">
+              <p class="text-slate-600 text-sm font-medium">Select a published edition</p>
+              <p class="text-slate-400 text-xs mt-1">
+                Choose a published edition from the sidebar to preview the locked form or review
+                spills.
+              </p>
+            </div>
+          </div>
+        }
+      }
+    </main>
+  </div>
+</div>

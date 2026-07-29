@@ -3,6 +3,9 @@ module.exports = {
   content: ['./src/**/*.{html,ts}'],
   theme: {
     extend: {
+      fontSize: {
+        sm: ['0.825rem', { lineHeight: '1.25rem' }],
+      },
       fontFamily: {
         text: ['Poppins', 'sans-serif'], // overrides default sans
         logo: ['Funnel Sans', 'sans-serif'], // optional custom name for app name
