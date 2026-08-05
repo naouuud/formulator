@@ -11,32 +11,24 @@ import (
 
 type SpreadMetaDataDto struct {
 	ID             string     `json:"id"`
-	Title          string     `json:"title"`
+	SpreadTitle    string     `json:"spreadTitle"`
 	CreatedAt      *time.Time `json:"createdAt"`
 	LastModifiedAt *time.Time `json:"lastModifiedAt"`
 }
 
 type SpreadDto struct {
 	ID             string          `json:"id"`
+	SpreadTitle    string          `json:"spreadTitle"`
 	Version        int32           `json:"version"`
-	Ectm           *int32          `json:"ectm"`
 	Schema         json.RawMessage `json:"schema"`
 	CreatedAt      *time.Time      `json:"createdAt"`
 	LastModifiedAt *time.Time      `json:"lastModifiedAt"`
 }
 
 func SpreadMetaDataDtoFromRow(row db.ListSpreadMetaDataRow) (SpreadMetaDataDto, error) {
-	var schema struct {
-		Title string `json:"title"`
-	}
-	err := json.Unmarshal(row.Schema, &schema)
-	if err != nil {
-		return SpreadMetaDataDto{}, err
-	}
-
 	return SpreadMetaDataDto{
 		ID:             uuidToString(row.ID),
-		Title:          schema.Title,
+		SpreadTitle:    row.SpreadTitle,
 		CreatedAt:      timestamptzToPtr(row.CreatedAt),
 		LastModifiedAt: timestamptzToPtr(row.LastModifiedAt),
 	}, nil
@@ -45,8 +37,8 @@ func SpreadMetaDataDtoFromRow(row db.ListSpreadMetaDataRow) (SpreadMetaDataDto, 
 func SpreadDtoFromRow(row db.Spread) SpreadDto {
 	return SpreadDto{
 		ID:             uuidToString(row.ID),
+		SpreadTitle:    row.SpreadTitle,
 		Version:        row.Version,
-		Ectm:           int4ToPtr(row.Ectm),
 		Schema:         append(json.RawMessage(nil), row.Schema...),
 		CreatedAt:      timestamptzToPtr(row.CreatedAt),
 		LastModifiedAt: timestamptzToPtr(row.LastModifiedAt),

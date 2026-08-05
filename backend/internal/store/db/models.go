@@ -36,8 +36,8 @@ type Spill struct {
 
 type Spread struct {
 	ID             pgtype.UUID        `json:"id"`
+	SpreadTitle    string             `json:"spread_title"`
 	Version        int32              `json:"version"`
-	Ectm           pgtype.Int4        `json:"ectm"`
 	Schema         json.RawMessage    `json:"schema"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	LastModifiedAt pgtype.Timestamptz `json:"last_modified_at"`

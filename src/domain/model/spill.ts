@@ -8,27 +8,6 @@ export type Spill = {
   readonly createdAt: Date;
   readonly lastModifiedAt: Date | null;
   readonly completedAt: Date | null;
-  readonly sentAt: Date | null;
+  readonly sentAt: Date;
   readonly expiredAt: Date | null;
 };
-
-export const newSpill = (
-  id: string,
-  snapId: string,
-  rSchema: any,
-  email: string,
-  firstName?: string,
-  lastName?: string,
-): Spill => ({
-  id,
-  snapId,
-  firstName: firstName?.trim() ?? '',
-  lastName: lastName?.trim() ?? '',
-  email,
-  rSchema,
-  createdAt: new Date(),
-  lastModifiedAt: null,
-  completedAt: null,
-  sentAt: null,
-  expiredAt: null,
-});

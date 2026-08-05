@@ -6,6 +6,8 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -86,16 +88,40 @@ func (s *Server) handleListSpreads(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleCreateSpread(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		ID string `json:"id"`
+		SpreadTitle string `json:"spreadTitle"`
+    ID          string `json:"id"`
 	}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
-		return
+    writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
+    return
 	}
 
+  spreadTitle := strings.TrimSpace(req.SpreadTitle)
+  if spreadTitle == "" {
+    writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("spreadTitle is required."))
+    return
+  }
+
+  count, err := s.store.GetCountBySpreadTitle(r.Context(), spreadTitle)
+  if err != nil {
+    s.logger.Error("create spread", "error", err)
+    writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+    return
+  }
+
+  if count > 0 {
+    writeJSON(w, http.StatusConflict, apperrors.ProblemDetail{
+      Status: http.StatusConflict,
+      Title: "Conflict",
+      Detail: "duplicate spread title.",
+      Code: apperrors.CodeConflict,
+    })
+    return
+  }
+
 	if req.ID == "" {
-		spread, err := s.store.CreateSpread(r.Context())
+		spread, err := s.store.CreateSpread(r.Context(), spreadTitle)
 		if err != nil {
 			s.logger.Error("create spread", "error", err)
 			writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
@@ -112,17 +138,17 @@ func (s *Server) handleCreateSpread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	spread, err := s.store.CreateSpreadWithId(r.Context(), parsedID)
+	spread, err := s.store.CreateSpreadWithId(r.Context(), spreadTitle, parsedID)
 	if err != nil {
-    if errors.Is(err, store.ErrDuplicateSpreadID) {
-      writeJSON(w, http.StatusConflict, apperrors.ProblemDetail{
-        Status: http.StatusConflict,
-        Title: "Conflict",
-        Detail: "duplicate id",
-        Code: apperrors.CodeConflict,
-      })
-      return
-    }
+		if errors.Is(err, store.ErrDuplicateSpreadID) {
+			writeJSON(w, http.StatusConflict, apperrors.ProblemDetail{
+				Status: http.StatusConflict,
+				Title:  "Conflict",
+				Detail: "duplicate id",
+				Code:   apperrors.CodeConflict,
+			})
+			return
+		}
 		s.logger.Error("create spread", "error", err)
 		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 		return
@@ -164,6 +190,35 @@ func (s *Server) handleUpdateSpread(w http.ResponseWriter, r *http.Request) {
 
 	if spread.ID != id {
 		writeJSON(w, http.StatusBadRequest, apperrors.SpreadIdMismatch())
+		return
+	}
+
+	spreadTitle := strings.TrimSpace(spread.SpreadTitle)
+	if spreadTitle == "" {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("spreadTitle is required."))
+		return
+	}
+	spread.SpreadTitle = spreadTitle
+
+	parsedID, err := api.ParseUUID(spread.ID)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("id must be a valid UUID."))
+		return
+	}
+
+	count, err := s.store.GetCountBySpreadTitleExcludingId(r.Context(), spreadTitle, parsedID)
+	if err != nil {
+		s.logger.Error("update spread", "error", err, "id", id)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+	if count > 0 {
+		writeJSON(w, http.StatusConflict, apperrors.ProblemDetail{
+			Status: http.StatusConflict,
+			Title:  "Conflict",
+			Detail: "duplicate spread title.",
+			Code:   apperrors.CodeConflict,
+		})
 		return
 	}
 
@@ -242,7 +297,8 @@ func (s *Server) handleCreateSnap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var payload struct {
-		SpreadID string `json:"spreadId"`
+		SpreadID  string `json:"spreadId"`
+		SnapTitle string `json:"snapTitle"`
 	}
 	if err := json.Unmarshal(body, &payload); err != nil {
 		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
@@ -254,13 +310,19 @@ func (s *Server) handleCreateSnap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	snapTitle := strings.TrimSpace(payload.SnapTitle)
+	if snapTitle == "" {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("snapTitle is required"))
+		return
+	}
+
 	parsedID, err := api.ParseUUID(payload.SpreadID)
 	if err != nil {
 		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("spreadId must be a valid UUID"))
 		return
 	}
 
-	snap, err := s.store.CreateSnap(r.Context(), parsedID)
+	snap, err := s.store.CreateSnap(r.Context(), parsedID, snapTitle)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
 			writeJSON(w, http.StatusNotFound, apperrors.SpreadNotFound(payload.SpreadID))
@@ -335,10 +397,11 @@ func (s *Server) handleListSpills(w http.ResponseWriter, r *http.Request) {
 }
 
 type CreateSpillRequest struct {
-	SnapID    string `json:"snapId"`
-	Email     string `json:"email"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	SnapID    string     `json:"snapId"`
+	Email     string     `json:"email"`
+	FirstName string     `json:"firstName"`
+	LastName  string     `json:"lastName"`
+	SentAt    *time.Time `json:"sentAt"`
 }
 
 func (s *Server) handleCreateSpill(w http.ResponseWriter, r *http.Request) {
@@ -361,8 +424,9 @@ func (s *Server) handleCreateSpill(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("snapId must be a valid UUID"))
 		return
 	}
+	sentAt := api.TimePtrToPgTimestamptzDefaultNow(req.SentAt)
 
-	spill, err := s.store.CreateSpill(r.Context(), parsedID, req.Email, req.FirstName, req.LastName)
+	spill, err := s.store.CreateSpill(r.Context(), parsedID, req.Email, req.FirstName, req.LastName, sentAt)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
 			writeJSON(w, http.StatusNotFound, apperrors.SnapNotFound(req.SnapID))

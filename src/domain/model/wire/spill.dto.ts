@@ -5,7 +5,7 @@ type WireDates = {
   createdAt: string;
   lastModifiedAt: string | null;
   completedAt: string | null;
-  sentAt: string | null;
+  sentAt: string;
   expiredAt: string | null;
 };
 

@@ -1,4 +1,4 @@
-import { DEFAULT_SNAP_STATUS, Snap } from 'src/domain/model/snap';
+import { Snap } from 'src/domain/model/snap';
 
 /**
  * Snap domain shape including `closedAt` property.
@@ -14,7 +14,7 @@ export const isActiveMockSnap = (snap: MockSnap): boolean => snap.closedAt === n
  */
 export const mockSnapToSnap = (snap: MockSnap): Snap => {
   const { closedAt, ...body } = snap;
-  return { ...body, status: DEFAULT_SNAP_STATUS };
+  return { ...body, status: null };
 };
 
 /**

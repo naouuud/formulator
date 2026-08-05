@@ -12,7 +12,7 @@ SELECT
     expired_at
 FROM spills
 WHERE snap_id = $1
-ORDER BY last_modified_at DESC;
+ORDER BY created_at DESC;
 
 -- name: CreateSpill :one
 INSERT INTO spills(
@@ -21,9 +21,10 @@ INSERT INTO spills(
     first_name,
     last_name,
     email,
-    r_schema
+    r_schema,
+    sent_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 )
 RETURNING
     id,

@@ -11,8 +11,8 @@ info:
     **Spreads** are editable form drafts. **Snaps** are immutable published snapshots
     of a spread's schema, used for response collection. A **spill** is an unique instance of a snap shared for response collection, and contains the response schema.
 
-    Deleting a spread does not delete its snaps; orphan snaps may reference a
-    spread that no longer exists. Deleting a snap does not affect any of its spills.
+    Deleting a spread does not delete its snaps; affected snaps become orphans with
+    `spreadId` set to null. Deleting a snap does not affect any of its spills.
 
 servers:
   - url: http://localhost:8080
@@ -36,7 +36,6 @@ paths:
       description: |
         Returns metadata for all spreads without the full page/element tree.
 
-        The `title` field is denormalized from `schema.title` on the full spread.
       responses:
         '200':
           description: List of spread metadata
@@ -53,16 +52,18 @@ paths:
       operationId: createSpread
       summary: Create a new spread
       description: |
-        Creates a new empty spread with a generated UUID, `version` 0, a default
-        schema (empty title, one empty page), and current timestamps.
+        Creates a new spread with `version` 0, a default schema (one empty page), spread title,
+        and current timestamps.
+
+        Request body must provide `spreadTitle`. UUID is server-generated unless `id` is set in body (avoid setting `id` manually except for testing).
+
+        Returns **409 Conflict** when `spreadTitle` is already in use or when a client-provided `id` already exists.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: false
-              description: Empty object; no input fields are required.
+              $ref: '#/components/schemas/CreateSpreadRequest'
       responses:
         '201':
           description: Spread created
@@ -70,6 +71,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SpreadDto'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
 
   /spreads/{id}:
     parameters:
@@ -99,19 +104,23 @@ paths:
       operationId: updateSpread
       summary: Update spread
       description: |
-        Replaces a spread by ID. Used for auto-save.
+        Updates a spread by ID. Used for auto-save.
 
+        Required body fields: `id`, `version`, `spreadTitle`, and `schema`.
         The path `id` and request body `id` must match.
 
         Optimistic concurrency is enforced via the `version` field: the request body
-        must carry the current version. On success the server increments `version`
-        and updates `lastModifiedAt`.
+        must carry the current version. On success the server increments `version`,
+        updates `spreadTitle` and `schema`, and refreshes `lastModifiedAt`.
+
+        Returns **409 Conflict** for a version mismatch or when `spreadTitle` is
+        already used by another spread.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SpreadDto'
+              $ref: '#/components/schemas/UpdateSpreadRequest'
       responses:
         '200':
           description: Spread updated
@@ -124,7 +133,28 @@ paths:
         '404':
           $ref: '#/components/responses/SpreadNotFound'
         '409':
-          $ref: '#/components/responses/VersionConflict'
+          description: Version conflict or duplicate spread title
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/VersionConflictDetail'
+                  - $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                versionConflict:
+                  value:
+                    status: 409
+                    title: Version conflict
+                    detail: Expected version 2 but found 3.
+                    code: VERSION_CONFLICT
+                    expectedVersion: 2
+                    actualVersion: 3
+                duplicateSpreadTitle:
+                  value:
+                    status: 409
+                    title: Conflict
+                    detail: duplicate spread title.
+                    code: CONFLICT
 
     delete:
       tags:
@@ -153,6 +183,9 @@ paths:
         published from that spread. When omitted, returns all snaps.
 
         The `title` field is denormalized from `schema.title` on the full snap.
+
+        Orphan editions (source spread deleted) are included when listing all snaps
+        and have `spreadId: null`.
       parameters:
         - $ref: '#/components/parameters/SpreadIdQuery'
       responses:
@@ -175,7 +208,8 @@ paths:
       description: |
         Publishes an immutable snapshot of a spread's current schema.
 
-        - Deep-clones the spread's `schema` at publish time.
+        - Deep-clones the spread's `schema` at publish time (spread row unchanged).
+        - Sets `schema.title` on the snap from `snapTitle`.
         - Records `spreadVersion` from the spread's current `version`.
         - Assigns `edition` as the highest existing edition for that spread plus
           one (starting at 1).
@@ -342,6 +376,12 @@ components:
                 title: Invalid request body
                 detail: id must be a valid UUID.
                 code: INVALID_REQUEST
+            missingSpreadTitle:
+              value:
+                status: 400
+                title: Invalid request body
+                detail: spreadTitle is required.
+                code: INVALID_REQUEST
             spreadIdMismatch:
               value:
                 status: 400
@@ -415,6 +455,26 @@ components:
                 detail: No spill exists with id 00000000-0000-0000-0000-000000000000.
                 code: SPILL_NOT_FOUND
 
+    Conflict:
+      description: Conflict — e.g. duplicate spread title or duplicate client-provided id
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          examples:
+            duplicateSpreadTitle:
+              value:
+                status: 409
+                title: Conflict
+                detail: duplicate spread title.
+                code: CONFLICT
+            duplicateId:
+              value:
+                status: 409
+                title: Conflict
+                detail: duplicate id
+                code: CONFLICT
+
     VersionConflict:
       description: Version conflict — the spread was modified since the client last read it
       content:
@@ -482,16 +542,17 @@ components:
       type: object
       required:
         - id
-        - title
+        - spreadTitle
         - createdAt
         - lastModifiedAt
       properties:
         id:
           type: string
           format: uuid
-        title:
+        spreadTitle:
           type: string
-          description: Denormalized from `schema.title`.
+          minLength: 1
+          description: Display title. Leading/trailing whitespace is trimmed; empty-after-trim is rejected.
         createdAt:
           type: string
           format: date-time
@@ -500,12 +561,50 @@ components:
           format: date-time
           nullable: true
 
+    CreateSpreadRequest:
+      type: object
+      required:
+        - spreadTitle
+      additionalProperties: false
+      properties:
+        spreadTitle:
+          type: string
+          description: Display title.
+        id:
+          type: string
+          format: uuid
+          description: Optional client-provided spread ID. When omitted, the server generates a UUID.
+
+    UpdateSpreadRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - version
+        - spreadTitle
+        - schema
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Must match the spread ID in the URL path.
+        spreadTitle:
+          type: string
+          description: Builder display title for the spread.
+        version:
+          type: integer
+          minimum: 0
+          description: Current spread version for optimistic locking.
+        schema:
+          $ref: '#/components/schemas/Schema'
+          description: Form schema (pages and elements).
+
     SpreadDto:
       type: object
       required:
         - id
         - version
-        - ectm
+        - spreadTitle
         - schema
         - createdAt
         - lastModifiedAt
@@ -513,14 +612,12 @@ components:
         id:
           type: string
           format: uuid
+        spreadTitle:
+          type: string
         version:
           type: integer
           minimum: 0
           description: Optimistic locking counter; incremented on each successful update.
-        ectm:
-          type: integer
-          nullable: true
-          description: Estimated completion time in minutes.
         schema:
           $ref: '#/components/schemas/Schema'
         createdAt:
@@ -549,11 +646,15 @@ components:
       additionalProperties: false
       required:
         - spreadId
+        - snapTitle
       properties:
         spreadId:
           type: string
           format: uuid
           description: ID of the spread to publish
+        snapTitle:
+          type: string
+          description: Immutable snap title
 
     SnapMetaDataDto:
       type: object
@@ -571,6 +672,8 @@ components:
         spreadId:
           type: string
           format: uuid
+          nullable: true
+          description: ID of the source spread. Null when the spread was deleted (orphan edition).
         spreadVersion:
           type: integer
           minimum: 0
@@ -602,6 +705,8 @@ components:
         spreadId:
           type: string
           format: uuid
+          nullable: true
+          description: ID of the source spread. Null when the spread was deleted (orphan edition).
         spreadVersion:
           type: integer
           minimum: 0
@@ -634,10 +739,14 @@ components:
           description: Responder email
         firstName:
           type: string
-          description: Responder first name
+          description: Optional. Responder first name.
         lastName:
           type: string
-          description: Responder last name
+          description: Optional. Responder last name.
+        sentAt:
+          type: string
+          format: date-time
+          description: Optional. Defaults to now (immediate send) when omitted.
     SpillMetaDataDto:
       type: object
       required:
@@ -683,8 +792,7 @@ components:
         sentAt:
           type: string
           format: date-time
-          nullable: true
-          description: Reserved; null on create until scheduling slice.
+          description: Set on create (immediate send) or supplied for scheduled send.
         expiredAt:
           type: string
           format: date-time
@@ -886,6 +994,7 @@ components:
             - VERSION_CONFLICT
             - INVALID_REQUEST
             - INTERNAL_ERROR
+            - CONFLICT
           description: Machine-readable error code
 
     VersionConflictDetail:

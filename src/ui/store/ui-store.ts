@@ -2,23 +2,31 @@ import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 
 export type AppWorkspace = 'build' | 'share';
 
+export type SnapViewerTab = 'share' | 'currentShares' | 'preview';
+
 type UiState = {
   workspace: AppWorkspace;
+  snapViewerTab: SnapViewerTab;
   spreadSaving: boolean;
-  spreadSavingError: { message: string; code?: string } | null;
+  spreadSavingError: { message: string; code?: number } | null;
 
   deletingSpreadId: string | null;
-  deleteSpreadError: { message: string; code?: string } | null;
+  deleteSpreadError: { message: string; code?: number } | null;
 
   deletingSnapId: string | null;
-  deleteSnapError: { message: string; code?: string } | null;
+  deleteSnapError: { message: string; code?: number } | null;
 
   viewer: 'json' | 'rendered' | null;
   selectedElementId: string | null;
+
+  publishModal: boolean;
+  createSpreadModal: boolean;
+  renameSpreadModal: boolean;
 };
 
 const initialState: UiState = {
   workspace: 'build',
+  snapViewerTab: 'currentShares',
   spreadSaving: false,
   spreadSavingError: null,
 
@@ -30,6 +38,10 @@ const initialState: UiState = {
 
   viewer: null,
   selectedElementId: null,
+
+  publishModal: false,
+  createSpreadModal: false,
+  renameSpreadModal: false,
 };
 
 export const UiStore = signalStore(
@@ -39,19 +51,22 @@ export const UiStore = signalStore(
     setWorkspace(workspace: AppWorkspace): void {
       patchState(store, { workspace });
     },
+    setSnapViewerTab(tab: SnapViewerTab): void {
+      patchState(store, { snapViewerTab: tab });
+    },
     startSpreadSaving(): void {
       patchState(store, { spreadSaving: true });
     },
     stopSpreadSaving(): void {
       patchState(store, { spreadSaving: false });
     },
-    setSpreadSavingError(message: string, code?: string): void {
+    setSpreadSavingError(message: string, code?: number): void {
       patchState(store, { spreadSavingError: { message, code } });
     },
     clearSpreadSavingError(): void {
       patchState(store, { spreadSavingError: null });
     },
-    setDeleteSpreadError(message: string, code?: string): void {
+    setDeleteSpreadError(message: string, code?: number): void {
       patchState(store, { deleteSpreadError: { message, code } });
     },
     clearDeleteSpreadError(): void {
@@ -84,11 +99,29 @@ export const UiStore = signalStore(
     stopDeletingSnap(): void {
       patchState(store, { deletingSnapId: null });
     },
-    setDeleteSnapError(message: string, code?: string): void {
+    setDeleteSnapError(message: string, code?: number): void {
       patchState(store, { deleteSnapError: { message, code } });
     },
     clearDeleteSnapError(): void {
       patchState(store, { deleteSnapError: null });
+    },
+    showPublishModal(): void {
+      patchState(store, { publishModal: true });
+    },
+    hidePublishModal(): void {
+      patchState(store, { publishModal: false });
+    },
+    showCreateSpreadModal(): void {
+      patchState(store, { createSpreadModal: true });
+    },
+    hideCreateSpreadModal(): void {
+      patchState(store, { createSpreadModal: false });
+    },
+    showRenameSpreadModal(): void {
+      patchState(store, { renameSpreadModal: true });
+    },
+    hideRenameSpreadModal(): void {
+      patchState(store, { renameSpreadModal: false });
     },
   })),
 );

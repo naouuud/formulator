@@ -57,21 +57,17 @@ func (s *Store) GetSpread(ctx context.Context, id pgtype.UUID) (api.SpreadDto, e
 	return api.SpreadDtoFromRow(row), nil
 }
 
-func (s *Store) CreateSpread(ctx context.Context) (api.SpreadDto, error) {
+func (s *Store) CreateSpread(ctx context.Context, spreadTitle string) (api.SpreadDto, error) {
 	schema, err := api.DefaultSchemaJSON()
 	if err != nil {
 		return api.SpreadDto{}, err
 	}
-
-	now := time.Now().UTC()
 	id := uuid.New()
+
 	row, err := s.queries.CreateSpread(ctx, db.CreateSpreadParams{
-		ID:             pgtype.UUID{Bytes: id, Valid: true},
-		Version:        0,
-		Ectm:           pgtype.Int4{},
-		Schema:         schema,
-		CreatedAt:      api.TimeToPgTimestamptz(now),
-		LastModifiedAt: api.TimeToPgTimestamptz(now),
+		ID:          pgtype.UUID{Bytes: id, Valid: true},
+		SpreadTitle: spreadTitle,
+		Schema:      schema,
 	})
 	if err != nil {
 		return api.SpreadDto{}, err
@@ -80,26 +76,43 @@ func (s *Store) CreateSpread(ctx context.Context) (api.SpreadDto, error) {
 	return api.SpreadDtoFromRow(row), nil
 }
 
-func (s *Store) CreateSpreadWithId(ctx context.Context, id pgtype.UUID) (api.SpreadDto, error) {
+func (s *Store) GetCountBySpreadTitle(ctx context.Context, spreadTitle string) (int64, error) {
+  count, err := s.queries.GetCountBySpreadTitle(ctx, spreadTitle)
+  if err != nil {
+    return 0, err
+  }
+
+  return count, nil
+}
+
+func (s *Store) GetCountBySpreadTitleExcludingId(ctx context.Context, spreadTitle string, excludeID pgtype.UUID) (int64, error) {
+	count, err := s.queries.GetCountBySpreadTitleExcludingId(ctx, db.GetCountBySpreadTitleExcludingIdParams{
+		SpreadTitle: spreadTitle,
+		ID:          excludeID,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (s *Store) CreateSpreadWithId(ctx context.Context, spreadTitle string, id pgtype.UUID) (api.SpreadDto, error) {
 	schema, err := api.DefaultSchemaJSON()
 	if err != nil {
 		return api.SpreadDto{}, err
 	}
 
-  if _, err := s.queries.GetSpread(ctx, id); err == nil {
-    return api.SpreadDto{}, ErrDuplicateSpreadID
+	if _, err := s.queries.GetSpread(ctx, id); err == nil {
+		return api.SpreadDto{}, ErrDuplicateSpreadID
 	} else if !errors.Is(err, pgx.ErrNoRows) {
-    return api.SpreadDto{}, err
-  }
+		return api.SpreadDto{}, err
+	}
 
-	now := time.Now().UTC()
 	row, err := s.queries.CreateSpread(ctx, db.CreateSpreadParams{
-		ID:             id,
-		Version:        0,
-		Ectm:           pgtype.Int4{},
-		Schema:         schema,
-		CreatedAt:      api.TimeToPgTimestamptz(now),
-		LastModifiedAt: api.TimeToPgTimestamptz(now),
+		ID:          id,
+		SpreadTitle: spreadTitle,
+		Schema:      schema,
 	})
 	if err != nil {
 		return api.SpreadDto{}, err
@@ -119,10 +132,10 @@ func (s *Store) UpdateSpread(ctx context.Context, spread api.SpreadDto) (api.Spr
 	}
 
 	row, err := s.queries.UpdateSpread(ctx, db.UpdateSpreadParams{
-		ID:      id,
-		Ectm:    api.Int32ToPgInt4(spread.Ectm),
-		Schema:  spread.Schema,
-		Version: spread.Version,
+		ID:          id,
+		SpreadTitle: spread.SpreadTitle,
+		Schema:      spread.Schema,
+		Version:     spread.Version,
 	})
 	if err == nil {
 		return api.SpreadDtoFromRow(row), nil
@@ -220,7 +233,7 @@ func (s *Store) GetSnap(ctx context.Context, id pgtype.UUID) (api.SnapDto, error
 	return api.SnapDtoFromGetSnapRow(row), nil
 }
 
-func (s *Store) CreateSnap(ctx context.Context, spreadID pgtype.UUID) (api.SnapDto, error) {
+func (s *Store) CreateSnap(ctx context.Context, spreadID pgtype.UUID, snapTitle string) (api.SnapDto, error) {
 	spread, err := s.queries.GetSpread(ctx, spreadID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -236,6 +249,11 @@ func (s *Store) CreateSnap(ctx context.Context, spreadID pgtype.UUID) (api.SnapD
 		}
 	}
 
+	serializedWithTitle, err := api.SchemaWithTitle(spread.Schema, snapTitle)
+	if err != nil {
+		return api.SnapDto{}, err
+	}
+
 	now := time.Now().UTC()
 	id := uuid.New()
 
@@ -244,7 +262,7 @@ func (s *Store) CreateSnap(ctx context.Context, spreadID pgtype.UUID) (api.SnapD
 		SpreadID:      spreadID,
 		SpreadVersion: spread.Version,
 		Edition:       latest + 1,
-		Schema:        spread.Schema,
+		Schema:        serializedWithTitle,
 		PublishedAt:   api.TimeToPgTimestamptz(now),
 	})
 	if err != nil {
@@ -281,7 +299,7 @@ func (s *Store) ListSpillMetaData(ctx context.Context, snapID pgtype.UUID) ([]ap
 	return spillMetaData, nil
 }
 
-func (s *Store) CreateSpill(ctx context.Context, snapID pgtype.UUID, email, firstName, lastName string) (api.SpillMetaDataDto, error) {
+func (s *Store) CreateSpill(ctx context.Context, snapID pgtype.UUID, email, firstName, lastName string, sentAt pgtype.Timestamptz) (api.SpillMetaDataDto, error) {
 	_, err := s.queries.GetSnap(ctx, snapID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -291,7 +309,7 @@ func (s *Store) CreateSpill(ctx context.Context, snapID pgtype.UUID, email, firs
 	}
 
 	id := uuid.New()
-  rSchema := []byte("{}")
+	rSchema := []byte("{}")
 	spill, err := s.queries.CreateSpill(ctx, db.CreateSpillParams{
 		ID:        pgtype.UUID{Bytes: id, Valid: true},
 		SnapID:    snapID,
@@ -299,6 +317,7 @@ func (s *Store) CreateSpill(ctx context.Context, snapID pgtype.UUID, email, firs
 		FirstName: firstName,
 		LastName:  lastName,
 		RSchema:   rSchema,
+		SentAt:    sentAt,
 	})
 	if err != nil {
 		return api.SpillMetaDataDto{}, err

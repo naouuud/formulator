@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { UiStore } from '../../../../ui/store/ui-store';
-import { meetsPublishingRequirements } from '@formulator/schema';
+import { meetsPublishingRequirements } from 'src/domain/model/spread';
 
 @Component({
   selector: 'app-spread-header',
@@ -18,22 +18,14 @@ export class SpreadHeader {
     return meetsPublishingRequirements(activeSpread.schema);
   });
 
-  protected onTitleInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.domainStore.updateSpreadTitle(value);
-  }
-
-  protected saveSpread(): void {
-    const spread = this.domainStore.activeSpread();
-    if (spread) {
-      this.domainStore.saveSpread(spread);
-    }
-  }
-
-  protected createSnap(): void {
+  protected openPublishModal(): void {
     if (this.uiStore.spreadSaving() || this.domainStore.activeSnapLoading()) return;
-    const spreadId = this.domainStore.activeSpread()?.id;
-    if (spreadId) this.domainStore.createSnap(spreadId);
+    this.uiStore.showPublishModal();
+  }
+
+  protected openRenameModal(): void {
+    if (this.uiStore.spreadSaving()) return;
+    this.uiStore.showRenameSpreadModal();
   }
 
   protected toggleJsonViewer(): void {

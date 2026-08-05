@@ -1,18 +1,114 @@
-<div class="flex flex-col gap-4 w-full">
+<div class="flex flex-col w-full">
+  <div>
+    <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-1 mb-3">
+      Published editions
+    </p>
+  </div>
+
   @if (openMenuSnapId()) {
     <div class="fixed inset-0 z-10" (click)="closeMenus()"></div>
   }
 
-  @for (group of domainStore.snapGroups(); track group.spread.id) {
-    <section class="flex flex-col gap-1">
-      <div class="px-3 pt-1">
-        <h3 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 truncate">
-          {{ group.spread.title || 'Untitled spread' }}
-        </h3>
-      </div>
+  @if (!domainStore.snapsMetaData().length) {
+    <p class="text-xs text-slate-400 px-3 pt-2 border-t border-slate-100">
+      Publish a spread from Build to create your first published edition.
+    </p>
+  } @else {
+    @for (group of domainStore.snapGroups(); track group.spread.id) {
+      <section class="flex flex-col gap-1">
+        @if (group.snaps.length) {
+          <div class="px-3 pt-1">
+            <h3 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              From spread: {{ group.spread.spreadTitle || 'Untitled spread' }}
+            </h3>
+          </div>
+          @for (snap of group.snaps; track snap.id) {
+            <div
+              class="group/snap flex gap-1 items-center w-full min-w-0"
+              [class.opacity-50]="uiStore.deletingSnapId() === snap.id"
+            >
+              <button
+                type="button"
+                class="flex-1 min-w-0 text-left px-3 py-2 rounded-md text-sm transition-colors disabled:cursor-not-allowed"
+                [ngClass]="
+                  domainStore.activeSnap()?.id === snap.id
+                    ? 'bg-emerald-50 text-emerald-800 font-medium'
+                    : 'text-slate-700 hover:bg-slate-100'
+                "
+                [disabled]="uiStore.deletingSnapId() === snap.id"
+                (click)="selectSnap(snap.id)"
+              >
+                <span class="flex items-center gap-2 min-w-0">
+                  <span>{{ snapDisplayName(snap) }}</span>
+                </span>
+                <span class="text-[10px] text-slate-400 mt-0.5">
+                  {{ snap.publishedAt | date: 'medium' }}
+                </span>
+              </button>
 
-      @if (group.snaps.length) {
-        @for (snap of group.snaps; track snap.id) {
+              <div class="relative w-8 shrink-0 flex justify-end">
+                <button
+                  type="button"
+                  class="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover/snap:opacity-100 transition-all disabled:cursor-not-allowed"
+                  [class.opacity-100]="
+                    openMenuSnapId() === snap.id || uiStore.deletingSnapId() === snap.id
+                  "
+                  [class.text-slate-600]="openMenuSnapId() === snap.id"
+                  [class.bg-slate-100]="openMenuSnapId() === snap.id"
+                  [disabled]="uiStore.deletingSnapId() === snap.id"
+                  (click)="toggleSnapMenu(snap.id, $event)"
+                  title="Edition actions"
+                >
+                  @if (uiStore.deletingSnapId() === snap.id) {
+                    <span
+                      class="block w-3.5 h-3.5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin"
+                      aria-label="Deleting edition"
+                    ></span>
+                  } @else {
+                    <svg
+                      class="w-3.5 h-3.5 transition-transform"
+                      [class.rotate-180]="openMenuSnapId() === snap.id"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  }
+                </button>
+
+                @if (openMenuSnapId() === snap.id && uiStore.deletingSnapId() !== snap.id) {
+                  <div
+                    class="absolute right-0 top-full mt-1 z-20 w-28 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      (click)="deleteSnap(snap.id, $event)"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </section>
+    }
+
+    @if (domainStore.orphanSnaps().length) {
+      <section class="flex flex-col gap-1">
+        <div class="px-3 pt-1">
+          <h3 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            Independent published editions
+          </h3>
+        </div>
+        @for (snap of domainStore.orphanSnaps(); track snap.id) {
           <div
             class="group/snap flex gap-1 items-center w-full min-w-0"
             [class.opacity-50]="uiStore.deletingSnapId() === snap.id"
@@ -29,23 +125,12 @@
               (click)="selectSnap(snap.id)"
             >
               <span class="flex items-center gap-2 min-w-0">
-                <span class="truncate">{{ snapDisplayName(snap) }}</span>
-                <span
-                  class="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-                  [ngClass]="
-                    snap.status === 'active'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-slate-100 text-slate-500'
-                  "
-                >
-                  {{ snap.status }}
-                </span>
+                <span>{{ snapDisplayName(snap) }}</span>
               </span>
-              <span class="block truncate text-[10px] text-slate-400 mt-0.5">
+              <span class="text-[10px] text-slate-400 mt-0.5">
                 {{ snap.publishedAt | date: 'medium' }}
               </span>
             </button>
-
             <div class="relative w-8 shrink-0 flex justify-end">
               <button
                 type="button"
@@ -80,7 +165,6 @@
                   </svg>
                 }
               </button>
-
               @if (openMenuSnapId() === snap.id && uiStore.deletingSnapId() !== snap.id) {
                 <div
                   class="absolute right-0 top-full mt-1 z-20 w-28 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden"
@@ -97,17 +181,7 @@
             </div>
           </div>
         }
-      } @else {
-        <p class="px-3 py-1.5 text-xs text-slate-400 italic">No published editions</p>
-      }
-    </section>
-  } @empty {
-    <p class="text-xs text-slate-400 px-3">No spreads yet</p>
-  }
-
-  @if (domainStore.spreadsMetaData().length && !hasAnySnaps()) {
-    <p class="text-xs text-slate-400 px-3 pt-2 border-t border-slate-100">
-      Publish a spread from Build to create your first published edition.
-    </p>
+      </section>
+    }
   }
 </div>

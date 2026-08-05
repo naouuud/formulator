@@ -1,7 +1,7 @@
 import { Schema } from '@formulator/schema';
 
 export const mockSchema: Schema = {
-  title: 'Super Amazing Rainbows and Unicorns Forever',
+  title: '',
   pages: [
     {
       id: 'bda33b8b-a223-4130-90f9-964eadfbb9a5',

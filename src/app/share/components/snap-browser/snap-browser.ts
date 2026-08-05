@@ -13,13 +13,9 @@ export class SnapBrowser {
   protected readonly domainStore = inject(DomainStore);
   protected readonly uiStore = inject(UiStore);
   protected readonly openMenuSnapId = signal<string | null>(null);
-  readonly #datePipe = new DatePipe('en-US');
-
-  protected readonly hasAnySnaps = computed(() => this.domainStore.snapsMetaData().length > 0);
 
   protected snapDisplayName(snap: SnapMetaData): string {
-    const date = this.#datePipe.transform(snap.publishedAt, 'MMM d');
-    return `#${snap.edition} · ${date}`;
+    return `${snap.title}`;
   }
 
   protected toggleSnapMenu(snapId: string, event: Event): void {

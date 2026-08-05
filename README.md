@@ -22,6 +22,14 @@ A web-based form builder for creating multi-page surveys and questionnaires. Add
 
 ---
 
+## Architecture
+
+**Frontend** — An Angular view layer over signal stores (domain + UI state), domain models, and an external API layer — with schema rules in a shared library (`projects/schema`).
+
+**Backend** — A two-layer HTTP API: handlers for transport, store for persistence (with light domain rules), plus thin DTO/error helpers.
+
+---
+
 ## Getting Started
 
 ### Frontend only (mock API)

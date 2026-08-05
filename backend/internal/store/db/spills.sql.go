@@ -18,9 +18,10 @@ INSERT INTO spills(
     first_name,
     last_name,
     email,
-    r_schema
+    r_schema,
+    sent_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 )
 RETURNING
     id,
@@ -36,12 +37,13 @@ RETURNING
 `
 
 type CreateSpillParams struct {
-	ID        pgtype.UUID `json:"id"`
-	SnapID    pgtype.UUID `json:"snap_id"`
-	FirstName string      `json:"first_name"`
-	LastName  string      `json:"last_name"`
-	Email     string      `json:"email"`
-	RSchema   []byte      `json:"r_schema"`
+	ID        pgtype.UUID        `json:"id"`
+	SnapID    pgtype.UUID        `json:"snap_id"`
+	FirstName string             `json:"first_name"`
+	LastName  string             `json:"last_name"`
+	Email     string             `json:"email"`
+	RSchema   []byte             `json:"r_schema"`
+	SentAt    pgtype.Timestamptz `json:"sent_at"`
 }
 
 type CreateSpillRow struct {
@@ -65,6 +67,7 @@ func (q *Queries) CreateSpill(ctx context.Context, arg CreateSpillParams) (Creat
 		arg.LastName,
 		arg.Email,
 		arg.RSchema,
+		arg.SentAt,
 	)
 	var i CreateSpillRow
 	err := row.Scan(
@@ -109,7 +112,7 @@ SELECT
     expired_at
 FROM spills
 WHERE snap_id = $1
-ORDER BY last_modified_at DESC
+ORDER BY created_at DESC
 `
 
 type ListSpillMetaDataBySnapIdRow struct {

@@ -1,11 +1,11 @@
-import { DEFAULT_SNAP_STATUS, Snap } from '../snap';
+import { Snap } from '../snap';
 import { SnapMetaData } from '../snap-metadata';
 import { SnapDto, SnapMetaDataDto } from './snap.dto';
 
 export function parseSnap(dto: SnapDto): Snap {
   return {
     ...dto,
-    status: DEFAULT_SNAP_STATUS,
+    status: null,
     publishedAt: new Date(dto.publishedAt),
   };
 }
@@ -21,7 +21,7 @@ export function toSnapDto(snap: Omit<Snap, 'status'>): SnapDto {
 export function parseSnapMetaData(metaData: SnapMetaDataDto): SnapMetaData {
   return {
     ...metaData,
-    status: DEFAULT_SNAP_STATUS,
+    status: null,
     publishedAt: new Date(metaData.publishedAt),
   };
 }

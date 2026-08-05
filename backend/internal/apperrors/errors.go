@@ -11,7 +11,7 @@ const (
 	CodeVersionConflict = "VERSION_CONFLICT"
 	CodeInvalidRequest  = "INVALID_REQUEST"
 	CodeInternalError   = "INTERNAL_ERROR"
-  CodeConflict        = "CONFLICT"
+	CodeConflict        = "CONFLICT"
 )
 
 type ProblemDetail struct {

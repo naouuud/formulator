@@ -8,7 +8,7 @@ export function parseSpill(dto: SpillDto): Spill {
     createdAt: new Date(dto.createdAt),
     lastModifiedAt: dto.lastModifiedAt ? new Date(dto.lastModifiedAt) : null,
     completedAt: dto.completedAt ? new Date(dto.completedAt) : null,
-    sentAt: dto.sentAt ? new Date(dto.sentAt) : null,
+    sentAt: new Date(dto.sentAt),
     expiredAt: dto.expiredAt ? new Date(dto.expiredAt) : null,
   };
 }
@@ -19,7 +19,7 @@ export function parseSpillMetaData(dto: SpillMetaDataDto): SpillMetaData {
     createdAt: new Date(dto.createdAt),
     lastModifiedAt: dto.lastModifiedAt ? new Date(dto.lastModifiedAt) : null,
     completedAt: dto.completedAt ? new Date(dto.completedAt) : null,
-    sentAt: dto.sentAt ? new Date(dto.sentAt) : null,
+    sentAt: new Date(dto.sentAt),
     expiredAt: dto.expiredAt ? new Date(dto.expiredAt) : null,
   };
 }
@@ -30,7 +30,7 @@ export function toSpillDto(spill: Spill): SpillDto {
     createdAt: spill.createdAt.toISOString(),
     lastModifiedAt: spill.lastModifiedAt ? spill.lastModifiedAt.toISOString() : null,
     completedAt: spill.completedAt ? spill.completedAt.toISOString() : null,
-    sentAt: spill.sentAt ? spill.sentAt.toISOString() : null,
+    sentAt: spill.sentAt.toISOString(),
     expiredAt: spill.expiredAt ? spill.expiredAt.toISOString() : null,
   };
 }
@@ -41,7 +41,7 @@ export function toSpillMetaDataDto(metaData: SpillMetaData): SpillMetaDataDto {
     createdAt: metaData.createdAt.toISOString(),
     lastModifiedAt: metaData.lastModifiedAt ? metaData.lastModifiedAt.toISOString() : null,
     completedAt: metaData.completedAt ? metaData.completedAt.toISOString() : null,
-    sentAt: metaData.sentAt ? metaData.sentAt.toISOString() : null,
+    sentAt: metaData.sentAt.toISOString(),
     expiredAt: metaData.expiredAt ? metaData.expiredAt.toISOString() : null,
   };
 }

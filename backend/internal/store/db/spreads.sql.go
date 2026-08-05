@@ -15,46 +15,33 @@ import (
 const createSpread = `-- name: CreateSpread :one
 INSERT INTO spreads (
     id,
-    version,
-    ectm,
-    schema,
-    created_at,
-    last_modified_at
+    spread_title,
+    schema
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3
 )
 RETURNING
     id,
+    spread_title,
     version,
-    ectm,
     schema,
     created_at,
     last_modified_at
 `
 
 type CreateSpreadParams struct {
-	ID             pgtype.UUID        `json:"id"`
-	Version        int32              `json:"version"`
-	Ectm           pgtype.Int4        `json:"ectm"`
-	Schema         json.RawMessage    `json:"schema"`
-	CreatedAt      pgtype.Timestamptz `json:"created_at"`
-	LastModifiedAt pgtype.Timestamptz `json:"last_modified_at"`
+	ID          pgtype.UUID     `json:"id"`
+	SpreadTitle string          `json:"spread_title"`
+	Schema      json.RawMessage `json:"schema"`
 }
 
 func (q *Queries) CreateSpread(ctx context.Context, arg CreateSpreadParams) (Spread, error) {
-	row := q.db.QueryRow(ctx, createSpread,
-		arg.ID,
-		arg.Version,
-		arg.Ectm,
-		arg.Schema,
-		arg.CreatedAt,
-		arg.LastModifiedAt,
-	)
+	row := q.db.QueryRow(ctx, createSpread, arg.ID, arg.SpreadTitle, arg.Schema)
 	var i Spread
 	err := row.Scan(
 		&i.ID,
+		&i.SpreadTitle,
 		&i.Version,
-		&i.Ectm,
 		&i.Schema,
 		&i.CreatedAt,
 		&i.LastModifiedAt,
@@ -75,11 +62,45 @@ func (q *Queries) DeleteSpread(ctx context.Context, id pgtype.UUID) (int64, erro
 	return result.RowsAffected(), nil
 }
 
+const getCountBySpreadTitle = `-- name: GetCountBySpreadTitle :one
+SELECT
+COUNT(*)
+FROM spreads
+WHERE spread_title = $1
+`
+
+func (q *Queries) GetCountBySpreadTitle(ctx context.Context, spreadTitle string) (int64, error) {
+	row := q.db.QueryRow(ctx, getCountBySpreadTitle, spreadTitle)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const getCountBySpreadTitleExcludingId = `-- name: GetCountBySpreadTitleExcludingId :one
+SELECT
+COUNT(*)
+FROM spreads
+WHERE spread_title = $1
+AND id <> $2
+`
+
+type GetCountBySpreadTitleExcludingIdParams struct {
+	SpreadTitle string      `json:"spread_title"`
+	ID          pgtype.UUID `json:"id"`
+}
+
+func (q *Queries) GetCountBySpreadTitleExcludingId(ctx context.Context, arg GetCountBySpreadTitleExcludingIdParams) (int64, error) {
+	row := q.db.QueryRow(ctx, getCountBySpreadTitleExcludingId, arg.SpreadTitle, arg.ID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getSpread = `-- name: GetSpread :one
 SELECT
     id,
+    spread_title,
     version,
-    ectm,
     schema,
     created_at,
     last_modified_at
@@ -92,8 +113,8 @@ func (q *Queries) GetSpread(ctx context.Context, id pgtype.UUID) (Spread, error)
 	var i Spread
 	err := row.Scan(
 		&i.ID,
+		&i.SpreadTitle,
 		&i.Version,
-		&i.Ectm,
 		&i.Schema,
 		&i.CreatedAt,
 		&i.LastModifiedAt,
@@ -117,16 +138,16 @@ func (q *Queries) GetSpreadVersion(ctx context.Context, id pgtype.UUID) (int32, 
 const listSpreadMetaData = `-- name: ListSpreadMetaData :many
 SELECT
     id,
-    schema,
+    spread_title,
     created_at,
     last_modified_at
 FROM spreads
-ORDER BY last_modified_at DESC
+ORDER BY created_at DESC
 `
 
 type ListSpreadMetaDataRow struct {
 	ID             pgtype.UUID        `json:"id"`
-	Schema         json.RawMessage    `json:"schema"`
+	SpreadTitle    string             `json:"spread_title"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	LastModifiedAt pgtype.Timestamptz `json:"last_modified_at"`
 }
@@ -142,7 +163,7 @@ func (q *Queries) ListSpreadMetaData(ctx context.Context) ([]ListSpreadMetaDataR
 		var i ListSpreadMetaDataRow
 		if err := rows.Scan(
 			&i.ID,
-			&i.Schema,
+			&i.SpreadTitle,
 			&i.CreatedAt,
 			&i.LastModifiedAt,
 		); err != nil {
@@ -159,39 +180,39 @@ func (q *Queries) ListSpreadMetaData(ctx context.Context) ([]ListSpreadMetaDataR
 const updateSpread = `-- name: UpdateSpread :one
 UPDATE spreads
 SET
-    ectm = $2,
+    spread_title = $2,
     schema = $3,
     version = version + 1,
     last_modified_at = NOW()
 WHERE id = $1 AND version = $4
 RETURNING
     id,
+    spread_title,
     version,
-    ectm,
     schema,
     created_at,
     last_modified_at
 `
 
 type UpdateSpreadParams struct {
-	ID      pgtype.UUID     `json:"id"`
-	Ectm    pgtype.Int4     `json:"ectm"`
-	Schema  json.RawMessage `json:"schema"`
-	Version int32           `json:"version"`
+	ID          pgtype.UUID     `json:"id"`
+	SpreadTitle string          `json:"spread_title"`
+	Schema      json.RawMessage `json:"schema"`
+	Version     int32           `json:"version"`
 }
 
 func (q *Queries) UpdateSpread(ctx context.Context, arg UpdateSpreadParams) (Spread, error) {
 	row := q.db.QueryRow(ctx, updateSpread,
 		arg.ID,
-		arg.Ectm,
+		arg.SpreadTitle,
 		arg.Schema,
 		arg.Version,
 	)
 	var i Spread
 	err := row.Scan(
 		&i.ID,
+		&i.SpreadTitle,
 		&i.Version,
-		&i.Ectm,
 		&i.Schema,
 		&i.CreatedAt,
 		&i.LastModifiedAt,

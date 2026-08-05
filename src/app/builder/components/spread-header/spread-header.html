@@ -1,19 +1,44 @@
 <div class="flex items-center gap-3 border-b border-slate-200 px-6 py-3 bg-white shrink-0">
-  @if (!uiStore.viewer()) {
-    <input
-      class="flex-1 text-xl font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
-      [value]="domainStore.activeSpread()?.schema?.title ?? ''"
-      placeholder="Untitled spread"
-      (input)="onTitleInput($event)"
-    />
-  } @else {
-    <button
-      class="flex-1 text-xl text-left font-semibold bg-transparent outline-none border-b-2 border-transparent focus:border-violet-500 transition-colors placeholder:text-slate-300"
-      (click)="uiStore.closeViewer()"
-    >
-      {{ domainStore.activeSpread()?.schema?.title ?? '' }}
-    </button>
-  }
+  <div class="flex-1 min-w-0">
+    <p class="text-[10px] font-semibold uppercase tracking-widest text-slate-400 leading-none">
+      Spread
+    </p>
+    @if (!uiStore.viewer()) {
+      <div class="mt-1 flex items-center gap-1 min-w-0">
+        <p class="text-lg font-semibold text-slate-800 truncate min-w-0">
+          {{ domainStore.activeSpread()?.spreadTitle }}
+        </p>
+        <button
+          type="button"
+          class="shrink-0 p-1.5 rounded-md text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-colors"
+          title="Rename spread"
+          aria-label="Rename spread"
+          [disabled]="uiStore.spreadSaving()"
+          (click)="openRenameModal()"
+        >
+          <svg
+            class="w-4 h-4"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="m2.695 14.763-1.262 3.154a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.885L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.419a4 4 0 0 0-.885 1.344Z"
+            />
+          </svg>
+        </button>
+      </div>
+    } @else {
+      <button
+        type="button"
+        class="mt-1 block w-full text-left text-lg font-semibold text-slate-800 truncate hover:text-violet-700 transition-colors"
+        (click)="uiStore.closeViewer()"
+      >
+        {{ domainStore.activeSpread()?.spreadTitle }}
+      </button>
+    }
+  </div>
   @if (uiStore.spreadSavingError(); as error) {
     <span class="text-sm text-red-500">{{ error.message }}</span>
   }
@@ -56,7 +81,7 @@
       [disabled]="
         uiStore.spreadSaving() || domainStore.activeSnapLoading() || !publishRequirementsMet()
       "
-      (click)="createSnap()"
+      (click)="openPublishModal()"
     >
       @if (domainStore.activeSnapLoading()) {
         <span
@@ -72,14 +97,12 @@
       class="pointer-events-none absolute right-0 top-full z-30 mt-2 w-72 rounded-lg bg-slate-800 px-3 py-2.5 text-xs leading-relaxed text-slate-100 shadow-lg opacity-0 translate-y-1 transition-all duration-150 group-hover:opacity-100 group-hover:translate-y-0"
     >
       <p>
-        When you publish this spread, you can begin sharing it and collecting responses.
-        Your spread stays open for editing, so you can publish more editions from it later.
+        When you publish an edition from this spread, it becomes a standalone survey that you can
+        share and collect responses against. Your spread stays open for editing, allowing you to
+        publish more editions from it later.
       </p>
       <p class="mt-2 flex gap-1.5 border-t border-white/10 pt-2 text-amber-200">
-        <span
-          >Important: Responses from different editions don't mix, even editions published from the same
-          spread.</span
-        >
+        <span>Responses from different editions stay separate.</span>
       </p>
       <span class="absolute -top-1 right-5 h-2 w-2 rotate-45 bg-slate-800"></span>
     </div>

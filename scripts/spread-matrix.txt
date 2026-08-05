@@ -1,0 +1,25 @@
+BASE_URL=http://localhost:8080
+TEST_ID=8f444358-8d48-4264-bdb6-8d8236d82eb5
+TEST_TITLE=Survey
+DIFFERENT_TITLE=Different\ Survey
+UPDATED_TITLE=Updated\ Title
+DEFAULT_SCHEMA={\"pages\":[{\"id\":\"31fb5a52-1841-4cc8-8e1b-d133f02b4680\",\"title\":\"\",\"elements\":[]}],\"title\":\"\"}
+
+Test            Query        Description                                           Expected                                                       Results
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+POST /spreads   1           Create Spread, no body                                400, spreadTitle is required                                    [x]
+POST /spreads   2           Create Spread, empty JSON body                        400, spreadTitle is required                                    [x]
+POST /spreads   3           Create Spread with title                              201, {..., spreadTitle: TEST_TITLE}                             [x]
+POST /spreads   4           Create Spread with duplicate title                    409, duplicate spread title                                     [x]
+POST /spreads   5           Create Spread with pre-set id and title               201, {..., id: TEST_ID, spreadTitle: DIFFERENT_TITLE}           [x]
+PUT /spreads    6           Update Spread Title                                   200, {..., spreadTitle: UPDATED_TITLE, version: 1}              [x]
+
+1. curl -s -i -X POST "$BASE_URL/spreads" -H 'Content-Type: application/json'
+2. curl -s -i -X POST "$BASE_URL/spreads" -H 'Content-Type: application/json' -d "{}"
+3. curl -s -i -X POST "$BASE_URL/spreads" -H 'Content-Type: application/json' -d "{\"spreadTitle\":\"$TEST_TITLE\"}"
+4. curl -s -i -X POST "$BASE_URL/spreads" -H 'Content-Type: application/json' -d "{\"spreadTitle\":\"$TEST_TITLE\"}"
+5. curl -s -i -X POST "$BASE_URL/spreads" -H 'Content-Type: application/json' -d "{\"id\":\"$TEST_ID\", \"spreadTitle\":\"$DIFFERENT_TITLE\"}"
+6. curl -s -i -X PUT "$BASE_URL/spreads/$TEST_ID" -H 'Content-Type: application/json' -d "{\"id\":\"$TEST_ID\", \"spreadTitle\":\"$UPDATED_TITLE\", \"version\":0, \"schema\":"$DEFAULT_SCHEMA"}"
+
+curl -s -i -X DELETE "$BASE_URL/spreads/$TEST_ID"
+

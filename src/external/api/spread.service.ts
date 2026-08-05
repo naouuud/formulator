@@ -12,8 +12,8 @@ export class SpreadService {
   readonly #http = inject(HttpClient);
   readonly #baseUrl = `${ENV.API_URL}/spreads`;
 
-  create(): Observable<Spread> {
-    return this.#http.post<SpreadDto>(this.#baseUrl, {}).pipe(map(parseSpread));
+  create(spreadTitle: string): Observable<Spread> {
+    return this.#http.post<SpreadDto>(this.#baseUrl, { spreadTitle }).pipe(map(parseSpread));
   }
 
   getAll(): Observable<SpreadMetaData[]> {

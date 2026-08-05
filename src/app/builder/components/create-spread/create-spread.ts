@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { DomainStore } from '../../../../domain/store/domain-store';
+import { UiStore } from '../../../../ui/store/ui-store';
 
 @Component({
   selector: 'app-create-spread',
@@ -7,5 +7,9 @@ import { DomainStore } from '../../../../domain/store/domain-store';
   templateUrl: './create-spread.html',
 })
 export class CreateSpread {
-  protected domainStore = inject(DomainStore);
+  protected readonly uiStore = inject(UiStore);
+
+  protected openCreateSpreadModal(): void {
+    this.uiStore.showCreateSpreadModal();
+  }
 }

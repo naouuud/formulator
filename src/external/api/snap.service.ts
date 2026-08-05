@@ -12,8 +12,10 @@ export class SnapService {
   readonly #http = inject(HttpClient);
   readonly #baseUrl = `${ENV.API_URL}/snaps`;
 
-  create(spreadId: string): Observable<Snap> {
-    return this.#http.post<SnapDto>(`${this.#baseUrl}`, { spreadId }).pipe(map(parseSnap));
+  create(spreadId: string, snapTitle: string): Observable<Snap> {
+    return this.#http
+      .post<SnapDto>(`${this.#baseUrl}`, { spreadId, snapTitle })
+      .pipe(map(parseSnap));
   }
 
   getAll(spreadId?: string): Observable<SnapMetaData[]> {

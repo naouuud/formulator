@@ -8,6 +8,7 @@ import { toSnapDto, toSnapMetaDataDto } from 'src/domain/model/wire/snap.mapper'
 import { toSpreadDto, toSpreadMetaDataDto } from 'src/domain/model/wire/spread.mapper';
 import { ENV } from '../../app/env';
 import {
+  conflict,
   invalidRequestBody,
   invalidUuid,
   missingUuid,
@@ -20,7 +21,7 @@ import {
 import { mockSchema } from './mock-schema';
 import { SpreadDto } from 'src/domain/model/wire/spread.dto';
 import { MockSnap, isActiveMockSnap, mockSnapBody, mockSnapToSnap } from './mock-snap';
-import { newSpill, Spill } from 'src/domain/model/spill';
+import { Spill } from 'src/domain/model/spill';
 import { toSpillMetaData } from 'src/domain/model/spill-metadata';
 import { toSpillMetaDataDto } from 'src/domain/model/wire/spill.mapper';
 import { CreateSpillRequest } from '../api/spill.service';
@@ -30,13 +31,12 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const isUuid = (value: unknown): value is string =>
   typeof value === 'string' && UUID_RE.test(value);
 
-const newMockSpread = (title?: string): Spread => {
+const newMockSpread = (spreadTitle: string, id?: string): Spread => {
   const schema = newSchema();
-  if (title) schema.title = title;
   return {
-    id: crypto.randomUUID(),
+    id: id ?? crypto.randomUUID(),
+    spreadTitle,
     version: 0,
-    ectm: null,
     schema,
     createdAt: new Date(),
     lastModifiedAt: new Date(),
@@ -44,17 +44,35 @@ const newMockSpread = (title?: string): Spread => {
 };
 
 let mockSpreads: Spread[] = [
-  { ...newMockSpread(), schema: structuredClone(mockSchema) },
-  newMockSpread('Cyberpunk Survey'),
-  newMockSpread('CrossCode Survey'),
-  newMockSpread('Sayonara Wildhearts Survey'),
-  newMockSpread('Paradise Killer Survey'),
+  { ...newMockSpread('Mock Spread 1'), schema: structuredClone(mockSchema) },
+  newMockSpread('Mock Spread 2'),
 ];
 
 let mockSnaps: MockSnap[] = [];
 let mockSpills: Spill[] = [];
 
 type UpdateSpreadRequest = Partial<SpreadDto>;
+
+const newSpill = (
+  id: string,
+  snapId: string,
+  rSchema: any,
+  email: string,
+  firstName?: string,
+  lastName?: string,
+): Spill => ({
+  id,
+  snapId,
+  firstName: firstName?.trim() ?? '',
+  lastName: lastName?.trim() ?? '',
+  email,
+  rSchema,
+  createdAt: new Date(),
+  lastModifiedAt: null,
+  completedAt: null,
+  sentAt: new Date(),
+  expiredAt: null,
+});
 
 export const mockInterceptor: HttpInterceptorFn = (req, next) => {
   const url = req.url.replace(ENV.API_URL, '');
@@ -82,7 +100,30 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
 
   // POST /spreads
   if (req.method === 'POST' && url === '/spreads') {
-    const created = newMockSpread();
+    const { spreadTitle, id } = (req.body as { id?: string; spreadTitle?: string }) ?? {};
+    if (!spreadTitle?.trim()) {
+      return of(
+        new HttpResponse({ status: 400, body: invalidRequestBody('spreadTitle is required.') }),
+      );
+    }
+    const trimmedTitle = spreadTitle.trim();
+    for (const spread of mockSpreads) {
+      if (spread.spreadTitle === trimmedTitle) {
+        return of(new HttpResponse({ status: 409, body: conflict('spread title') }));
+      }
+    }
+
+    if (id) {
+      if (!isUuid(id))
+        return of(
+          new HttpResponse({ status: 400, body: invalidRequestBody('id must be a valid UUID.') }),
+        );
+      for (const spread of mockSpreads) {
+        if (spread.id === id) return of(new HttpResponse({ status: 409, body: conflict('id') }));
+      }
+    }
+
+    const created = newMockSpread(trimmedTitle, id);
     mockSpreads.push(created);
     return of(new HttpResponse({ status: 201, body: toSpreadDto(structuredClone(created)) }));
   }
@@ -96,16 +137,8 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
     if (!isUuid(urlId)) {
       return of(new HttpResponse({ status: 400, body: invalidUuid('id') }));
     }
-    const { id, version, ectm, schema, createdAt, lastModifiedAt } =
-      (req.body as UpdateSpreadRequest) ?? {};
-    if (
-      !id ||
-      version === undefined ||
-      ectm === undefined ||
-      !schema ||
-      !createdAt ||
-      lastModifiedAt === undefined
-    ) {
+    const { id, spreadTitle, version, schema } = (req.body as UpdateSpreadRequest) ?? {};
+    if (!id || spreadTitle === undefined || version === undefined || !schema) {
       return of(new HttpResponse({ status: 400, body: invalidRequestBody() }));
     }
     if (id !== urlId) {
@@ -123,10 +156,25 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
         }),
       );
     }
+    const trimmedTitle = spreadTitle.trim();
+    if (!trimmedTitle) {
+      return of(
+        new HttpResponse({
+          status: 400,
+          body: invalidRequestBody('spreadTitle is required.'),
+        }),
+      );
+    }
+    for (const spread of mockSpreads) {
+      if (spread.id !== urlId && spread.spreadTitle === trimmedTitle) {
+        return of(new HttpResponse({ status: 409, body: conflict('spread title') }));
+      }
+    }
     const updated: Spread = {
       ...existing,
+      spreadTitle: trimmedTitle,
       version: existing.version + 1,
-      schema: schema,
+      schema,
       lastModifiedAt: new Date(),
     };
     mockSpreads = mockSpreads.map((spread) => (spread.id === urlId ? updated : spread));
@@ -142,6 +190,9 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
     const exists = mockSpreads.some((spread) => spread.id === id);
     if (exists) {
       mockSpreads = mockSpreads.filter((spread) => spread.id !== id);
+      mockSnaps = mockSnaps.map((snap) =>
+        snap.spreadId === id ? { ...snap, spreadId: null } : snap,
+      );
       return of(new HttpResponse({ status: 204, body: null }));
     }
     return of(new HttpResponse({ status: 404, body: spreadNotFound(id) }));
@@ -219,7 +270,10 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
 
   // POST /snaps
   if (req.method === 'POST' && url === '/snaps') {
-    const { spreadId } = (req.body ?? {}) as { spreadId?: string };
+    const { spreadId, snapTitle: rawSnapTitle } = (req.body ?? {}) as {
+      spreadId?: string;
+      snapTitle?: string;
+    };
     if (!spreadId) {
       return of(
         new HttpResponse({
@@ -228,16 +282,28 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
         }),
       );
     }
+    const snapTitle = rawSnapTitle?.trim() ?? '';
+    if (!snapTitle) {
+      return of(
+        new HttpResponse({
+          status: 400,
+          body: invalidRequestBody('snapTitle is required.'),
+        }),
+      );
+    }
     if (!isUuid(spreadId)) {
       return of(
         new HttpResponse({
           status: 400,
-          body: invalidUuid('spreadId'),
+          body: invalidRequestBody('spreadId must be a valid UUID.'),
         }),
       );
     }
     const spread = mockSpreads.find((s) => s.id === spreadId);
     if (!spread) return of(new HttpResponse({ status: 404, body: spreadNotFound(spreadId) }));
+    const clonedSchema = structuredClone(spread.schema);
+    clonedSchema.title = snapTitle;
+
     const snaps = mockSnaps.filter((s) => s.spreadId === spreadId);
     const latest = snaps.length ? Math.max(...snaps.map((s) => s.edition)) : 0;
     const created: MockSnap = {
@@ -245,7 +311,7 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
       spreadId,
       spreadVersion: spread.version,
       edition: latest + 1,
-      schema: structuredClone(spread.schema),
+      schema: clonedSchema,
       publishedAt: new Date(),
       closedAt: null,
     };
@@ -305,7 +371,7 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
       return of(
         new HttpResponse({
           status: 400,
-          body: invalidRequestBody('snapId must be a valid uuid.'),
+          body: invalidRequestBody('snapId must be a valid UUID.'),
         }),
       );
     }

@@ -10,7 +10,7 @@ import (
 
 type SnapMetaDataDto struct {
 	ID            string     `json:"id"`
-	SpreadID      string     `json:"spreadId"`
+	SpreadID      *string    `json:"spreadId"`
 	SpreadVersion int32      `json:"spreadVersion"`
 	Edition       int32      `json:"edition"`
 	Title         string     `json:"title"`
@@ -19,7 +19,7 @@ type SnapMetaDataDto struct {
 
 type SnapDto struct {
 	ID            string          `json:"id"`
-	SpreadID      string          `json:"spreadId"`
+	SpreadID      *string         `json:"spreadId"`
 	SpreadVersion int32           `json:"spreadVersion"`
 	Edition       int32           `json:"edition"`
 	Schema        json.RawMessage `json:"schema"`
@@ -42,7 +42,7 @@ func snapMetaDataDtoFromFields(
 
 	return SnapMetaDataDto{
 		ID:            uuidToString(id),
-		SpreadID:      uuidToString(spreadID),
+		SpreadID:      uuidToStringPtr(spreadID),
 		SpreadVersion: spreadVersion,
 		Edition:       edition,
 		Title:         parsed.Title,
@@ -62,7 +62,7 @@ func snapDtoFromFields(
 	ID, spreadID pgtype.UUID, spreadVersion, edition int32, schema json.RawMessage, publishedAt pgtype.Timestamptz) SnapDto {
 	return SnapDto{
 		ID:            uuidToString(ID),
-		SpreadID:      uuidToString(spreadID),
+		SpreadID:      uuidToStringPtr(spreadID),
 		SpreadVersion: spreadVersion,
 		Edition:       edition,
 		Schema:        append(json.RawMessage(nil), schema...),

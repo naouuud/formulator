@@ -1,10 +1,13 @@
+import { HttpErrorResponse } from '@angular/common/http';
+
 export type ProblemDetailCode =
   | 'INTERNAL_ERROR'
   | 'INVALID_REQUEST'
   | 'SPREAD_NOT_FOUND'
   | 'SNAP_NOT_FOUND'
   | 'SPILL_NOT_FOUND'
-  | 'VERSION_CONFLICT';
+  | 'VERSION_CONFLICT'
+  | 'CONFLICT';
 
 export type ProblemDetail = {
   status: number;
@@ -63,6 +66,13 @@ export const spreadIdMismatch = (): ProblemDetail => ({
   code: 'INVALID_REQUEST',
 });
 
+export const conflict = (duplicateField: string): ProblemDetail => ({
+  status: 409,
+  title: 'Conflict',
+  detail: `duplicate ${duplicateField}.`,
+  code: 'CONFLICT',
+});
+
 export const versionConflict = (
   expectedVersion: number,
   actualVersion: number,
@@ -74,3 +84,10 @@ export const versionConflict = (
   expectedVersion,
   actualVersion,
 });
+
+export function problemDetailMessage(err: HttpErrorResponse): string {
+  const body = err.error as Partial<ProblemDetail> | null | undefined;
+  if (body?.detail) return body.detail;
+  if (body?.title) return body.title;
+  return err.message;
+}

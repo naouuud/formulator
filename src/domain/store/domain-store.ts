@@ -1,12 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject } from '@angular/core';
-import {
-  CreateElementParams,
-  meetsPublishingRequirements,
-  newElement,
-  newOption,
-  newPage,
-} from '@formulator/schema';
+import { CreateElementParams, newElement, newOption, newPage } from '@formulator/schema';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { produce } from 'immer';
@@ -24,11 +18,14 @@ import {
   tap,
 } from 'rxjs';
 import { SnapService } from 'src/external/api/snap.service';
+import { SpillService } from 'src/external/api/spill.service';
 import { SpreadService } from '../../external/api/spread.service';
+import { problemDetailMessage } from '../../external/api/problem-detail';
 import { UiStore } from '../../ui/store/ui-store';
-import { Snap } from '../model/snap';
+import { Snap, deriveSnapStatus } from '../model/snap';
 import { SnapMetaData, toSnapMetaData } from '../model/snap-metadata';
-import { Spread } from '../model/spread';
+import { SpillMetaData } from '../model/spill-metadata';
+import { meetsPublishingRequirements, Spread } from '../model/spread';
 import { SpreadMetaData, toSpreadMetaData, updateMetaData } from '../model/spread-metadata';
 import { User } from '../model/user';
 
@@ -49,8 +46,15 @@ type DomainState = {
   activeSnap: Snap | null;
   activeSnapLoading: boolean;
   loadSnapError: boolean;
+  spills: SpillMetaData[];
+  loadSpillsError: boolean;
+  createSpillsLoading: boolean;
+  createSpillsError: string | null;
+  createSpillsSuccessCount: number | null;
+  deletingSpillId: string | null;
+  deleteSpillError: boolean;
 
-  createSpreadError: boolean;
+  createSpreadError: { message: string; code?: number } | null;
   createSnapError: boolean;
 };
 
@@ -71,8 +75,15 @@ const initialState: DomainState = {
   activeSnap: null,
   activeSnapLoading: false,
   loadSnapError: false,
+  spills: [],
+  loadSpillsError: false,
+  createSpillsLoading: false,
+  createSpillsError: null,
+  createSpillsSuccessCount: null,
+  deletingSpillId: null,
+  deleteSpillError: false,
 
-  createSpreadError: false,
+  createSpreadError: null,
   createSnapError: false,
 };
 
@@ -87,19 +98,19 @@ export const DomainStore = signalStore(
     ),
     snapGroups: computed(() =>
       state.spreadsMetaData().map((spread) => ({
-        spread,
+        spread: spread,
         snaps: state
           .snapsMetaData()
           .filter((snap) => snap.spreadId === spread.id)
           .sort((a, b) => b.edition - a.edition),
       })),
     ),
-    metaData: computed(() =>
-      state.spreadsMetaData().map((spread) => ({
-        ...spread,
-        snaps: state.snapsMetaData().filter((snap) => snap.spreadId === spread.id),
-      })),
-    ),
+    orphanSnaps: computed(() => {
+      return state
+        .snapsMetaData()
+        .filter((snap) => !snap.spreadId)
+        .sort((a, b) => b.edition - a.edition);
+    }),
   })),
 
   withMethods(
@@ -107,6 +118,7 @@ export const DomainStore = signalStore(
       store,
       spreadService = inject(SpreadService),
       snapService = inject(SnapService),
+      spillService = inject(SpillService),
       uiStore = inject(UiStore),
     ) => {
       const performSave = (spread: Spread): Observable<Spread> => {
@@ -128,13 +140,12 @@ export const DomainStore = signalStore(
             patchState(store, {
               activeSpread: merged,
             });
-            uiStore.stopSpreadSaving();
           }),
           catchError((err: HttpErrorResponse) => {
-            uiStore.stopSpreadSaving();
-            uiStore.setSpreadSavingError(err.message, String(err.status));
+            uiStore.setSpreadSavingError(problemDetailMessage(err), err.status);
             return EMPTY;
           }),
+          finalize(() => uiStore.stopSpreadSaving()),
         );
       };
 
@@ -193,6 +204,128 @@ export const DomainStore = signalStore(
           ),
         ),
 
+        loadSpillsMetaData: rxMethod<string | null>(
+          pipe(
+            tap(() =>
+              patchState(store, { spills: [], loadSpillsError: false, deleteSpillError: false }),
+            ),
+            switchMap((snapId) => {
+              if (!snapId) return EMPTY;
+              return spillService.getAll(snapId).pipe(
+                tap((loaded) => {
+                  const status = deriveSnapStatus(loaded);
+                  const activeSnap = store.activeSnap();
+                  const snapStillActive = activeSnap?.id === snapId;
+                  patchState(store, {
+                    ...(snapStillActive
+                      ? { spills: loaded, activeSnap: { ...activeSnap, status } }
+                      : {}),
+                    snapsMetaData: store
+                      .snapsMetaData()
+                      .map((snap) => (snap.id === snapId ? { ...snap, status } : snap)),
+                  });
+                }),
+                catchError((err: HttpErrorResponse) => {
+                  if (store.activeSnap()?.id === snapId)
+                    patchState(store, { loadSpillsError: true });
+                  return EMPTY;
+                }),
+              );
+            }),
+          ),
+        ),
+
+        createSpills: rxMethod<{
+          snapId: string;
+          responders: { email: string; firstName?: string; lastName?: string }[];
+        }>(
+          pipe(
+            exhaustMap(({ snapId, responders }) => {
+              if (!responders.length) return EMPTY;
+              patchState(store, {
+                createSpillsLoading: true,
+                createSpillsError: null,
+                createSpillsSuccessCount: null,
+              });
+              return forkJoin(
+                responders.map((responder) =>
+                  spillService.create({
+                    snapId,
+                    email: responder.email,
+                    firstName: responder.firstName,
+                    lastName: responder.lastName,
+                  }),
+                ),
+              ).pipe(
+                tap((created) => {
+                  const activeSnap = store.activeSnap();
+                  if (activeSnap?.id !== snapId) return;
+                  const spills = [...store.spills(), ...created].sort(
+                    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+                  );
+                  const status = deriveSnapStatus(spills);
+                  patchState(store, {
+                    spills,
+                    activeSnap: { ...activeSnap, status },
+                    snapsMetaData: store
+                      .snapsMetaData()
+                      .map((snap) => (snap.id === snapId ? { ...snap, status } : snap)),
+                    createSpillsError: null,
+                    createSpillsSuccessCount: created.length,
+                  });
+                }),
+                catchError((err: HttpErrorResponse) => {
+                  patchState(store, { createSpillsError: problemDetailMessage(err) });
+                  return EMPTY;
+                }),
+                finalize(() => patchState(store, { createSpillsLoading: false })),
+              );
+            }),
+          ),
+        ),
+
+        deleteSpill: rxMethod<string>(
+          pipe(
+            exhaustMap((id) => {
+              const snapId = store.spills().find((spill) => spill.id === id)?.snapId;
+              patchState(store, { deletingSpillId: id, deleteSpillError: false });
+              return spillService.delete(id).pipe(
+                tap(() => {
+                  const activeSnap = store.activeSnap();
+                  const snapStillActive = activeSnap && activeSnap.id === snapId;
+                  const remaining = store.spills().filter((spill) => spill.id !== id);
+                  const canDeriveStatus =
+                    snapId != null && remaining.every((spill) => spill.snapId === snapId);
+                  const status = canDeriveStatus ? deriveSnapStatus(remaining) : null;
+
+                  patchState(store, {
+                    ...(snapStillActive && status !== null
+                      ? { spills: remaining, activeSnap: { ...activeSnap, status } }
+                      : {}),
+                    ...(snapId && status !== null
+                      ? {
+                          snapsMetaData: store
+                            .snapsMetaData()
+                            .map((snap) => (snap.id === snapId ? { ...snap, status } : snap)),
+                        }
+                      : {}),
+                    deleteSpillError: false,
+                  });
+                }),
+                catchError((_err: HttpErrorResponse) => {
+                  patchState(store, { deleteSpillError: true });
+                  return EMPTY;
+                }),
+                finalize(() => patchState(store, { deletingSpillId: null })),
+              );
+            }),
+          ),
+        ),
+
+        clearDeleteSpillError(): void {
+          patchState(store, { deleteSpillError: false });
+        },
+
         loadSpread: rxMethod<string>(
           pipe(
             tap(() => patchState(store, { activeSpreadLoading: true })),
@@ -201,9 +334,8 @@ export const DomainStore = signalStore(
                 tap((spread) =>
                   patchState(store, {
                     activeSpread: spread,
-                    activeSnap: null,
                     activePageIdx: 0,
-                    createSpreadError: false,
+                    createSpreadError: null,
                   }),
                 ),
                 catchError((err: HttpErrorResponse) => {
@@ -216,22 +348,23 @@ export const DomainStore = signalStore(
           ),
         ),
 
-        createSpread: rxMethod<void>(
+        createSpread: rxMethod<string>(
           pipe(
             tap(() => patchState(store, { activeSpreadLoading: true })),
-            exhaustMap(() =>
-              spreadService.create().pipe(
+            exhaustMap((spreadTitle) =>
+              spreadService.create(spreadTitle).pipe(
                 tap((created) =>
                   patchState(store, {
                     activeSpread: created,
-                    activeSnap: null,
                     activePageIdx: 0,
-                    spreadsMetaData: [...store.spreadsMetaData(), toSpreadMetaData(created)],
-                    createSpreadError: false,
+                    spreadsMetaData: [toSpreadMetaData(created), ...store.spreadsMetaData()],
+                    createSpreadError: null,
                   }),
                 ),
                 catchError((err: HttpErrorResponse) => {
-                  patchState(store, { createSpreadError: true });
+                  patchState(store, {
+                    createSpreadError: { message: err.message, code: err.status },
+                  });
                   return EMPTY;
                 }),
                 finalize(() => patchState(store, { activeSpreadLoading: false })),
@@ -264,10 +397,24 @@ export const DomainStore = signalStore(
                   });
                 }),
                 catchError((err: HttpErrorResponse) => {
-                  uiStore.setDeleteSpreadError(err.message, String(err.status));
+                  uiStore.setDeleteSpreadError(err.message, err.status);
                   return EMPTY;
                 }),
                 finalize(() => uiStore.stopDeletingSpread()),
+                switchMap(() => {
+                  patchState(store, { metaDataLoading: true });
+                  return snapService.getAll().pipe(
+                    tap((updated) => patchState(store, { snapsMetaData: updated })),
+                    catchError((err: HttpErrorResponse) => {
+                      const updated = store
+                        .snapsMetaData()
+                        .map((snap) => (snap.spreadId === id ? { ...snap, spreadId: null } : snap));
+                      patchState(store, { snapsMetaData: updated });
+                      return EMPTY;
+                    }),
+                    finalize(() => patchState(store, { metaDataLoading: false })),
+                  );
+                }),
               );
             }),
           ),
@@ -280,8 +427,6 @@ export const DomainStore = signalStore(
                 tap((snap) =>
                   patchState(store, {
                     activeSnap: snap,
-                    activeSpread: null,
-                    activePageIdx: 0,
                     loadSnapError: false,
                   }),
                 ),
@@ -294,13 +439,13 @@ export const DomainStore = signalStore(
           ),
         ),
 
-        createSnap: rxMethod<string>(
+        createSnap: rxMethod<{ spreadId: string; snapTitle: string }>(
           pipe(
             tap(() => {
               patchState(store, { activeSnapLoading: true });
               uiStore.clearSpreadSavingError();
             }),
-            exhaustMap((spreadId) => {
+            exhaustMap(({ spreadId, snapTitle }) => {
               const spread = store.activeSpread();
               if (!spread || spread.id !== spreadId) {
                 patchState(store, { createSnapError: true, activeSnapLoading: false });
@@ -313,15 +458,15 @@ export const DomainStore = signalStore(
                     patchState(store, { createSnapError: true, activeSnapLoading: false });
                     return EMPTY;
                   }
-                  return snapService.create(saved.id).pipe(
+                  return snapService.create(saved.id, snapTitle).pipe(
                     tap((created) => {
                       patchState(store, {
                         activeSnap: created,
-                        activeSpread: null,
                         snapsMetaData: [...store.snapsMetaData(), toSnapMetaData(created)],
                         createSnapError: false,
                       });
                       uiStore.setWorkspace('share');
+                      uiStore.setSnapViewerTab('currentShares');
                     }),
                     catchError((err: HttpErrorResponse) => {
                       patchState(store, { createSnapError: true });
@@ -349,7 +494,7 @@ export const DomainStore = signalStore(
                   });
                 }),
                 catchError((err: HttpErrorResponse) => {
-                  uiStore.setDeleteSnapError(err.message, String(err.status));
+                  uiStore.setDeleteSnapError(err.message, err.status);
                   return EMPTY;
                 }),
                 finalize(() => uiStore.stopDeletingSnap()),
@@ -358,27 +503,47 @@ export const DomainStore = signalStore(
           ),
         ),
 
-        updateSpreadTitle(title: string): void {
-          if (!store.activeSpread()) return;
-          patchState(
-            store,
-            produce<DomainState>((draft) => {
-              draft.activeSpread!.schema.title = title;
+        renameSpreadTitle: rxMethod<string>(
+          pipe(
+            exhaustMap((title) => {
+              const spread = store.activeSpread();
+              if (!spread) return EMPTY;
+
+              const trimmed = title.trim();
+              if (!trimmed) return EMPTY;
+
+              uiStore.startSpreadSaving();
+              uiStore.clearSpreadSavingError();
+
+              return spreadService.update({ ...spread, spreadTitle: trimmed }).pipe(
+                tap((updated) => {
+                  patchState(store, {
+                    spreadsMetaData: updateMetaData(store.spreadsMetaData(), updated),
+                  });
+                  const current = store.activeSpread();
+                  if (current?.id === updated.id) {
+                    patchState(store, {
+                      activeSpread: {
+                        ...current,
+                        spreadTitle: updated.spreadTitle,
+                        version: updated.version,
+                        lastModifiedAt: updated.lastModifiedAt,
+                      },
+                    });
+                  }
+                }),
+                catchError((err: HttpErrorResponse) => {
+                  uiStore.setSpreadSavingError(problemDetailMessage(err), err.status);
+                  return EMPTY;
+                }),
+                finalize(() => uiStore.stopSpreadSaving()),
+              );
             }),
-          );
-          triggerAutoSave(store.activeSpread()!);
-        },
+          ),
+        ),
 
         setActivePage(idx: number): void {
           patchState(store, { activePageIdx: idx });
-        },
-
-        deselectSpread(): void {
-          patchState(store, { activeSpread: null, activePageIdx: 0 });
-        },
-
-        deselectSnap(): void {
-          patchState(store, { activeSnap: null });
         },
 
         updateQuestionLabel(elementId: string, label: string): void {

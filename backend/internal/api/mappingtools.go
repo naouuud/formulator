@@ -20,6 +20,20 @@ func uuidToString(value pgtype.UUID) string {
 	return id.String()
 }
 
+func uuidToStringPtr(value pgtype.UUID) *string {
+	if !value.Valid {
+		return nil
+	}
+
+	id, err := uuid.FromBytes(value.Bytes[:])
+	if err != nil {
+		return nil
+	}
+
+	s := id.String()
+	return &s
+}
+
 func timestamptzToPtr(value pgtype.Timestamptz) *time.Time {
 	if !value.Valid {
 		return nil
@@ -57,4 +71,11 @@ func Int32ToPgInt4(value *int32) pgtype.Int4 {
 
 func TimeToPgTimestamptz(value time.Time) pgtype.Timestamptz {
 	return pgtype.Timestamptz{Time: value, Valid: true}
+}
+
+func TimePtrToPgTimestamptzDefaultNow(value *time.Time) pgtype.Timestamptz {
+	if value == nil {
+		return pgtype.Timestamptz{Time: time.Now(), Valid: true}
+	}
+	return pgtype.Timestamptz{Time: *value, Valid: true}
 }

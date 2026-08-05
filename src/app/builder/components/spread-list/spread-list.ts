@@ -2,10 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { UiStore } from '../../../../ui/store/ui-store';
+import { CreateSpread } from '../create-spread/create-spread';
 
 @Component({
   selector: 'app-spread-list',
-  imports: [NgClass],
+  imports: [NgClass, CreateSpread],
   templateUrl: './spread-list.html',
 })
 export class SpreadList {
