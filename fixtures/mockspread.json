@@ -1,9 +1,9 @@
 {
   "id": "3f444358-8d48-4264-bdb6-8d8236d82eb8",
   "version": 0,
-  "ectm": null,
+  "spreadTitle": "Mock Spread Updated Title",
   "schema": {
-    "title": "Super Amazing Rainbows and Unicorns Forever",
+    "title": "",
     "pages": [
       {
         "id": "bda33b8b-a223-4130-90f9-964eadfbb9a5",
@@ -198,6 +198,6 @@
       }
     ]
   },
-  "createdAt": "2026-07-25T16:07:37.006Z",
+  "createdAt": null,
   "lastModifiedAt": null
 }

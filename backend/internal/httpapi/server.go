@@ -89,36 +89,36 @@ func (s *Server) handleListSpreads(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleCreateSpread(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		SpreadTitle string `json:"spreadTitle"`
-    ID          string `json:"id"`
+		ID          string `json:"id"`
 	}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-    writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
-    return
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
+		return
 	}
 
-  spreadTitle := strings.TrimSpace(req.SpreadTitle)
-  if spreadTitle == "" {
-    writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("spreadTitle is required."))
-    return
-  }
+	spreadTitle := strings.TrimSpace(req.SpreadTitle)
+	if spreadTitle == "" {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("spreadTitle is required."))
+		return
+	}
 
-  count, err := s.store.GetCountBySpreadTitle(r.Context(), spreadTitle)
-  if err != nil {
-    s.logger.Error("create spread", "error", err)
-    writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
-    return
-  }
+	count, err := s.store.GetCountBySpreadTitle(r.Context(), spreadTitle)
+	if err != nil {
+		s.logger.Error("create spread", "error", err)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
 
-  if count > 0 {
-    writeJSON(w, http.StatusConflict, apperrors.ProblemDetail{
-      Status: http.StatusConflict,
-      Title: "Conflict",
-      Detail: "duplicate spread title.",
-      Code: apperrors.CodeConflict,
-    })
-    return
-  }
+	if count > 0 {
+		writeJSON(w, http.StatusConflict, apperrors.ProblemDetail{
+			Status: http.StatusConflict,
+			Title:  "Conflict",
+			Detail: "duplicate spread title.",
+			Code:   apperrors.CodeConflict,
+		})
+		return
+	}
 
 	if req.ID == "" {
 		spread, err := s.store.CreateSpread(r.Context(), spreadTitle)

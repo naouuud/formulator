@@ -13,8 +13,8 @@ import (
 type Snap struct {
 	ID            pgtype.UUID        `json:"id"`
 	SpreadID      pgtype.UUID        `json:"spread_id"`
-	SpreadVersion int32              `json:"spread_version"`
-	Edition       int32              `json:"edition"`
+	SpreadVersion pgtype.Int4        `json:"spread_version"`
+	Edition       pgtype.Int4        `json:"edition"`
 	Schema        json.RawMessage    `json:"schema"`
 	PublishedAt   pgtype.Timestamptz `json:"published_at"`
 	ClosedAt      pgtype.Timestamptz `json:"closed_at"`

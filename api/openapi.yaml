@@ -12,7 +12,7 @@ info:
     of a spread's schema, used for response collection. A **spill** is an unique instance of a snap shared for response collection, and contains the response schema.
 
     Deleting a spread does not delete its snaps; affected snaps become orphans with
-    `spreadId` set to null. Deleting a snap does not affect any of its spills.
+    `spreadId`, `spreadVersion` and `edition` set to null. Deleting a snap does not affect any of its spills.
 
 servers:
   - url: http://localhost:8080
@@ -163,7 +163,7 @@ paths:
       summary: Delete spread
       description: |
         Deletes a spread by ID. Does not delete associated snaps; published snaps
-        may become orphans referencing a spread that no longer exists.
+        no longer reference spread.
       responses:
         '204':
           description: Spread deleted
@@ -185,7 +185,7 @@ paths:
         The `title` field is denormalized from `schema.title` on the full snap.
 
         Orphan editions (source spread deleted) are included when listing all snaps
-        and have `spreadId: null`.
+        and have `spreadId: null`, `spreadVersion: null` and `edition: null`.
       parameters:
         - $ref: '#/components/parameters/SpreadIdQuery'
       responses:
@@ -677,6 +677,7 @@ components:
         spreadVersion:
           type: integer
           minimum: 0
+          nullable: true
           description: Spread `version` at publish time.
         title:
           type: string
@@ -684,6 +685,7 @@ components:
         edition:
           type: integer
           minimum: 1
+          nullable: true
           description: Publish edition number for the source spread (1-based).
         publishedAt:
           type: string
@@ -710,10 +712,12 @@ components:
         spreadVersion:
           type: integer
           minimum: 0
+          nullable: true
           description: Spread `version` at publish time.
         edition:
           type: integer
           minimum: 1
+          nullable: true
           description: Publish edition number for the source spread (1-based).
         schema:
           $ref: '#/components/schemas/Schema'

@@ -1,0 +1,16 @@
+BASE_URL=http://localhost:8080
+SPREAD_ID=9f444358-8d48-4264-bdb6-8d8236d82eb1
+
+curl -s -X POST "$BASE_URL/spreads" -H 'Content-Type: application/json' -d "{\"id\":\"$SPREAD_ID\",\"spreadTitle\":\"Test Spread\"}" | jq
+
+Test            Query        Description                                           Expected                                                           Results
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+POST /snaps     1            Create snap                                           201                                                                [x]
+GET /snaps/:id  2            Get snap (has parent spread)                          200, { ..., spreadId: $SPREAD_ID, spreadVersion: 0, edition: 1}    [x]
+GET /snaps/:id  3            Get snap (no parent spread)                           200, { ..., spreadId: null, spreadVersion: null, edition: null}    [x]
+
+1. curl -s -i -X POST "$BASE_URL/snaps" -H 'Content-Type: application/json' -d "{\"spreadId\":\"$SPREAD_ID\",\"snapTitle\":\"Mock Snap\"}"
+(set SNAP_ID from HTTP response)
+2. curl -s -i -X GET "$BASE_URL/snaps/$SNAP_ID"
+curl -s -i -X DELETE "$BASE_URL/spreads/$SPREAD_ID"
+3. curl -s -i -X GET "$BASE_URL/snaps/$SNAP_ID"

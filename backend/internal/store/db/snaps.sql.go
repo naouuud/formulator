@@ -35,8 +35,8 @@ RETURNING
 type CreateSnapParams struct {
 	ID            pgtype.UUID        `json:"id"`
 	SpreadID      pgtype.UUID        `json:"spread_id"`
-	SpreadVersion int32              `json:"spread_version"`
-	Edition       int32              `json:"edition"`
+	SpreadVersion pgtype.Int4        `json:"spread_version"`
+	Edition       pgtype.Int4        `json:"edition"`
 	Schema        json.RawMessage    `json:"schema"`
 	PublishedAt   pgtype.Timestamptz `json:"published_at"`
 }
@@ -44,8 +44,8 @@ type CreateSnapParams struct {
 type CreateSnapRow struct {
 	ID            pgtype.UUID        `json:"id"`
 	SpreadID      pgtype.UUID        `json:"spread_id"`
-	SpreadVersion int32              `json:"spread_version"`
-	Edition       int32              `json:"edition"`
+	SpreadVersion pgtype.Int4        `json:"spread_version"`
+	Edition       pgtype.Int4        `json:"edition"`
 	Schema        json.RawMessage    `json:"schema"`
 	PublishedAt   pgtype.Timestamptz `json:"published_at"`
 }
@@ -102,8 +102,8 @@ AND closed_at IS NULL
 type GetSnapRow struct {
 	ID            pgtype.UUID        `json:"id"`
 	SpreadID      pgtype.UUID        `json:"spread_id"`
-	SpreadVersion int32              `json:"spread_version"`
-	Edition       int32              `json:"edition"`
+	SpreadVersion pgtype.Int4        `json:"spread_version"`
+	Edition       pgtype.Int4        `json:"edition"`
 	Schema        json.RawMessage    `json:"schema"`
 	PublishedAt   pgtype.Timestamptz `json:"published_at"`
 }
@@ -131,9 +131,9 @@ ORDER BY edition DESC
 LIMIT 1
 `
 
-func (q *Queries) LatestEdition(ctx context.Context, spreadID pgtype.UUID) (int32, error) {
+func (q *Queries) LatestEdition(ctx context.Context, spreadID pgtype.UUID) (pgtype.Int4, error) {
 	row := q.db.QueryRow(ctx, latestEdition, spreadID)
-	var edition int32
+	var edition pgtype.Int4
 	err := row.Scan(&edition)
 	return edition, err
 }
@@ -154,9 +154,9 @@ ORDER BY published_at DESC
 type ListSnapMetaDataRow struct {
 	ID            pgtype.UUID        `json:"id"`
 	SpreadID      pgtype.UUID        `json:"spread_id"`
-	SpreadVersion int32              `json:"spread_version"`
+	SpreadVersion pgtype.Int4        `json:"spread_version"`
 	Schema        json.RawMessage    `json:"schema"`
-	Edition       int32              `json:"edition"`
+	Edition       pgtype.Int4        `json:"edition"`
 	PublishedAt   pgtype.Timestamptz `json:"published_at"`
 }
 
@@ -204,9 +204,9 @@ ORDER BY edition DESC
 type ListSnapMetaDataBySpreadIdRow struct {
 	ID            pgtype.UUID        `json:"id"`
 	SpreadID      pgtype.UUID        `json:"spread_id"`
-	SpreadVersion int32              `json:"spread_version"`
+	SpreadVersion pgtype.Int4        `json:"spread_version"`
 	Schema        json.RawMessage    `json:"schema"`
-	Edition       int32              `json:"edition"`
+	Edition       pgtype.Int4        `json:"edition"`
 	PublishedAt   pgtype.Timestamptz `json:"published_at"`
 }
 
@@ -237,14 +237,16 @@ func (q *Queries) ListSnapMetaDataBySpreadId(ctx context.Context, spreadID pgtyp
 	return items, nil
 }
 
-const nullSpreadId = `-- name: NullSpreadId :execrows
+const nullSpreadData = `-- name: NullSpreadData :execrows
 UPDATE snaps
-SET spread_id = NULL
+SET spread_id = NULL,
+    spread_version = NULL,
+    edition = NULL
 WHERE spread_id = $1
 `
 
-func (q *Queries) NullSpreadId(ctx context.Context, spreadID pgtype.UUID) (int64, error) {
-	result, err := q.db.Exec(ctx, nullSpreadId, spreadID)
+func (q *Queries) NullSpreadData(ctx context.Context, spreadID pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, nullSpreadData, spreadID)
 	if err != nil {
 		return 0, err
 	}

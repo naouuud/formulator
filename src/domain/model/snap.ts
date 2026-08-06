@@ -6,8 +6,8 @@ export type SnapStatus = 'ready' | 'active' | 'complete';
 export type Snap = {
   readonly id: string;
   readonly spreadId: string | null;
-  readonly spreadVersion: number;
-  readonly edition: number;
+  readonly spreadVersion: number | null;
+  readonly edition: number | null;
   readonly schema: Schema;
   readonly status: SnapStatus | null;
   readonly publishedAt: Date;

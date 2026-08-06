@@ -191,7 +191,9 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
     if (exists) {
       mockSpreads = mockSpreads.filter((spread) => spread.id !== id);
       mockSnaps = mockSnaps.map((snap) =>
-        snap.spreadId === id ? { ...snap, spreadId: null } : snap,
+        snap.spreadId === id
+          ? { ...snap, spreadId: null, spreadVersion: null, edition: null }
+          : snap,
       );
       return of(new HttpResponse({ status: 204, body: null }));
     }
@@ -305,7 +307,7 @@ export const mockInterceptor: HttpInterceptorFn = (req, next) => {
     clonedSchema.title = snapTitle;
 
     const snaps = mockSnaps.filter((s) => s.spreadId === spreadId);
-    const latest = snaps.length ? Math.max(...snaps.map((s) => s.edition)) : 0;
+    const latest = snaps.length ? Math.max(...snaps.map((s) => s.edition ?? 0)) : 0;
     const created: MockSnap = {
       id: crypto.randomUUID(),
       spreadId,

@@ -24,10 +24,10 @@ URL params:
 Prep:
 Run:
 SPREAD_ID=3f444358-8d48-4264-bdb6-8d8236d82eb8
-SNAP_TITLE=Customer feedback Q3
+SNAP_TITLE=Mock Snap
 BASE_URL=http://localhost:8080
 curl -s -X DELETE "$BASE_URL/spreads/$SPREAD_ID"
-curl -s -X POST "$BASE_URL/spreads" -H 'Content-Type: application/json' -d "{\"id\":\"$SPREAD_ID\"}" | jq
+curl -s -X POST "$BASE_URL/spreads" -H 'Content-Type: application/json' -d "{\"id\":\"$SPREAD_ID\", \"spreadTitle\":\"Mock Spread\"}" | jq
 curl -s -X PUT "$BASE_URL/spreads/$SPREAD_ID" -H 'Content-Type: application/json' -d @fixtures/mockspread.json | jq
 curl -s -X GET "$BASE_URL/spreads/$SPREAD_ID" | jq
 curl -s -X POST "$BASE_URL/snaps" -H 'Content-Type: application/json' -d "{\"spreadId\":\"$SPREAD_ID\",\"snapTitle\":\"$SNAP_TITLE\"}" | jq
@@ -35,11 +35,8 @@ curl -s -X POST "$BASE_URL/snaps" -H 'Content-Type: application/json' -d "{\"spr
 After Snap creation, run:
 SNAP_ID=<uuid>
 
-After Spill creation, run:
-SPILL_ID=<uuid>
-
 Results:
-Test                            curl Query    	Description                              	                Expected    	Passed?
+Test                            Query    	      Description                              	                Expected    	Passed?
 ------------------------------------------------------------------------------------------------------------------------------------
 POST /spills (happy path)     	1		            Create spill with all parameters supplied        	          201           	[x]
 POST /spills (happy path)       2               Create spill with email only                                201             [x]
@@ -58,9 +55,12 @@ GET /spills?snapId=<uuid>     	13              List spills for non-existent snap
 DELETE /spills/:id            	14              Delete existing spill                    	                  204        	    [x]
 DELETE /spills/:id              15              Delete non-existent spill                                   404             [x]
 
-curl Queries:
+Queries:
 1. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json' \
 -d "{\"snapId\": \"$SNAP_ID\",\"email\":\"naoude@gmail.com\",\"firstName\":\"Nour\",\"lastName\":\"Aoude\", \"sentAt\": \"2026-12-25T00:00:00.000Z\"}"
+
+After Spill creation, run:
+SPILL_ID=<uuid>
 
 2. curl -s -i -X POST "$BASE_URL/spills" -H 'Content-Type: application/json' \
 -d "{\"snapId\": \"$SNAP_ID\",\"email\":\"naoude@gmail.com\"}"

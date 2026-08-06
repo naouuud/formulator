@@ -77,12 +77,12 @@ func (s *Store) CreateSpread(ctx context.Context, spreadTitle string) (api.Sprea
 }
 
 func (s *Store) GetCountBySpreadTitle(ctx context.Context, spreadTitle string) (int64, error) {
-  count, err := s.queries.GetCountBySpreadTitle(ctx, spreadTitle)
-  if err != nil {
-    return 0, err
-  }
+	count, err := s.queries.GetCountBySpreadTitle(ctx, spreadTitle)
+	if err != nil {
+		return 0, err
+	}
 
-  return count, nil
+	return count, nil
 }
 
 func (s *Store) GetCountBySpreadTitleExcludingId(ctx context.Context, spreadTitle string, excludeID pgtype.UUID) (int64, error) {
@@ -169,7 +169,7 @@ func (s *Store) DeleteSpread(ctx context.Context, id pgtype.UUID) error {
 
 	qtx := s.queries.WithTx(tx)
 
-	if _, err := qtx.NullSpreadId(ctx, id); err != nil {
+	if _, err := qtx.NullSpreadData(ctx, id); err != nil {
 		return err
 	}
 
@@ -260,8 +260,8 @@ func (s *Store) CreateSnap(ctx context.Context, spreadID pgtype.UUID, snapTitle 
 	row, err := s.queries.CreateSnap(ctx, db.CreateSnapParams{
 		ID:            pgtype.UUID{Bytes: id, Valid: true},
 		SpreadID:      spreadID,
-		SpreadVersion: spread.Version,
-		Edition:       latest + 1,
+		SpreadVersion: api.Int32ToPgInt4(&spread.Version),
+		Edition:       pgtype.Int4{Int32: latest.Int32 + 1, Valid: true},
 		Schema:        serializedWithTitle,
 		PublishedAt:   api.TimeToPgTimestamptz(now),
 	})

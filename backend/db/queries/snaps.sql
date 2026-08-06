@@ -68,7 +68,9 @@ WHERE spread_id = $1
 ORDER BY edition DESC
 LIMIT 1;
 
--- name: NullSpreadId :execrows
+-- name: NullSpreadData :execrows
 UPDATE snaps
-SET spread_id = NULL
+SET spread_id = NULL,
+    spread_version = NULL,
+    edition = NULL
 WHERE spread_id = $1;

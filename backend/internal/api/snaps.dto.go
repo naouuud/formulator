@@ -9,19 +9,19 @@ import (
 )
 
 type SnapMetaDataDto struct {
-	ID            string     `json:"id"`
-	SpreadID      *string    `json:"spreadId"`
-	SpreadVersion int32      `json:"spreadVersion"`
-	Edition       int32      `json:"edition"`
-	Title         string     `json:"title"`
-	PublishedAt   *time.Time `json:"publishedAt"`
+	ID            string      `json:"id"`
+	SpreadID      *string     `json:"spreadId"`
+	SpreadVersion pgtype.Int4 `json:"spreadVersion"`
+	Edition       pgtype.Int4 `json:"edition"`
+	Title         string      `json:"title"`
+	PublishedAt   *time.Time  `json:"publishedAt"`
 }
 
 type SnapDto struct {
 	ID            string          `json:"id"`
 	SpreadID      *string         `json:"spreadId"`
-	SpreadVersion int32           `json:"spreadVersion"`
-	Edition       int32           `json:"edition"`
+	SpreadVersion pgtype.Int4     `json:"spreadVersion"`
+	Edition       pgtype.Int4     `json:"edition"`
 	Schema        json.RawMessage `json:"schema"`
 	PublishedAt   *time.Time      `json:"publishedAt"`
 }
@@ -29,7 +29,7 @@ type SnapDto struct {
 func snapMetaDataDtoFromFields(
 	id, spreadID pgtype.UUID,
 	schema json.RawMessage,
-	spreadVersion, edition int32,
+	spreadVersion, edition pgtype.Int4,
 	publishedAt pgtype.Timestamptz,
 ) (SnapMetaDataDto, error) {
 	var parsed struct {
@@ -59,7 +59,7 @@ func SnapMetaDataDtoFromBySpreadIdRow(row db.ListSnapMetaDataBySpreadIdRow) (Sna
 }
 
 func snapDtoFromFields(
-	ID, spreadID pgtype.UUID, spreadVersion, edition int32, schema json.RawMessage, publishedAt pgtype.Timestamptz) SnapDto {
+	ID, spreadID pgtype.UUID, spreadVersion, edition pgtype.Int4, schema json.RawMessage, publishedAt pgtype.Timestamptz) SnapDto {
 	return SnapDto{
 		ID:            uuidToString(ID),
 		SpreadID:      uuidToStringPtr(spreadID),

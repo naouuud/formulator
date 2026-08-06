@@ -102,14 +102,14 @@ export const DomainStore = signalStore(
         snaps: state
           .snapsMetaData()
           .filter((snap) => snap.spreadId === spread.id)
-          .sort((a, b) => b.edition - a.edition),
+          .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()),
       })),
     ),
     orphanSnaps: computed(() => {
       return state
         .snapsMetaData()
         .filter((snap) => !snap.spreadId)
-        .sort((a, b) => b.edition - a.edition);
+        .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
     }),
   })),
 
@@ -408,7 +408,11 @@ export const DomainStore = signalStore(
                     catchError((err: HttpErrorResponse) => {
                       const updated = store
                         .snapsMetaData()
-                        .map((snap) => (snap.spreadId === id ? { ...snap, spreadId: null } : snap));
+                        .map((snap) =>
+                          snap.spreadId === id
+                            ? { ...snap, spreadId: null, spreadVersion: null, edition: null }
+                            : snap,
+                        );
                       patchState(store, { snapsMetaData: updated });
                       return EMPTY;
                     }),
