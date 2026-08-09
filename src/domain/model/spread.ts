@@ -10,7 +10,7 @@ export type Spread = {
   readonly lastModifiedAt: Date | null;
 };
 
-export function meetsPublishingRequirements(schema: Schema): boolean {
+export function spreadSchemaMeetsPublishingRequirements(schema: Schema): boolean {
   let questionCount = 0;
 
   for (const page of schema.pages) {

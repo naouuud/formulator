@@ -25,7 +25,7 @@ import { UiStore } from '../../ui/store/ui-store';
 import { Snap, deriveSnapStatus } from '../model/snap';
 import { SnapMetaData, toSnapMetaData } from '../model/snap-metadata';
 import { SpillMetaData } from '../model/spill-metadata';
-import { meetsPublishingRequirements, Spread } from '../model/spread';
+import { spreadSchemaMeetsPublishingRequirements, Spread } from '../model/spread';
 import { SpreadMetaData, toSpreadMetaData, updateMetaData } from '../model/spread-metadata';
 import { User } from '../model/user';
 
@@ -458,7 +458,7 @@ export const DomainStore = signalStore(
               uiStore.startSpreadSaving();
               return performSave(spread).pipe(
                 switchMap((saved) => {
-                  if (!meetsPublishingRequirements(saved.schema)) {
+                  if (!spreadSchemaMeetsPublishingRequirements(saved.schema)) {
                     patchState(store, { createSnapError: true, activeSnapLoading: false });
                     return EMPTY;
                   }

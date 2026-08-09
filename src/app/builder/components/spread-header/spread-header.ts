@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { UiStore } from '../../../../ui/store/ui-store';
-import { meetsPublishingRequirements } from 'src/domain/model/spread';
+import { spreadSchemaMeetsPublishingRequirements } from 'src/domain/model/spread';
 
 @Component({
   selector: 'app-spread-header',
@@ -15,7 +15,7 @@ export class SpreadHeader {
   protected readonly publishRequirementsMet = computed(() => {
     const activeSpread = this.domainStore.activeSpread();
     if (!activeSpread) return false;
-    return meetsPublishingRequirements(activeSpread.schema);
+    return spreadSchemaMeetsPublishingRequirements(activeSpread.schema);
   });
 
   protected openPublishModal(): void {

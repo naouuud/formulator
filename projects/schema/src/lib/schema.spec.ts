@@ -3,7 +3,7 @@ import { newElement } from './element';
 import { newOption } from './option';
 import { newPage } from './page';
 import { isOptionsQuestion } from './question';
-import { meetsPublishingRequirements, newSchema, Schema } from './schema';
+import { schemaMeetsPublishingRequirements, newSchema, Schema } from './schema';
 
 /** Minimal publishable schema: titled, one page, one labeled text question. */
 function publishableSchema(overrides: Partial<Schema> = {}): Schema {
@@ -22,26 +22,28 @@ function publishableSchema(overrides: Partial<Schema> = {}): Schema {
 
 describe('meetsPublishingRequirements', () => {
   it('returns true for a minimal valid schema', () => {
-    expect(meetsPublishingRequirements(publishableSchema())).toBe(true);
+    expect(schemaMeetsPublishingRequirements(publishableSchema())).toBe(true);
   });
 
   it('returns false for a new empty schema', () => {
-    expect(meetsPublishingRequirements(newSchema())).toBe(false);
+    expect(schemaMeetsPublishingRequirements(newSchema())).toBe(false);
   });
 
   it('returns false when the title is missing or whitespace-only', () => {
-    expect(meetsPublishingRequirements(publishableSchema({ title: '' }))).toBe(false);
-    expect(meetsPublishingRequirements(publishableSchema({ title: '   ' }))).toBe(false);
+    expect(schemaMeetsPublishingRequirements(publishableSchema({ title: '' }))).toBe(false);
+    expect(schemaMeetsPublishingRequirements(publishableSchema({ title: '   ' }))).toBe(false);
   });
 
   it('returns false when any page has no elements', () => {
     const emptyPage = newPage();
     const validPage = publishableSchema().pages[0];
 
-    expect(meetsPublishingRequirements(publishableSchema({ pages: [emptyPage] }))).toBe(false);
-    expect(meetsPublishingRequirements(publishableSchema({ pages: [validPage, emptyPage] }))).toBe(
+    expect(schemaMeetsPublishingRequirements(publishableSchema({ pages: [emptyPage] }))).toBe(
       false,
     );
+    expect(
+      schemaMeetsPublishingRequirements(publishableSchema({ pages: [validPage, emptyPage] })),
+    ).toBe(false);
   });
 
   it('returns false when there are no questions', () => {
@@ -51,7 +53,7 @@ describe('meetsPublishingRequirements', () => {
     const page = newPage();
     page.elements = [note];
 
-    expect(meetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
+    expect(schemaMeetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
   });
 
   it('returns false when a note or question label is empty or whitespace-only', () => {
@@ -61,13 +63,13 @@ describe('meetsPublishingRequirements', () => {
     const page = newPage();
     page.elements = [note, publishableSchema().pages[0].elements[0]];
 
-    expect(meetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
+    expect(schemaMeetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
 
     const question = newElement({ elementType: 'question', htmlType: 'text' });
     question.el.label = '';
     page.elements = [question];
 
-    expect(meetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
+    expect(schemaMeetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
   });
 
   it('returns false when an options question has no options', () => {
@@ -77,7 +79,7 @@ describe('meetsPublishingRequirements', () => {
     const page = newPage();
     page.elements = [select];
 
-    expect(meetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
+    expect(schemaMeetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
   });
 
   it('returns false when an option label is empty or whitespace-only', () => {
@@ -91,7 +93,7 @@ describe('meetsPublishingRequirements', () => {
     const page = newPage();
     page.elements = [select];
 
-    expect(meetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
+    expect(schemaMeetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(false);
   });
 
   it('returns true when an options question has labeled options', () => {
@@ -105,7 +107,7 @@ describe('meetsPublishingRequirements', () => {
     const page = newPage();
     page.elements = [select];
 
-    expect(meetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(true);
+    expect(schemaMeetsPublishingRequirements(publishableSchema({ pages: [page] }))).toBe(true);
   });
 
   it('returns true when a question exists on a later non-empty page', () => {
@@ -117,7 +119,7 @@ describe('meetsPublishingRequirements', () => {
     const questionPage = publishableSchema().pages[0];
 
     expect(
-      meetsPublishingRequirements(publishableSchema({ pages: [notePage, questionPage] })),
+      schemaMeetsPublishingRequirements(publishableSchema({ pages: [notePage, questionPage] })),
     ).toBe(true);
   });
 });

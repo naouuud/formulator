@@ -14,3 +14,4 @@ export * from './lib/element';
 export * from './lib/page';
 export * from './lib/tod';
 export * from './lib/schema';
+export * from './lib/rSchema';
