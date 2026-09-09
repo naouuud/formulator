@@ -1,0 +1,7 @@
+@if (store.schemaLoading()) {
+  <p>Loading form…</p>
+} @else if (store.schemaLoadError()) {
+  <p>Could not load this form.</p>
+} @else if (store.schema()) {
+  <p>{{ store.schema()!.title || 'Untitled' }}</p>
+}

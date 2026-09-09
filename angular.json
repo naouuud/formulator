@@ -7,18 +7,18 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "formulator": {
+    "formulator-builder": {
       "projectType": "application",
       "schematics": {},
-      "root": "",
-      "sourceRoot": "src",
+      "root": "projects/formulator-builder",
+      "sourceRoot": "projects/formulator-builder/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "src/main.ts",
-            "tsConfig": "tsconfig.app.json",
+            "browser": "projects/formulator-builder/src/main.ts",
+            "tsConfig": "projects/formulator-builder/tsconfig.app.json",
             "assets": [
               {
                 "glob": "**/*",
@@ -26,11 +26,11 @@
               },
               {
                 "glob": "**/*",
-                "input": "src/assets",
+                "input": "project/formulator-builder/src/assets",
                 "output": "assets"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": ["projects/formulator-builder/src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -58,12 +58,84 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "host": "localhost",
+            "port": 4200
+          },
           "configurations": {
             "production": {
-              "buildTarget": "formulator:build:production"
+              "buildTarget": "formulator-builder:build:production"
             },
             "development": {
-              "buildTarget": "formulator:build:development"
+              "buildTarget": "formulator-builder:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/main-app/tsconfig.spec.json"
+          }
+        }
+      }
+    },
+    "formulator-responder": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "projects/formulator-responder",
+      "sourceRoot": "projects/formulator-responder/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/formulator-responder/src/main.ts",
+            "tsConfig": "projects/formulator-responder/tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/formulator-responder/public"
+              }
+            ],
+            "styles": ["projects/formulator-responder/src/styles.css"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "host": "localhost",
+            "port": 4222
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "formulator-responder:build:production"
+            },
+            "development": {
+              "buildTarget": "formulator-responder:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{html,ts}'],
+  content: [
+    './projects/formulator-builder/src/**/*.{html,ts}',
+    './projects/formulator-responder/src/**/*.{html,ts}',
+  ],
   theme: {
     extend: {
       fontSize: {

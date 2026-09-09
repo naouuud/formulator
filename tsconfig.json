@@ -14,7 +14,7 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve",
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@formulator/schema": ["projects/schema/src/public-api.ts"]
     }
@@ -28,10 +28,16 @@
   "files": [],
   "references": [
     {
-      "path": "./tsconfig.app.json"
+      "path": "./projects/formulator-builder/tsconfig.app.json"
     },
     {
-      "path": "./tsconfig.spec.json"
+      "path": "./projects/formulator-builder/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/formulator-responder/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/formulator-responder/tsconfig.spec.json"
     }
   ]
 }
