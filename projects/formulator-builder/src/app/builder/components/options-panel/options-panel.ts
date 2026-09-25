@@ -1,4 +1,13 @@
-import { Component, computed, HostListener, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  HostListener,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { isOptionsQuestion, Option, QuestionElement } from '@formulator/schema';
 import { DomainStore } from '../../../../domain/store/domain-store';
 
@@ -9,6 +18,7 @@ import { DomainStore } from '../../../../domain/store/domain-store';
 })
 export class OptionsPanel {
   readonly element = input.required<QuestionElement>();
+  private readonly elementId = computed(() => this.element().id);
   protected readonly domainStore = inject(DomainStore);
   protected readonly options = computed(() => {
     const el = this.element().el;
@@ -18,6 +28,17 @@ export class OptionsPanel {
   protected readonly labelValue = signal('');
   protected readonly editingOptionId = signal<string | null>(null);
   protected readonly editLabelValue = signal('');
+
+  constructor() {
+    effect(() => {
+      this.elementId();
+      untracked(() => {
+        this.labelValue.set('');
+        this.editingOptionId.set(null);
+        this.editLabelValue.set('');
+      });
+    });
+  }
 
   protected setLabelValue(event: Event): void {
     const value = (event.target as HTMLInputElement).value;

@@ -1,6 +1,20 @@
 import { Validators } from '@formulator/schema';
 import { isUuid } from '../../utils/is-uuid';
 
+export type FormModel = Record<string, PageModel>;
+
+export type PageModel = Record<string, string | CheckboxRecord>;
+
+export type CheckboxRecord = Record<string, boolean>;
+
+export type Answer = PageModel[string];
+
+export const isStringAnswer = (v: Answer): v is string => typeof v === 'string';
+
+export type FormConfig = {
+  [pageId: string]: FieldConfig[];
+};
+
 interface BaseFieldConfig {
   questionId: string;
   required: boolean;
@@ -9,16 +23,6 @@ interface BaseFieldConfig {
 export type FieldConfig =
   | (BaseFieldConfig & { kind: 'string' })
   | (BaseFieldConfig & { kind: 'checkbox'; optionIds: string[] });
-
-export type CheckboxRecord = Record<string, boolean>;
-
-export type PageModel = Record<string, string | CheckboxRecord>;
-
-export type FormModel = Record<string, PageModel>;
-
-export type Answer = PageModel[string];
-
-export const isStringAnswer = (v: Answer): v is string => typeof v === 'string';
 
 export const newStringConfig = (questionId: string, validators: Validators): FieldConfig => {
   if (!isUuid(questionId)) {
@@ -45,8 +49,4 @@ export const newCheckboxConfig = (
     required: validators.required,
     optionIds,
   };
-};
-
-export type FormConfig = {
-  [pageId: string]: FieldConfig[];
 };

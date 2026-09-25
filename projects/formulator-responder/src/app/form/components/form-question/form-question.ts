@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { isOptionsQuestion, QuestionElement } from '@formulator/schema';
-import { FormService } from '../form.service';
+import { FormService } from '../../form.service';
 
 @Component({
   selector: 'form-question',

@@ -8,7 +8,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:schema": "vitest run projects/schema"
+    "test:schema": "vitest run projects/schema",
+    "test:responder": "vitest run projects/formulator-responder"
   },
   "prettier": {
     "printWidth": 100,

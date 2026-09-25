@@ -50,7 +50,7 @@ The HTTP API is defined in **`api/openapi.yaml`** (and generated **`api/openapi.
 
 **Builder** — Angular UI over **DomainStore** (spreads, snaps, spills, autosave) and **UiStore** (workspace, modals, selection). HTTP clients live under `projects/formulator-builder/src/external/api/`. Mock data is available via an HTTP interceptor when `APP_MODE` is `mock`.
 
-**Responder** — Route `/:spillId` → guard → **AppStore** (hand-rolled `@Injectable` with private signals—not NgRx Signal Store) loads schema via **SpillService** → **FormParent** + component-scoped **FormService** build the signal form from the schema. Notes and questions (text, select, radio, checkbox) are rendered; validation currently focuses on **required** fields.
+**Responder** — Route `/:spillId` → guard → **AppShell** → **AppStore** (hand-rolled `@Injectable` with private signals—not NgRx Signal Store) loads schema via **SpillService** (`external/api/`). **`app/form/`** (**FormParent** + component-scoped **FormService**) builds the signal form from the schema. Mock data uses an HTTP interceptor when `APP_MODE` is `mock`. Notes and questions (text, select, radio, checkbox) are rendered; validation currently focuses on **required** fields.
 
 **Backend** — chi handlers in `internal/httpapi`, persistence and rules in `internal/store`, JSON DTOs in `internal/api`, [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807)-style **ProblemDetail** errors in `internal/apperrors`.
 
@@ -111,6 +111,7 @@ npm run start:responder
 npx ng build formulator-builder
 npx ng build formulator-responder
 npm run test:schema        # Vitest for projects/schema
+npm run test:responder     # Vitest for responder pure helpers (form mapping, spill id)
 cd backend && make test    # Go tests
 ```
 
@@ -132,18 +133,22 @@ backend/
     └── store/                # Application layer + sqlc-generated repo
 projects/
 ├── schema/                   # @formulator/schema (shared types)
-├── formulator-builder/       # Builder + share UI
+├── formulator-builder/
 │   └── src/
-│       ├── app/              # Shell, routes, env
-│       ├── domain/           # Models + DomainStore
-│       ├── external/         # API services + mock interceptor
+│       ├── app/              # Routes, env, app-shell
+│       │   ├── builder/      # Build workspace UI (canvas, editors, preview)
+│       │   └── share/        # Share workspace UI (snaps, spills, send survey)
+│       ├── domain/           # Models, mappers, DomainStore
+│       ├── external/         # external/api/* + mock interceptor
 │       └── ui/               # UiStore
-└── formulator-responder/     # Public form filler
+└── formulator-responder/
     └── src/
-        ├── app/              # Routes, env, config
-        ├── components/form/  # FormParent, pages, questions, FormService
-        ├── external/         # SpillService + mock interceptor
-        └── store/            # AppStore (schema load, paging)
+        ├── app/              # Routes, env, app-shell, invalid-link
+        │   └── form/         # Form feature: FormService, form.model, components/
+        ├── external/         # external/api/* + mock interceptor
+        ├── store/            # AppStore (schema load, paging)
+        ├── guards/           # spillId route guard
+        └── utils/            # Shared helpers (e.g. UUID check)
 tailwind.config.js            # Shared Tailwind config (both apps)
 ```
 

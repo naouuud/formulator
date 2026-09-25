@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, untracked } from '@angular/core';
-import { AppStore } from '../../../store/app-store';
-import { FormService } from '../form.service';
+import { AppStore } from '../../../../store/app-store';
+import { FormService } from '../../form.service';
 import { FormPage } from '../form-page/form-page';
 
 @Component({

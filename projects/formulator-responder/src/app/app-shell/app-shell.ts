@@ -3,7 +3,7 @@ import { AppStore } from '../../store/app-store';
 import { ActivatedRoute } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormParent } from '../form/form-parent/form-parent';
+import { FormParent } from '../form/components/form-parent/form-parent';
 
 @Component({
   selector: 'app-shell',

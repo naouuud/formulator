@@ -26,7 +26,14 @@ export type CreateElementParams =
       htmlType: HTMLType;
     };
 
-export const newElement = (params: CreateElementParams): Element => {
+export function newElement(params: { elementType: 'note' }): NoteElement;
+export function newElement(params: {
+  elementType: 'question';
+  htmlType: HTMLType;
+}): QuestionElement;
+/** When `params` is only known as `CreateElementParams`, the result is the `Element` union. */
+export function newElement(params: CreateElementParams): Element;
+export function newElement(params: CreateElementParams): Element {
   const id = crypto.randomUUID();
   return params.elementType === 'note'
     ? {
@@ -39,4 +46,4 @@ export const newElement = (params: CreateElementParams): Element => {
         type: params.elementType,
         el: newQuestion(params.htmlType),
       };
-};
+}

@@ -1,13 +1,12 @@
 import { inject, Injectable, Injector, runInInjectionContext, signal } from '@angular/core';
 import { applyWhenValue, FieldTree, form, required, SchemaFn } from '@angular/forms/signals';
 import { Schema } from '@formulator/schema';
+import { schemaToFormConfig } from './form-config.mapper';
 import {
   CheckboxRecord,
   FormConfig,
   FormModel,
   isStringAnswer,
-  newCheckboxConfig,
-  newStringConfig,
   PageModel,
 } from './form.model';
 import { validationMessages } from './validation-messages';
@@ -32,7 +31,7 @@ export class FormService {
     this.#initializedFor = schema;
 
     runInInjectionContext(this.injector, () => {
-      const formConfig = this.#schemaToFormConfig(schema);
+      const formConfig = schemaToFormConfig(schema);
       this.#formModel.set(this.#buildFormModel(formConfig));
       this.#fieldTree = form(this.#formModel, this.#buildSchemaFn(formConfig));
     });
@@ -113,29 +112,4 @@ export class FormService {
     };
   }
 
-  #schemaToFormConfig(schema: Schema): FormConfig {
-    const formConfig: FormConfig = {};
-    for (const page of schema.pages) {
-      const questionElements = page.elements.filter((e) => e.type === 'question');
-      const fieldConfigs = questionElements.map((q) => {
-        const htmlType = q.el.htmlType;
-        switch (htmlType) {
-          case 'text':
-          case 'radio':
-          case 'select':
-            return newStringConfig(q.id, q.el.validators);
-          case 'checkbox':
-            return newCheckboxConfig(
-              q.id,
-              q.el.validators,
-              q.el.options.map((o) => o.id),
-            );
-          default:
-            return newStringConfig(q.id, q.el.validators);
-        }
-      });
-      formConfig[page.id] = fieldConfigs;
-    }
-    return formConfig;
-  }
 }

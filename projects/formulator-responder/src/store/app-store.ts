@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Schema } from '@formulator/schema';
 import { catchError, EMPTY, finalize, Subject, switchMap, tap } from 'rxjs';
-import { SpillService } from '../external/spill.service';
+import { SpillService } from '../external/api/spill.service';
 import { isUuid } from '../utils/is-uuid';
 
 @Injectable({ providedIn: 'root' })
