@@ -46,7 +46,7 @@ func snapMetaDataDtoFromFields(
 		SpreadVersion: spreadVersion,
 		Edition:       edition,
 		Title:         parsed.Title,
-		PublishedAt:   timestamptzToPtr(publishedAt),
+		PublishedAt:   TimestamptzToPtr(publishedAt),
 	}, nil
 }
 
@@ -66,7 +66,7 @@ func snapDtoFromFields(
 		SpreadVersion: spreadVersion,
 		Edition:       edition,
 		Schema:        append(json.RawMessage(nil), schema...),
-		PublishedAt:   timestamptzToPtr(publishedAt),
+		PublishedAt:   TimestamptzToPtr(publishedAt),
 	}
 }
 

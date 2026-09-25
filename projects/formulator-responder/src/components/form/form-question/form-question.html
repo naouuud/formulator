@@ -1,0 +1,122 @@
+@if (questionElement(); as element) {
+  @if (element.el; as question) {
+    <fieldset class="flex flex-col gap-2.5 border-0 p-0 m-0">
+      <legend class="text-sm font-medium text-slate-700 mb-0.5">
+        {{ question.label || 'Untitled question' }}
+        @if (question.validators.required) {
+          <span class="text-red-500 ml-0.5" aria-hidden="true">*</span>
+        }
+      </legend>
+
+      @if (!isOptionsQuestion(question)) {
+        @switch (question.htmlType) {
+          @case ('text') {
+            <input
+              type="text"
+              [id]="element.id"
+              [formField]="formService.asStringField(pageId(), questionElement().id)"
+              placeholder="Your answer"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-colors"
+            />
+            @if (fieldState().touched() && fieldState().invalid()) {
+              <div class="mt-1 flex flex-col gap-0.5 px-1" role="alert" aria-live="polite">
+                @for (error of fieldState().errors(); track error) {
+                  <p class="text-xs font-medium text-red-600">{{ error.message }}</p>
+                }
+              </div>
+            }
+          }
+          @default {
+            <p class="text-xs text-slate-400 italic px-1">Unable to display question.</p>
+          }
+        }
+      } @else {
+        @switch (question.htmlType) {
+          @case ('radio') {
+            <div
+              class="flex flex-col gap-2"
+              role="radiogroup"
+              [attr.aria-required]="question.validators.required"
+            >
+              @for (option of question.options; track option.id) {
+                <label
+                  [for]="option.id"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-200 bg-white hover:border-violet-300 hover:bg-violet-50/40 cursor-pointer transition-colors has-[:checked]:border-violet-400 has-[:checked]:bg-violet-50"
+                >
+                  <input
+                    type="radio"
+                    [id]="option.id"
+                    [formField]="formService.asStringField(pageId(), questionElement().id)"
+                    [value]="option.value"
+                    class="accent-violet-600"
+                  />
+                  <span class="text-sm text-slate-700">{{ option.label }}</span>
+                </label>
+              } @empty {
+                <p class="text-xs text-slate-400 italic px-1">No options configured.</p>
+              }
+              @if (fieldState().touched() && fieldState().invalid()) {
+                <div class="mt-1 flex flex-col gap-0.5 px-1" role="alert" aria-live="polite">
+                  @for (error of fieldState().errors(); track error) {
+                    <p class="text-xs font-medium text-red-600">{{ error.message }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+          @case ('checkbox') {
+            <div class="flex flex-col gap-2">
+              @for (option of question.options; track option.id) {
+                <label
+                  [for]="option.id"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-200 bg-white hover:border-violet-300 hover:bg-violet-50/40 cursor-pointer transition-colors has-[:checked]:border-violet-400 has-[:checked]:bg-violet-50"
+                >
+                  <input
+                    type="checkbox"
+                    [id]="option.id"
+                    [formField]="
+                      formService.asCheckboxOptionField(pageId(), questionElement().id, option.id)
+                    "
+                    class="accent-violet-600 rounded"
+                  />
+                  <span class="text-sm text-slate-700">{{ option.label }}</span>
+                </label>
+              } @empty {
+                <p class="text-xs text-slate-400 italic px-1">No options configured.</p>
+              }
+              @if (fieldState().touched() && fieldState().invalid()) {
+                <div class="mt-1 flex flex-col gap-0.5 px-1" role="alert" aria-live="polite">
+                  @for (error of fieldState().errors(); track error) {
+                    <p class="text-xs font-medium text-red-600">{{ error.message }}</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+          @case ('select') {
+            <select
+              [id]="element.id"
+              [formField]="formService.asStringField(pageId(), questionElement().id)"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 bg-white focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-colors"
+            >
+              <option value="" disabled selected>Select an option</option>
+              @for (option of question.options; track option.id) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            @if (question.options.length === 0) {
+              <p class="text-xs text-slate-400 italic px-1">No options configured.</p>
+            }
+            @if (fieldState().touched() && fieldState().invalid()) {
+              <div class="mt-1 flex flex-col gap-0.5 px-1" role="alert" aria-live="polite">
+                @for (error of fieldState().errors(); track error) {
+                  <p class="text-xs font-medium text-red-600">{{ error.message }}</p>
+                }
+              </div>
+            }
+          }
+        }
+      }
+    </fieldset>
+  }
+}

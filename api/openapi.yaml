@@ -344,6 +344,81 @@ paths:
         '404':
           $ref: '#/components/responses/SpillNotFound'
 
+  /spills/{id}/schema:
+    parameters:
+      - $ref: '#/components/parameters/SpillId'
+
+    get:
+      tags:
+        - Spills
+      operationId: getSpillSchema
+      summary: Retrieve published schema for this spill's snap
+      description: |
+        Resolves the immutable published schema for this spill's snap.
+
+        The spill does not store a schema. The form definition is loaded from
+        the snap referenced by `snapId`. Soft-closed snaps remain resolvable
+        so existing share links still work.
+
+        Returns 409 with code 'SPILL_COMPLETED' if spill's `completedAt` value is non-null,
+        and 410 with code 'SPILL_EXPIRED' if spill `expiredAt` is non-null and in the past.
+        If both conditions are true, 409 is returned.
+      responses:
+        '200':
+          description: Published schema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schema'
+
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+
+        '404':
+          description: Spill not found, or its snap is not resolvable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                spillNotFound:
+                  $ref: '#/components/examples/spillNotFound'
+                snapNotFound:
+                  summary: Snap not found
+                  value:
+                    status: 404
+                    title: Snap not found
+                    detail: Unable to resolve snap for spill with id 00000000-0000-0000-0000-000000000000.
+                    code: SNAP_NOT_FOUND
+
+        '409':
+          description: Spill has been completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                spillCompleted:
+                  value:
+                    status: 409
+                    title: Spill completed
+                    detail: Spill with id 00000000-0000-0000-0000-000000000000 has already been completed.
+                    code: SPILL_COMPLETED
+
+        '410':
+          description: Spill has expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                spillExpired:
+                  value:
+                    status: 410
+                    title: Spill expired
+                    detail: Spill with id 00000000-0000-0000-0000-000000000000 has expired.
+                    code: SPILL_EXPIRED
+
 components:
   responses:
     InvalidRequest:
@@ -435,11 +510,7 @@ components:
             $ref: '#/components/schemas/ProblemDetail'
           examples:
             snapNotFound:
-              value:
-                status: 404
-                title: Snap not found
-                detail: No snap exists with id 00000000-0000-0000-0000-000000000000.
-                code: SNAP_NOT_FOUND
+              $ref: '#/components/examples/snapNotFound'
 
     SpillNotFound:
       description: Spill not found
@@ -449,11 +520,7 @@ components:
             $ref: '#/components/schemas/ProblemDetail'
           examples:
             spillNotFound:
-              value:
-                status: 404
-                title: Spill not found
-                detail: No spill exists with id 00000000-0000-0000-0000-000000000000.
-                code: SPILL_NOT_FOUND
+              $ref: '#/components/examples/spillNotFound'
 
     Conflict:
       description: Conflict — e.g. duplicate spread title or duplicate client-provided id
@@ -490,6 +557,23 @@ components:
                 code: VERSION_CONFLICT
                 expectedVersion: 2
                 actualVersion: 3
+
+  examples:
+    spillNotFound:
+      summary: Spill not found
+      value:
+        status: 404
+        title: Spill not found
+        detail: No spill exists with id 00000000-0000-0000-0000-000000000000.
+        code: SPILL_NOT_FOUND
+
+    snapNotFound:
+      summary: Snap not found
+      value:
+        status: 404
+        title: Snap not found
+        detail: No snap exists with id 00000000-0000-0000-0000-000000000000.
+        code: SNAP_NOT_FOUND
 
   parameters:
     SpreadId:

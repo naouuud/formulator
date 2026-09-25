@@ -1,0 +1,11 @@
+<div class="flex flex-col gap-6">
+  @for (element of page().elements; track element.id) {
+    @if (element.type === 'note') {
+      <form-note [noteElement]="element" />
+    } @else if (element.type === 'question') {
+      <form-question [pageId]="page().id" [questionElement]="element" />
+    }
+  } @empty {
+    <p class="text-sm text-slate-400 text-center py-8">This page has no content yet.</p>
+  }
+</div>

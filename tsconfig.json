@@ -14,9 +14,8 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve",
-    "baseUrl": "./",
     "paths": {
-      "@formulator/schema": ["projects/schema/src/public-api.ts"]
+      "@formulator/schema": ["./projects/schema/src/public-api.ts"]
     }
   },
   "angularCompilerOptions": {

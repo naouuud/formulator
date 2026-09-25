@@ -12,6 +12,8 @@ const (
 	CodeInvalidRequest  = "INVALID_REQUEST"
 	CodeInternalError   = "INTERNAL_ERROR"
 	CodeConflict        = "CONFLICT"
+	CodeSpillCompleted  = "SPILL_COMPLETED"
+	CodeSpillExpired    = "SPILL_EXPIRED"
 )
 
 type ProblemDetail struct {

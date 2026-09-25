@@ -39,10 +39,10 @@ func spillMetaDataDtoFromFields(
 		FirstName:      firstName,
 		LastName:       lastName,
 		Email:          email,
-		CreatedAt:      timestamptzToPtr(createdAt),
-		LastModifiedAt: timestamptzToPtr(lastModifiedAt),
-		CompletedAt:    timestamptzToPtr(completedAt),
-		SentAt:         timestamptzToPtr(sentAt),
-		ExpiredAt:      timestamptzToPtr(expiredAt),
+		CreatedAt:      TimestamptzToPtr(createdAt),
+		LastModifiedAt: TimestamptzToPtr(lastModifiedAt),
+		CompletedAt:    TimestamptzToPtr(completedAt),
+		SentAt:         TimestamptzToPtr(sentAt),
+		ExpiredAt:      TimestamptzToPtr(expiredAt),
 	}
 }

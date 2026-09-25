@@ -41,3 +41,9 @@ RETURNING
 -- name: DeleteSpill :execrows
 DELETE FROM spills
 WHERE id = $1;
+
+-- name: GetSpill :one
+SELECT
+    *
+FROM spills
+WHERE id = $1;

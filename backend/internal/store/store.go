@@ -17,6 +17,9 @@ import (
 
 var ErrNotFound = errors.New("not found")
 var ErrDuplicateSpreadID = errors.New("duplicate spreadID")
+var ErrCannotResolveSnap = errors.New("cannot resolve snap")
+var ErrSpillCompleted = errors.New("spill completed")
+var ErrSpillExpired = errors.New("spill expired")
 
 type Store struct {
 	pool    *pgxpool.Pool
@@ -337,6 +340,29 @@ func (s *Store) DeleteSpill(ctx context.Context, spillID pgtype.UUID) error {
 	}
 
 	return nil
+}
+
+func (s *Store) GetSpillSchema(ctx context.Context, spillID pgtype.UUID) (json.RawMessage, error) {
+	spill, err := s.queries.GetSpill(ctx, spillID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+	}
+
+	if completedAt := api.TimestamptzToPtr(spill.CompletedAt); completedAt != nil {
+		return nil, ErrSpillCompleted
+	}
+	if expiredAt := api.TimestamptzToPtr(spill.ExpiredAt); expiredAt != nil && !expiredAt.After(time.Now()) {
+		return nil, ErrSpillExpired
+	}
+
+	snap, err := s.queries.GetSnap(ctx, spill.SnapID)
+	if err != nil {
+		return nil, ErrCannotResolveSnap
+	}
+
+	return snap.Schema, nil
 }
 
 type VersionConflictError struct {

@@ -15,7 +15,7 @@ func Load() (Config, error) {
 	cfg := Config{
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		Port:        getenv("PORT", "8080"),
-		CORSOrigin:  getenv("CORS_ORIGIN", "http://localhost:4200"),
+		CORSOrigin:  getenv("CORS_ORIGIN", "*"),
 	}
 
 	if cfg.DatabaseURL == "" {

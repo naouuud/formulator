@@ -65,6 +65,9 @@ func (s *Server) Router() http.Handler {
 		r.Post("/", s.handleCreateSpill)
 		r.Route("/{id}", func(r chi.Router) {
 			r.Delete("/", s.handleDeleteSpill)
+			r.Route("/schema", func(r chi.Router) {
+				r.Get("/", s.handleGetSpillSchema)
+			})
 		})
 	})
 
@@ -458,6 +461,56 @@ func (s *Server) handleDeleteSpill(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) handleGetSpillSchema(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	parsedID := checkUUID(w, id, "id")
+	if !parsedID.Valid {
+		return
+	}
+
+	schema, err := s.store.GetSpillSchema(r.Context(), parsedID)
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) {
+			writeJSON(w, http.StatusNotFound, apperrors.SpillNotFound(id))
+			return
+		}
+		if errors.Is(err, store.ErrSpillCompleted) {
+			writeJSON(w, http.StatusConflict, apperrors.ProblemDetail{
+				Status: 409,
+				Title:  "Spill completed",
+				Detail: "Spill with id " + id + " has already been completed.",
+				Code:   apperrors.CodeSpillCompleted,
+			})
+      return
+		}
+		if errors.Is(err, store.ErrSpillExpired) {
+			writeJSON(w, http.StatusGone, apperrors.ProblemDetail{
+				Status: 410,
+				Title:  "Spill expired",
+				Detail: "Spill with id " + id + " has expired.",
+				Code:   apperrors.CodeSpillExpired,
+			})
+      return
+		}
+		if errors.Is(err, store.ErrCannotResolveSnap) {
+			writeJSON(w, http.StatusNotFound, apperrors.ProblemDetail{
+				Status: 404,
+				Title:  "Snap not found",
+				Detail: "Unable to resolve snap for spill with id " + id + ".",
+				Code:   apperrors.CodeSnapNotFound,
+			})
+      return
+		}
+		s.logger.Error("get spill schema", "error", err)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+
+  w.Header().Set("Content-Type", "application/json")
+  w.WriteHeader(http.StatusOK)
+  w.Write(schema)
 }
 
 func (s *Server) corsMiddleware(next http.Handler) http.Handler {

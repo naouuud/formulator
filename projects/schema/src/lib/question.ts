@@ -12,8 +12,6 @@ export type HTMLType =
   | 'calendar_date'
   | 'clock_time';
 
-export type OptionValueType = 'string' | 'number' | 'boolean';
-
 interface BaseQuestion {
   label: RichText;
   htmlType: HTMLType;
@@ -22,7 +20,6 @@ interface BaseQuestion {
 
 export type OptionsQuestion = BaseQuestion & {
   htmlType: 'select' | 'radio' | 'checkbox';
-  optionValueType: OptionValueType;
   options: Option[];
 };
 
@@ -45,7 +42,6 @@ export const newQuestion = (htmlType: HTMLType): Question => {
       label: '',
       htmlType,
       validators,
-      optionValueType: 'string',
       options: [] as Option[],
     };
   } else {

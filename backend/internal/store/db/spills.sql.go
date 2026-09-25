@@ -98,6 +98,32 @@ func (q *Queries) DeleteSpill(ctx context.Context, id pgtype.UUID) (int64, error
 	return result.RowsAffected(), nil
 }
 
+const getSpill = `-- name: GetSpill :one
+SELECT
+    id, snap_id, first_name, last_name, email, r_schema, created_at, last_modified_at, completed_at, sent_at, expired_at
+FROM spills
+WHERE id = $1
+`
+
+func (q *Queries) GetSpill(ctx context.Context, id pgtype.UUID) (Spill, error) {
+	row := q.db.QueryRow(ctx, getSpill, id)
+	var i Spill
+	err := row.Scan(
+		&i.ID,
+		&i.SnapID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.RSchema,
+		&i.CreatedAt,
+		&i.LastModifiedAt,
+		&i.CompletedAt,
+		&i.SentAt,
+		&i.ExpiredAt,
+	)
+	return i, err
+}
+
 const listSpillMetaDataBySnapId = `-- name: ListSpillMetaDataBySnapId :many
 SELECT
     id,

@@ -1,0 +1,86 @@
+<div class="flex min-h-screen flex-col bg-slate-100">
+  <div class="flex-1 overflow-auto px-4 py-8 sm:px-6 sm:py-10">
+    <div class="mx-auto w-full max-w-2xl">
+      <header class="mb-4 px-4">
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-900">
+          {{ schema().title.trim() || 'Untitled form' }}
+        </h1>
+      </header>
+
+      @if (activePage(); as page) {
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div class="border-b border-slate-100 bg-slate-50/80 px-6 py-5">
+            <h2 class="font-semibold text-slate-800">{{ pageTitle() ?? '' }}</h2>
+            @if (hasMultiplePages()) {
+              <div class="mt-3 flex gap-1.5" aria-label="Page progress">
+                @for (page of schema().pages; track page.id; let i = $index) {
+                  <span
+                    class="h-1.5 w-6 rounded-full transition-colors hover:cursor-pointer"
+                    [class.bg-violet-500]="activePageIdx() === i"
+                    [class.bg-slate-200]="activePageIdx() !== i"
+                    (click)="store.setPageIdx(i)"
+                  ></span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="px-6 py-6 sm:px-8 sm:py-8">
+            <form-page [page]="page" />
+          </div>
+
+          @if (hasMultiplePages()) {
+            <div
+              class="flex items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-4"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-40"
+                [disabled]="isFirstPage()"
+                (click)="store.decrementPageIdx()"
+              >
+                ← Previous
+              </button>
+              <span class="text-sm text-slate-400">Page {{ pageNumber() }}</span>
+              @if (isLastPage()) {
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white disabled:pointer-events-none disabled:opacity-40"
+                  (click)="submit()"
+                >
+                  Submit
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-700 disabled:pointer-events-none disabled:opacity-40"
+                  (click)="nextPage()"
+                >
+                  Next →
+                </button>
+              }
+            </div>
+          } @else {
+            <div
+              class="flex items-center justify-center gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-4"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white disabled:pointer-events-none disabled:opacity-40"
+                (click)="submit()"
+              >
+                Submit
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <div
+          class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16"
+        >
+          <p class="text-sm font-medium text-slate-500">No page to view</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

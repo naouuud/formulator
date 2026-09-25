@@ -34,7 +34,7 @@ func uuidToStringPtr(value pgtype.UUID) *string {
 	return &s
 }
 
-func timestamptzToPtr(value pgtype.Timestamptz) *time.Time {
+func TimestamptzToPtr(value pgtype.Timestamptz) *time.Time {
 	if !value.Valid {
 		return nil
 	}

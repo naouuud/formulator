@@ -1,53 +1,49 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Schema } from '@formulator/schema';
 import { catchError, EMPTY, finalize, Subject, switchMap, tap } from 'rxjs';
-import { isUuid } from '../utils/is-uuid';
 import { SpillService } from '../external/spill.service';
-
-type AppState = {
-  schema: WritableSignal<Schema | null>;
-  schemaLoading: WritableSignal<boolean>;
-  schemaLoadError: WritableSignal<boolean>;
-};
-
-const initialState: AppState = {
-  schema: signal(null),
-  schemaLoading: signal(false),
-  schemaLoadError: signal(false),
-};
+import { isUuid } from '../utils/is-uuid';
 
 @Injectable({ providedIn: 'root' })
 export class AppStore {
   private readonly spillService = inject(SpillService);
-  private readonly appState = initialState;
-  private readonly loadSchema$ = new Subject<string>();
 
-  readonly schema = this.appState.schema.asReadonly();
-  readonly schemaLoading = this.appState.schemaLoading.asReadonly();
-  readonly schemaLoadError = this.appState.schemaLoadError.asReadonly();
+  readonly #schema = signal<Schema | null>(null);
+  readonly #schemaLoading = signal(false);
+  readonly #schemaLoadError = signal(false);
+  readonly #activePageIdx = signal(0);
+
+  readonly #loadSchema$ = new Subject<string>();
+
+  readonly schema = this.#schema.asReadonly();
+  readonly schemaLoading = this.#schemaLoading.asReadonly();
+  readonly schemaLoadError = this.#schemaLoadError.asReadonly();
+  readonly activePageIdx = this.#activePageIdx.asReadonly();
 
   constructor() {
-    this.loadSchema$
+    this.#loadSchema$
       .pipe(
         takeUntilDestroyed(),
         switchMap((spillId) => {
           if (!isUuid(spillId)) {
             return EMPTY;
           }
-          this.appState.schema.set(null);
-          this.appState.schemaLoadError.set(false);
-          this.appState.schemaLoading.set(true);
+          this.#schema.set(null);
+          this.#schemaLoadError.set(false);
+          this.#schemaLoading.set(true);
           return this.spillService.getSchema(spillId).pipe(
             tap((schema) => {
-              this.appState.schema.set(schema);
+              this.#schema.set(schema);
+              this.setPageIdx(0);
             }),
             catchError((err: HttpErrorResponse) => {
-              this.appState.schemaLoadError.set(true);
+              console.log(err);
+              this.#schemaLoadError.set(true);
               return EMPTY;
             }),
-            finalize(() => this.appState.schemaLoading.set(false)),
+            finalize(() => this.#schemaLoading.set(false)),
           );
         }),
       )
@@ -55,6 +51,23 @@ export class AppStore {
   }
 
   loadSchema(spillId: string): void {
-    this.loadSchema$.next(spillId);
+    this.#loadSchema$.next(spillId);
+  }
+
+  setPageIdx(idx: number): void {
+    const schema = this.schema();
+    if (!schema || idx < 0 || idx >= schema.pages.length) return;
+    this.#activePageIdx.set(idx);
+  }
+
+  incrementPageIdx(): void {
+    const schema = this.schema();
+    if (!schema || this.#activePageIdx() >= schema.pages.length - 1) return;
+    this.#activePageIdx.update((i) => i + 1);
+  }
+
+  decrementPageIdx(): void {
+    if (!this.schema() || this.#activePageIdx() <= 0) return;
+    this.#activePageIdx.update((i) => i - 1);
   }
 }

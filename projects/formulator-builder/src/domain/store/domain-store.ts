@@ -631,7 +631,7 @@ export const DomainStore = signalStore(
           if (changed) triggerAutoSave(store.activeSpread()!);
         },
 
-        addOption(elementId: string, label: string, value: string | number | boolean): void {
+        addOption(elementId: string, label: string, value: string): void {
           const trimmedLabel = label.trim();
           if (!trimmedLabel || !store.activeSpread()) return;
 
@@ -642,22 +642,15 @@ export const DomainStore = signalStore(
               const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
               const element = page.elements.find((e) => e.id === elementId);
               if (element?.type === 'question' && 'options' in element.el) {
-                const { optionValueType, options } = element.el;
-
-                const coercedValue =
-                  optionValueType === 'number'
-                    ? Number(value)
-                    : optionValueType === 'boolean'
-                      ? Boolean(value)
-                      : String(value).trim();
+                const { options } = element.el;
 
                 if (
-                  options.some((o) => o.value === coercedValue) ||
+                  options.some((o) => o.value === value) ||
                   options.some((o) => o.label === trimmedLabel)
                 )
                   return;
 
-                options.push(newOption(trimmedLabel, coercedValue));
+                options.push(newOption(trimmedLabel, value));
                 added = true;
               }
             }),
@@ -683,12 +676,7 @@ export const DomainStore = signalStore(
           if (deleted) triggerAutoSave(store.activeSpread()!);
         },
 
-        editOption(
-          elementId: string,
-          optionId: string,
-          label: string,
-          value: string | number | boolean,
-        ) {
+        editOption(elementId: string, optionId: string, label: string, value: string) {
           const trimmedLabel = label.trim();
           if (!trimmedLabel || !store.activeSpread()) return;
 
@@ -699,28 +687,21 @@ export const DomainStore = signalStore(
               const page = draft.activeSpread!.schema.pages[draft.activePageIdx];
               const element = page.elements.find((e) => e.id === elementId);
               if (element?.type === 'question' && 'options' in element.el) {
-                const { optionValueType, options } = element.el;
-
-                const coercedValue =
-                  optionValueType === 'number'
-                    ? Number(value)
-                    : optionValueType === 'boolean'
-                      ? Boolean(value)
-                      : String(value).trim();
+                const { options } = element.el;
 
                 const existing = options.find((o) => o.id === optionId);
                 if (!existing) return;
 
-                if (existing.label === trimmedLabel && existing.value === coercedValue) return;
+                if (existing.label === trimmedLabel && existing.value === value) return;
 
                 if (
-                  options.some((o) => o.id !== optionId && o.value === coercedValue) ||
+                  options.some((o) => o.id !== optionId && o.value === value) ||
                   options.some((o) => o.id !== optionId && o.label === trimmedLabel)
                 )
                   return;
 
                 element.el.options = options.map((o) =>
-                  o.id === optionId ? { ...o, label: trimmedLabel, value: coercedValue } : o,
+                  o.id === optionId ? { ...o, label: trimmedLabel, value } : o,
                 );
                 changed = true;
               }

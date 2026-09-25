@@ -29,8 +29,8 @@ func SpreadMetaDataDtoFromRow(row db.ListSpreadMetaDataRow) (SpreadMetaDataDto, 
 	return SpreadMetaDataDto{
 		ID:             uuidToString(row.ID),
 		SpreadTitle:    row.SpreadTitle,
-		CreatedAt:      timestamptzToPtr(row.CreatedAt),
-		LastModifiedAt: timestamptzToPtr(row.LastModifiedAt),
+		CreatedAt:      TimestamptzToPtr(row.CreatedAt),
+		LastModifiedAt: TimestamptzToPtr(row.LastModifiedAt),
 	}, nil
 }
 
@@ -40,8 +40,8 @@ func SpreadDtoFromRow(row db.Spread) SpreadDto {
 		SpreadTitle:    row.SpreadTitle,
 		Version:        row.Version,
 		Schema:         append(json.RawMessage(nil), row.Schema...),
-		CreatedAt:      timestamptzToPtr(row.CreatedAt),
-		LastModifiedAt: timestamptzToPtr(row.LastModifiedAt),
+		CreatedAt:      TimestamptzToPtr(row.CreatedAt),
+		LastModifiedAt: TimestamptzToPtr(row.LastModifiedAt),
 	}
 }
 
