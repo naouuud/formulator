@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"formulator/backend/internal/store/db"
 	"time"
 
@@ -18,6 +19,17 @@ type SpillMetaDataDto struct {
 	CompletedAt    *time.Time `json:"completedAt"`
 	SentAt         *time.Time `json:"sentAt"`
 	ExpiredAt      *time.Time `json:"expiredAt"`
+}
+
+type SpillDto struct {
+	SpillMetaDataDto
+	RSchema json.RawMessage `json:"rSchema"`
+}
+
+// SpillWithSchemaDto is the spill record plus the published form schema from its snap.
+type SpillWithSchemaDto struct {
+	SpillDto
+	Schema json.RawMessage `json:"schema"`
 }
 
 func SpillMetaDataDtoFromCreate(row db.CreateSpillRow) SpillMetaDataDto {
@@ -44,5 +56,22 @@ func spillMetaDataDtoFromFields(
 		CompletedAt:    TimestamptzToPtr(completedAt),
 		SentAt:         TimestamptzToPtr(sentAt),
 		ExpiredAt:      TimestamptzToPtr(expiredAt),
+	}
+}
+
+func SpillDtoFromSpill(spill db.Spill) SpillDto {
+	return SpillDto{
+		SpillMetaDataDto: spillMetaDataDtoFromFields(spill.ID, spill.SnapID, spill.FirstName, spill.LastName, spill.Email, spill.CreatedAt, spill.LastModifiedAt, spill.CompletedAt, spill.SentAt, spill.ExpiredAt),
+		RSchema:          spill.RSchema,
+	}
+}
+
+func SpillWithSchemaDtoFromRow(row db.GetSpillWithSnapSchemaRow) SpillWithSchemaDto {
+	return SpillWithSchemaDto{
+		SpillDto: SpillDto{
+			SpillMetaDataDto: spillMetaDataDtoFromFields(row.ID, row.SnapID, row.FirstName, row.LastName, row.Email, row.CreatedAt, row.LastModifiedAt, row.CompletedAt, row.SentAt, row.ExpiredAt),
+			RSchema:          row.RSchema,
+		},
+		Schema: row.SnapSchema,
 	}
 }

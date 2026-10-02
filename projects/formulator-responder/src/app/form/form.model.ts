@@ -3,13 +3,14 @@ import { isUuid } from '../../utils/is-uuid';
 
 export type FormModel = Record<string, PageModel>;
 
-export type PageModel = Record<string, string | CheckboxRecord>;
+export type PageModel = Record<string, string | BoolMap>;
 
-export type CheckboxRecord = Record<string, boolean>;
+export type BoolMap = Record<string, boolean>;
 
 export type Answer = PageModel[string];
 
 export const isStringAnswer = (v: Answer): v is string => typeof v === 'string';
+export const isBoolMapAnswer = (v: Answer): v is BoolMap => typeof v === 'object';
 
 export type FormConfig = {
   [pageId: string]: FieldConfig[];
@@ -22,7 +23,7 @@ interface BaseFieldConfig {
 
 export type FieldConfig =
   | (BaseFieldConfig & { kind: 'string' })
-  | (BaseFieldConfig & { kind: 'checkbox'; optionIds: string[] });
+  | (BaseFieldConfig & { kind: 'boolMap'; optionIds: string[] });
 
 export const newStringConfig = (questionId: string, validators: Validators): FieldConfig => {
   if (!isUuid(questionId)) {
@@ -35,7 +36,7 @@ export const newStringConfig = (questionId: string, validators: Validators): Fie
   };
 };
 
-export const newCheckboxConfig = (
+export const newBoolMapConfig = (
   questionId: string,
   validators: Validators,
   optionIds: string[],
@@ -44,9 +45,17 @@ export const newCheckboxConfig = (
     throw new Error(`Field name ${questionId} is not a valid UUID`);
   }
   return {
-    kind: 'checkbox',
+    kind: 'boolMap',
     questionId,
     required: validators.required,
     optionIds,
   };
+};
+
+export const collectQuestions = (formModel: FormModel): PageModel => {
+  let questions: PageModel = {};
+  for (const page of Object.values(formModel)) {
+    questions = { ...questions, ...page };
+  }
+  return questions;
 };

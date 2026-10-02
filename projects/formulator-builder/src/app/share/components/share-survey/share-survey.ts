@@ -1,5 +1,6 @@
 import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { DomainStore } from '../../../../domain/store/domain-store';
+import { newRSchema, validateNewRSchema } from '@formulator/schema';
 
 type ResponderField = 'email' | 'firstName' | 'lastName';
 
@@ -110,10 +111,21 @@ export class ShareSurvey {
       return;
     }
 
+    const schema = this.domainStore.activeSnap()?.schema;
+    if (!schema) {
+      this.errorMessage.set('No schema selected for publishing.');
+      return;
+    }
+    const rSchema = newRSchema(schema);
+    if (!validateNewRSchema(rSchema, schema)) {
+      this.errorMessage.set('Error preparing data for publishing.');
+      return;
+    }
+
     this.fieldErrors.set({});
     this.errorMessage.set(null);
     this.submitting.set(true);
-    this.domainStore.createSpills({ snapId, responders: validation.responders });
+    this.domainStore.createSpills({ snapId, rSchema, responders: validation.responders });
   }
 
   private resetForm(): void {

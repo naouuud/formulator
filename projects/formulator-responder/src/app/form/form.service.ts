@@ -1,21 +1,50 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, Injector, runInInjectionContext, signal } from '@angular/core';
-import { applyWhenValue, FieldTree, form, required, SchemaFn } from '@angular/forms/signals';
-import { Schema } from '@formulator/schema';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  applyWhenValue,
+  FieldTree,
+  form,
+  required,
+  requiredError,
+  SchemaFn,
+  validate,
+} from '@angular/forms/signals';
+import { RSchema, Schema, validateFinalRSchema } from '@formulator/schema';
+import { Router } from '@angular/router';
+import { catchError, EMPTY, exhaustMap, finalize, Subject, tap } from 'rxjs';
+import { SpillService } from '../../external/api/spill.service';
+import { AppStore } from '../app-store';
+import { isUuid } from '../../utils/is-uuid';
 import { schemaToFormConfig } from './form-config.mapper';
 import {
-  CheckboxRecord,
+  BoolMap,
   FormConfig,
   FormModel,
+  isBoolMapAnswer,
   isStringAnswer,
   PageModel,
 } from './form.model';
+import { formToRSchema } from './r-schema.mapper';
 import { validationMessages } from './validation-messages';
+
+export type SubmissionParameters = {
+  rSchemaTemplate: RSchema;
+  schema: Schema;
+};
 
 @Injectable()
 export class FormService {
+  private readonly injector = inject(Injector);
+  private readonly appStore = inject(AppStore);
+  private readonly spillService = inject(SpillService);
+  private readonly router = inject(Router);
+
   #formModel = signal<FormModel>({});
   #fieldTree: FieldTree<FormModel> | null = null;
   #initializedFor: Schema | null = null;
+
+  #submit$ = new Subject<void>();
 
   get fieldTree() {
     if (!this.#fieldTree) {
@@ -24,7 +53,47 @@ export class FormService {
     return this.#fieldTree;
   }
 
-  private readonly injector = inject(Injector);
+  constructor() {
+    this.#submit$
+      .pipe(
+        takeUntilDestroyed(),
+        exhaustMap(() => {
+          const spillId = this.appStore.spillId();
+          if (!isUuid(spillId)) {
+            this.appStore.setSubmissionError('Missing or invalid spill Id');
+            return EMPTY;
+          }
+          const rSchemaTemplate = this.appStore.rSchemaTemplate();
+          if (!rSchemaTemplate) {
+            this.appStore.setSubmissionError('No RSchema template found');
+            return EMPTY;
+          }
+          const schema = this.appStore.schema();
+          if (!schema) {
+            this.appStore.setSubmissionError('No active Schema found');
+            return EMPTY;
+          }
+          const rSchema = formToRSchema(this.#formModel(), rSchemaTemplate);
+          if (!validateFinalRSchema(rSchema, schema)) {
+            this.appStore.setSubmissionError('Invalid RSchema');
+            return EMPTY;
+          }
+          this.appStore.clearSubmissionError();
+          this.appStore.setSubmitting();
+          return this.spillService.updateSpill(spillId, rSchema).pipe(
+            tap(() => {
+              void this.router.navigate(['/', spillId, 'complete']);
+            }),
+            catchError((err: HttpErrorResponse) => {
+              this.appStore.setSubmissionError(`Submit error: ${err.message}`);
+              return EMPTY;
+            }),
+            finalize(() => this.appStore.clearSubmitting()),
+          );
+        }),
+      )
+      .subscribe();
+  }
 
   initialize(schema: Schema): void {
     if (schema === this.#initializedFor) return;
@@ -54,7 +123,7 @@ export class FormService {
   }
 
   asCheckboxOptionField(pageId: string, questionId: string, optionId: string) {
-    const questionTree = this.fieldTree[pageId][questionId] as FieldTree<CheckboxRecord>;
+    const questionTree = this.fieldTree[pageId][questionId] as FieldTree<BoolMap>;
     if (!questionTree) {
       throw new Error('Field not found in fieldTree');
     }
@@ -82,12 +151,12 @@ export class FormService {
           case 'string':
             pageModel[fieldConfig.questionId] = '';
             break;
-          case 'checkbox':
-            const checkBoxRecord: CheckboxRecord = {};
+          case 'boolMap':
+            const boolMap: BoolMap = {};
             for (const optionId of fieldConfig.optionIds) {
-              checkBoxRecord[optionId] = false;
+              boolMap[optionId] = false;
             }
-            pageModel[fieldConfig.questionId] = checkBoxRecord;
+            pageModel[fieldConfig.questionId] = boolMap;
             break;
         }
       }
@@ -107,9 +176,23 @@ export class FormService {
               required(stringPath, { message: validationMessages.required });
             }
           });
+          applyWhenValue(questionPath, isBoolMapAnswer, (boolMapPath) => {
+            if (fieldConfig.required) {
+              validate(boolMapPath, (ctx) => {
+                const hasSelection = Object.values(ctx.value()).some(Boolean);
+                if (hasSelection) {
+                  return undefined;
+                }
+                return requiredError({ message: 'Select at least one option.' });
+              });
+            }
+          });
         }
       }
     };
   }
 
+  submit(): void {
+    this.#submit$.next();
+  }
 }

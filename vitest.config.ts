@@ -12,10 +12,7 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    include: [
-      'projects/schema/**/*.spec.ts',
-      'projects/formulator-responder/src/**/*.spec.ts',
-    ],
+    include: ['projects/schema/**/*.spec.ts', 'projects/formulator-responder/src/**/*.spec.ts'],
     exclude: [
       'projects/formulator-builder/**/domain-store.spec.ts',
       'projects/formulator-responder/**/app.spec.ts',

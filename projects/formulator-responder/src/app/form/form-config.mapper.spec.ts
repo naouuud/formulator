@@ -66,7 +66,7 @@ describe('schemaToFormConfig', () => {
 
     expect(config[PAGE_ID]).toEqual([
       {
-        kind: 'checkbox',
+        kind: 'boolMap',
         questionId: CHECKBOX_Q_ID,
         required: true,
         optionIds: [OPT_A, OPT_B],

@@ -1,4 +1,4 @@
-@if (store.schemaLoading()) {
+@if (store.spillLoading()) {
   <div class="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">
     <div
       class="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center shadow-sm"
@@ -21,25 +21,46 @@
       <p class="mt-2 text-sm leading-relaxed text-slate-500">Please wait a moment…</p>
     </div>
   </div>
-} @else if (store.schemaLoadError()) {
+} @else if (spillLoadErrorView(); as errorView) {
   <div class="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">
     <div
       class="w-full max-w-md rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center shadow-sm"
     >
       <div
-        class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500"
+        class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+        [class.bg-red-50]="errorView.tone === 'danger'"
+        [class.text-red-500]="errorView.tone === 'danger'"
+        [class.bg-amber-50]="errorView.tone === 'warning'"
+        [class.text-amber-600]="errorView.tone === 'warning'"
+        [class.bg-slate-100]="errorView.tone === 'neutral'"
+        [class.text-slate-600]="errorView.tone === 'neutral'"
         aria-hidden="true"
       >
-        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 8v4M12 16h.01" stroke-linecap="round" />
-        </svg>
+        @if (errorView.tone === 'neutral') {
+          <svg
+            class="h-6 w-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        } @else {
+          <svg
+            class="h-6 w-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4M12 16h.01" stroke-linecap="round" />
+          </svg>
+        }
       </div>
-      <h1 class="text-lg font-semibold text-slate-900">Could not load this form</h1>
-      <p class="mt-2 text-sm leading-relaxed text-slate-500">
-        This link may be expired, invalid, or temporarily unavailable. Please check the link and try
-        again.
-      </p>
+      <h1 class="text-lg font-semibold text-slate-900">{{ errorView.title }}</h1>
+      <p class="mt-2 text-sm leading-relaxed text-slate-500">{{ errorView.body }}</p>
     </div>
   </div>
 } @else if (store.schema()) {

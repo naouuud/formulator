@@ -47,7 +47,7 @@
                     type="radio"
                     [id]="option.id"
                     [formField]="formService.asStringField(pageId(), questionElement().id)"
-                    [value]="option.value"
+                    [value]="option.id"
                     class="accent-violet-600"
                   />
                   <span class="text-sm text-slate-700">{{ option.label }}</span>
@@ -101,7 +101,7 @@
             >
               <option value="" disabled selected>Select an option</option>
               @for (option of question.options; track option.id) {
-                <option [value]="option.value">{{ option.label }}</option>
+                <option [value]="option.id">{{ option.label }}</option>
               }
             </select>
             @if (question.options.length === 0) {

@@ -1,11 +1,13 @@
 package httpapi
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -64,10 +66,9 @@ func (s *Server) Router() http.Handler {
 		r.Get("/", s.handleListSpills)
 		r.Post("/", s.handleCreateSpill)
 		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", s.handleGetSpill)
+			r.Patch("/", s.handleUpdateSpill)
 			r.Delete("/", s.handleDeleteSpill)
-			r.Route("/schema", func(r chi.Router) {
-				r.Get("/", s.handleGetSpillSchema)
-			})
 		})
 	})
 
@@ -400,11 +401,12 @@ func (s *Server) handleListSpills(w http.ResponseWriter, r *http.Request) {
 }
 
 type CreateSpillRequest struct {
-	SnapID    string     `json:"snapId"`
-	Email     string     `json:"email"`
-	FirstName string     `json:"firstName"`
-	LastName  string     `json:"lastName"`
-	SentAt    *time.Time `json:"sentAt"`
+	SnapID    string          `json:"snapId"`
+	Email     string          `json:"email"`
+	RSchema   json.RawMessage `json:"rSchema"`
+	FirstName string          `json:"firstName"`
+	LastName  string          `json:"lastName"`
+	SentAt    *time.Time      `json:"sentAt"`
 }
 
 func (s *Server) handleCreateSpill(w http.ResponseWriter, r *http.Request) {
@@ -413,23 +415,37 @@ func (s *Server) handleCreateSpill(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
 		return
 	}
+
 	var req CreateSpillRequest
 	if err := json.Unmarshal(body, &req); err != nil {
 		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
 		return
 	}
+
 	if req.SnapID == "" || req.Email == "" {
 		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("snapId and email are required"))
 		return
 	}
+
 	parsedID, err := api.ParseUUID(req.SnapID)
 	if err != nil {
 		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail("snapId must be a valid UUID"))
 		return
 	}
+
+	rSchema, detail, ok := validateRSchemaJSON(req.RSchema)
+	if !ok {
+		if detail == "" {
+			writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
+		} else {
+			writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail(detail))
+		}
+		return
+	}
+
 	sentAt := api.TimePtrToPgTimestamptzDefaultNow(req.SentAt)
 
-	spill, err := s.store.CreateSpill(r.Context(), parsedID, req.Email, req.FirstName, req.LastName, sentAt)
+	spill, err := s.store.CreateSpill(r.Context(), parsedID, rSchema, req.Email, req.FirstName, req.LastName, sentAt)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
 			writeJSON(w, http.StatusNotFound, apperrors.SnapNotFound(req.SnapID))
@@ -441,6 +457,63 @@ func (s *Server) handleCreateSpill(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusCreated, spill)
+}
+
+func (s *Server) handleUpdateSpill(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	parsedID := checkUUID(w, id, "id")
+	if !parsedID.Valid {
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
+		return
+	}
+
+	rSchema, detail, ok := parseUpdateSpillRequestBody(body)
+	if !ok {
+		if detail == "" {
+			writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBody())
+		} else {
+			writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestBodyDetail(detail))
+		}
+		return
+	}
+
+	spill, err := s.store.UpdateSpill(r.Context(), parsedID, rSchema)
+	if err != nil {
+		if !errors.Is(err, store.ErrNotFound) {
+			s.logger.Error("update spill", "err", err)
+			writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+			return
+		}
+
+		spill, err := s.store.GetSpill(r.Context(), parsedID)
+		if err != nil {
+			if errors.Is(err, store.ErrNotFound) {
+				writeJSON(w, http.StatusNotFound, apperrors.SpillNotFound(id))
+				return
+			}
+			s.logger.Error("get spill", "err", err)
+			writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+			return
+		}
+		if spill.CompletedAt != nil {
+			writeJSON(w, http.StatusConflict, apperrors.SpillCompleted(id))
+			return
+		}
+		if spill.ExpiredAt != nil && !spill.ExpiredAt.After(time.Now()) {
+			writeJSON(w, http.StatusGone, apperrors.SpillExpired(id))
+			return
+		}
+		s.logger.Error("update spill", "error", err)
+		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
+		return
+	}
+
+	writeJSON(w, http.StatusOK, spill)
 }
 
 func (s *Server) handleDeleteSpill(w http.ResponseWriter, r *http.Request) {
@@ -463,60 +536,81 @@ func (s *Server) handleDeleteSpill(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (s *Server) handleGetSpillSchema(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleGetSpill(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	parsedID := checkUUID(w, id, "id")
 	if !parsedID.Valid {
 		return
 	}
 
-	schema, err := s.store.GetSpillSchema(r.Context(), parsedID)
+	withFormSchema, err := parseSchemaQueryParam(r)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, apperrors.InvalidRequestDetail("schema must be true or false"))
+		return
+	}
+
+	if withFormSchema {
+		payload, err := s.store.GetSpillWithFormSchema(r.Context(), parsedID)
+		if err != nil {
+			writeGetSpillWithFormSchemaError(w, id, err, s.logger)
+			return
+		}
+		writeJSON(w, http.StatusOK, payload)
+		return
+	}
+
+	spill, err := s.store.GetSpill(r.Context(), parsedID)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
 			writeJSON(w, http.StatusNotFound, apperrors.SpillNotFound(id))
 			return
 		}
-		if errors.Is(err, store.ErrSpillCompleted) {
-			writeJSON(w, http.StatusConflict, apperrors.ProblemDetail{
-				Status: 409,
-				Title:  "Spill completed",
-				Detail: "Spill with id " + id + " has already been completed.",
-				Code:   apperrors.CodeSpillCompleted,
-			})
-      return
-		}
-		if errors.Is(err, store.ErrSpillExpired) {
-			writeJSON(w, http.StatusGone, apperrors.ProblemDetail{
-				Status: 410,
-				Title:  "Spill expired",
-				Detail: "Spill with id " + id + " has expired.",
-				Code:   apperrors.CodeSpillExpired,
-			})
-      return
-		}
-		if errors.Is(err, store.ErrCannotResolveSnap) {
-			writeJSON(w, http.StatusNotFound, apperrors.ProblemDetail{
-				Status: 404,
-				Title:  "Snap not found",
-				Detail: "Unable to resolve snap for spill with id " + id + ".",
-				Code:   apperrors.CodeSnapNotFound,
-			})
-      return
-		}
-		s.logger.Error("get spill schema", "error", err)
+		s.logger.Error("get spill", "error", err)
 		writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 		return
 	}
 
-  w.Header().Set("Content-Type", "application/json")
-  w.WriteHeader(http.StatusOK)
-  w.Write(schema)
+	writeJSON(w, http.StatusOK, spill)
+}
+
+func parseSchemaQueryParam(r *http.Request) (bool, error) {
+	raw := r.URL.Query().Get("schema")
+	if raw == "" {
+		return false, nil
+	}
+	return strconv.ParseBool(raw)
+}
+
+func writeGetSpillWithFormSchemaError(w http.ResponseWriter, id string, err error, logger *slog.Logger) {
+	if errors.Is(err, store.ErrNotFound) {
+		writeJSON(w, http.StatusNotFound, apperrors.SpillNotFound(id))
+		return
+	}
+	if errors.Is(err, store.ErrSpillCompleted) {
+		writeJSON(w, http.StatusConflict, apperrors.SpillCompleted(id))
+		return
+	}
+	if errors.Is(err, store.ErrSpillExpired) {
+		writeJSON(w, http.StatusGone, apperrors.SpillExpired(id))
+		return
+	}
+	if errors.Is(err, store.ErrCannotResolveSnap) {
+		writeJSON(w, http.StatusNotFound, apperrors.ProblemDetail{
+			Status: 404,
+			Title:  "Snap not found",
+			Detail: "Unable to resolve snap for spill with id " + id + ".",
+			Code:   apperrors.CodeSnapNotFound,
+		})
+		return
+	}
+	logger.Error("get spill with form schema", "error", err)
+	writeJSON(w, http.StatusInternalServerError, apperrors.InternalError())
 }
 
 func (s *Server) corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", s.corsOrigin)
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
 
 		if r.Method == http.MethodOptions {
@@ -526,6 +620,41 @@ func (s *Server) corsMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// parseUpdateSpillRequestBody validates PATCH /spills/{id} JSON per OpenAPI UpdateSpillRequest.
+// Returns (rSchema, detail, true) on success. On failure, detail is empty for generic invalid body.
+func parseUpdateSpillRequestBody(body []byte) (json.RawMessage, string, bool) {
+	dec := json.NewDecoder(bytes.NewReader(body))
+	dec.DisallowUnknownFields()
+
+	var payload struct {
+		RSchema json.RawMessage `json:"rSchema"`
+	}
+	if err := dec.Decode(&payload); err != nil {
+		return nil, "", false
+	}
+	if err := dec.Decode(&struct{}{}); err != io.EOF {
+		return nil, "", false
+	}
+
+	return validateRSchemaJSON(payload.RSchema)
+}
+
+func validateRSchemaJSON(j json.RawMessage) (json.RawMessage, string, bool) {
+	if len(j) == 0 {
+		return nil, "rSchema is required.", false
+	}
+	if !json.Valid(j) {
+		return nil, "rSchema must be valid JSON.", false
+	}
+
+	trimmed := bytes.TrimSpace(j)
+	if len(trimmed) == 0 || trimmed[0] != '{' {
+		return nil, "rSchema must be a JSON object.", false
+	}
+
+	return j, "", true
 }
 
 func checkUUID(w http.ResponseWriter, id string, field string) (parsedID pgtype.UUID) {

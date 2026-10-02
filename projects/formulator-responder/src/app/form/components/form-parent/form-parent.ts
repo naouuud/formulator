@@ -1,7 +1,8 @@
 import { Component, computed, effect, inject, untracked } from '@angular/core';
-import { AppStore } from '../../../../store/app-store';
+import { AppStore } from '../../../app-store';
 import { FormService } from '../../form.service';
 import { FormPage } from '../form-page/form-page';
+import { newRSchema } from '@formulator/schema';
 
 @Component({
   selector: 'form-parent',
@@ -70,6 +71,12 @@ export class FormParent {
       console.error('an error occurred');
       return;
     }
-    console.log('form submitted');
+    // replace with fetched RSchema
+    const rSchema = this.store.spillWithSchema()?.rSchema;
+    if (!rSchema) {
+      console.error('missing rSchema');
+      return;
+    }
+    this.formService.submit();
   }
 }

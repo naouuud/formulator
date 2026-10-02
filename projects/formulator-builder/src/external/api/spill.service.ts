@@ -5,9 +5,11 @@ import { ENV } from '../../app/env';
 import { SpillMetaData } from '../../domain/model/spill-metadata';
 import { SpillMetaDataDto } from '../../domain/model/wire/spill.dto';
 import { parseSpillMetaData } from '../../domain/model/wire/spill.mapper';
+import { RSchema } from '@formulator/schema';
 
 export type CreateSpillRequest = {
   snapId: string;
+  rSchema: RSchema;
   email: string;
   firstName?: string;
   lastName?: string;

@@ -303,11 +303,10 @@ paths:
       description: |
         Creates a unique response collection record for a responder.
 
-        - Request body must provide `snapId` and `email` (responder's email).
+        - Request body must provide `snapId`, `email` (responder's email) and valid `rSchema`.
         - Optionally, `firstName` and `lastName` (of responder) can be provided.
-        - Creates `rSchema` (response schema)  holding references to schema questions by id and answers initialized to empty string.
-        - Originating schema is inferred from `snapId`, no clone is created.
-        - Properties `lastModifiedAt` and `completedAt` are initialized to null.
+        - Form `schema` is not copied onto the spill; it is resolved from `snapId` when needed.
+        - `lastModifiedAt` and `completedAt` are null until the spill is submitted (`PATCH /spills/{id}`).
         - Spill `id` acts as the unique token when sharing the spill instance with responder.
       requestBody:
         required: true
@@ -331,51 +330,41 @@ paths:
     parameters:
       - $ref: '#/components/parameters/SpillId'
 
-    delete:
-      tags:
-        - Spills
-      operationId: deleteSpill
-      summary: Delete spill
-      responses:
-        '204':
-          description: Spill deleted
-        '400':
-          $ref: '#/components/responses/InvalidRequest'
-        '404':
-          $ref: '#/components/responses/SpillNotFound'
-
-  /spills/{id}/schema:
-    parameters:
-      - $ref: '#/components/parameters/SpillId'
-
     get:
       tags:
         - Spills
-      operationId: getSpillSchema
-      summary: Retrieve published schema for this spill's snap
+      operationId: getSpill
+      summary: Retrieve a spill
       description: |
-        Resolves the immutable published schema for this spill's snap.
+        Returns the spill record (`SpillDto`), including `rSchema`.
 
-        The spill does not store a schema. The form definition is loaded from
-        the snap referenced by `snapId`. Soft-closed snaps remain resolvable
-        so existing share links still work.
+        When query parameter `schema` is `true`, the response also includes the
+        immutable published form `schema` from the snap referenced by `snapId`
+        (`SpillWithSchemaDto`). The spill row does not store the form definition;
+        `schema` is resolved via join to the snap. Soft-closed snaps remain
+        resolvable so existing share links still work.
 
-        Returns 409 with code 'SPILL_COMPLETED' if spill's `completedAt` value is non-null,
-        and 410 with code 'SPILL_EXPIRED' if spill `expiredAt` is non-null and in the past.
-        If both conditions are true, 409 is returned.
+        Responder clients should use `schema=true`. That mode returns **409**
+        (`SPILL_COMPLETED`) when `completedAt` is non-null and **410**
+        (`SPILL_EXPIRED`) when `expiredAt` is in the past (409 wins if both).
+        Without `schema=true`, completed or expired spills are returned normally.
+      parameters:
+        - $ref: '#/components/parameters/SpillSchemaQuery'
       responses:
         '200':
-          description: Published schema
+          description: Spill (optionally with published form schema)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Schema'
-
+                oneOf:
+                  - $ref: '#/components/schemas/SpillDto'
+                  - $ref: '#/components/schemas/SpillWithSchemaDto'
         '400':
           $ref: '#/components/responses/InvalidRequest'
-
         '404':
-          description: Spill not found, or its snap is not resolvable
+          description: |
+            Spill not found. With `schema=true`, also returned when the spill exists but
+            its snap or published form `schema` cannot be resolved (see `SNAP_NOT_FOUND`).
           content:
             application/json:
               schema:
@@ -384,13 +373,73 @@ paths:
                 spillNotFound:
                   $ref: '#/components/examples/spillNotFound'
                 snapNotFound:
-                  summary: Snap not found
+                  summary: Snap not found (`schema=true` only)
                   value:
                     status: 404
                     title: Snap not found
                     detail: Unable to resolve snap for spill with id 00000000-0000-0000-0000-000000000000.
                     code: SNAP_NOT_FOUND
+        '409':
+          description: Spill has been completed (`schema=true` only)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                spillCompleted:
+                  value:
+                    status: 409
+                    title: Spill completed
+                    detail: Spill with id 00000000-0000-0000-0000-000000000000 has already been completed.
+                    code: SPILL_COMPLETED
+        '410':
+          description: Spill has expired (`schema=true` only)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              examples:
+                spillExpired:
+                  value:
+                    status: 410
+                    title: Spill expired
+                    detail: Spill with id 00000000-0000-0000-0000-000000000000 has expired.
+                    code: SPILL_EXPIRED
 
+    patch:
+      tags:
+        - Spills
+      operationId: updateSpill
+      summary: Update spill
+      description: |
+        Submits the spill response. Body must contain one property only: `rSchema`.
+
+        This API version allows **one submission per spill**. On success the server persists
+        `rSchema`, sets `lastModifiedAt` and `completedAt` to the same timestamp, and rejects
+        any later update attempts with **409 Conflict** (`SPILL_COMPLETED`). Save-and-resume is
+        planned for a later vertical slice; there is no partial-save path in this version.
+
+        `rSchema` is not validated on the server; correctness is enforced by the responder client.
+
+        Returns **410 Gone** when `expiredAt` is non-null and in the past (`SPILL_EXPIRED`).
+        If the spill is both completed and expired, **409** is returned.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSpillRequest'
+      responses:
+        '200':
+          description: Spill updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpillDto'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/SpillNotFound'
         '409':
           description: Spill has been completed
           content:
@@ -404,7 +453,6 @@ paths:
                     title: Spill completed
                     detail: Spill with id 00000000-0000-0000-0000-000000000000 has already been completed.
                     code: SPILL_COMPLETED
-
         '410':
           description: Spill has expired
           content:
@@ -418,6 +466,19 @@ paths:
                     title: Spill expired
                     detail: Spill with id 00000000-0000-0000-0000-000000000000 has expired.
                     code: SPILL_EXPIRED
+
+    delete:
+      tags:
+        - Spills
+      operationId: deleteSpill
+      summary: Delete spill
+      responses:
+        '204':
+          description: Spill deleted
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '404':
+          $ref: '#/components/responses/SpillNotFound'
 
 components:
   responses:
@@ -473,6 +534,12 @@ components:
                 status: 400
                 title: Invalid request body
                 detail: snapId must be a valid UUID.
+                code: INVALID_REQUEST
+            missingSpillId:
+              value:
+                status: 400
+                title: Invalid request
+                detail: spillId is required.
                 code: INVALID_REQUEST
 
     InternalError:
@@ -621,6 +688,17 @@ components:
         type: string
         format: uuid
 
+    SpillSchemaQuery:
+      name: schema
+      in: query
+      required: false
+      description: |
+        When `true`, join the published form `schema` from the spill's snap
+        (`SpillWithSchemaDto`) and apply responder open-state checks (409/410).
+      schema:
+        type: boolean
+        default: false
+
   schemas:
     SpreadMetaDataDto:
       type: object
@@ -711,19 +789,6 @@ components:
           type: string
           format: date-time
           nullable: true
-
-    Schema:
-      type: object
-      required:
-        - title
-        - pages
-      properties:
-        title:
-          type: string
-        pages:
-          type: array
-          items:
-            $ref: '#/components/schemas/Page'
 
     CreateSnapRequest:
       type: object
@@ -816,6 +881,7 @@ components:
       required:
         - snapId
         - email
+        - rSchema
       properties:
         snapId:
           type: string
@@ -825,6 +891,8 @@ components:
           type: string
           format: email
           description: Responder email
+        rSchema:
+          $ref: '#/components/schemas/RSchema'
         firstName:
           type: string
           description: Optional. Responder first name.
@@ -835,6 +903,16 @@ components:
           type: string
           format: date-time
           description: Optional. Defaults to now (immediate send) when omitted.
+
+    UpdateSpillRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - rSchema
+      properties:
+        rSchema:
+          $ref: '#/components/schemas/RSchema'
+
     SpillMetaDataDto:
       type: object
       required:
@@ -886,6 +964,91 @@ components:
           format: date-time
           nullable: true
           description: Reserved; null on create until scheduling slice.
+
+    SpillWithSchemaDto:
+      description: |
+        Full spill record for response collection, plus the published form definition
+        from the spill's snap (`schema`). Same fields as `SpillDto` with an additional
+        `schema` property.
+      allOf:
+        - $ref: '#/components/schemas/SpillDto'
+        - type: object
+          additionalProperties: false
+          required:
+            - schema
+          properties:
+            schema:
+              $ref: '#/components/schemas/Schema'
+              description: Published form definition from the spill's snap.
+
+    SpillDto:
+      type: object
+      required:
+        - id
+        - snapId
+        - firstName
+        - lastName
+        - email
+        - rSchema
+        - createdAt
+        - lastModifiedAt
+        - completedAt
+        - sentAt
+        - expiredAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        snapId:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+          description: Responder first name, can be empty string.
+        lastName:
+          type: string
+          description: Responder last name, can be empty string.
+        email:
+          type: string
+          format: email
+          description: Responder email for spill sharing.
+        rSchema:
+          $ref: '#/components/schemas/RSchema'
+          description: Response schema
+        createdAt:
+          type: string
+          format: date-time
+        lastModifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Last modification by responder; null on create.
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        sentAt:
+          type: string
+          format: date-time
+          description: Set on create (immediate send) or supplied for scheduled send.
+        expiredAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Reserved; null on create until scheduling slice.
+
+    Schema:
+      type: object
+      required:
+        - title
+        - pages
+      properties:
+        title:
+          type: string
+        pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Page'
 
     Page:
       type: object
@@ -1057,6 +1220,52 @@ components:
           type: integer
           minimum: 0
 
+    RSchema:
+      type: object
+      required:
+        - responses
+      properties:
+        responses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Response'
+
+    Response:
+      description: |
+        One entry per question in the published schema. Text-like questions use `value`;
+        select, radio, and checkbox questions use `optionBoolMap`.
+      oneOf:
+        - type: object
+          additionalProperties: false
+          required:
+            - questionId
+            - value
+          properties:
+            questionId:
+              type: string
+              format: uuid
+            value:
+              type: string
+        - type: object
+          additionalProperties: false
+          required:
+            - questionId
+            - optionBoolMap
+          properties:
+            questionId:
+              type: string
+              format: uuid
+            optionBoolMap:
+              $ref: '#/components/schemas/OptionBoolMap'
+
+    OptionBoolMap:
+      type: object
+      propertyNames:
+        type: string
+        description: Option id
+      additionalProperties:
+        type: boolean
+
     ProblemDetail:
       type: object
       required:
@@ -1083,6 +1292,8 @@ components:
             - INVALID_REQUEST
             - INTERNAL_ERROR
             - CONFLICT
+            - SPILL_COMPLETED
+            - SPILL_EXPIRED
           description: Machine-readable error code
 
     VersionConflictDetail:

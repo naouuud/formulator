@@ -1,5 +1,5 @@
-import { isOptionsQuestion, Schema } from '@formulator/schema';
-import { FormConfig, newCheckboxConfig, newStringConfig } from './form.model';
+import { Schema } from '@formulator/schema';
+import { FormConfig, newBoolMapConfig, newStringConfig } from './form.model';
 
 export function schemaToFormConfig(schema: Schema): FormConfig {
   const formConfig: FormConfig = {};
@@ -13,7 +13,7 @@ export function schemaToFormConfig(schema: Schema): FormConfig {
         case 'select':
           return newStringConfig(q.id, q.el.validators);
         case 'checkbox':
-          return newCheckboxConfig(
+          return newBoolMapConfig(
             q.id,
             q.el.validators,
             q.el.options.map((o) => o.id),

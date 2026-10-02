@@ -288,6 +288,18 @@ func (s *Store) DeleteSnap(ctx context.Context, id pgtype.UUID) error {
 	return nil
 }
 
+func (s *Store) GetSpill(ctx context.Context, spillID pgtype.UUID) (api.SpillDto, error) {
+	row, err := s.queries.GetSpill(ctx, spillID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return api.SpillDto{}, ErrNotFound
+		}
+		return api.SpillDto{}, err
+	}
+
+	return api.SpillDtoFromSpill(row), nil
+}
+
 func (s *Store) ListSpillMetaData(ctx context.Context, snapID pgtype.UUID) ([]api.SpillMetaDataDto, error) {
 	rows, err := s.queries.ListSpillMetaDataBySnapId(ctx, snapID)
 	if err != nil {
@@ -302,7 +314,7 @@ func (s *Store) ListSpillMetaData(ctx context.Context, snapID pgtype.UUID) ([]ap
 	return spillMetaData, nil
 }
 
-func (s *Store) CreateSpill(ctx context.Context, snapID pgtype.UUID, email, firstName, lastName string, sentAt pgtype.Timestamptz) (api.SpillMetaDataDto, error) {
+func (s *Store) CreateSpill(ctx context.Context, snapID pgtype.UUID, rSchema json.RawMessage, email, firstName, lastName string, sentAt pgtype.Timestamptz) (api.SpillMetaDataDto, error) {
 	_, err := s.queries.GetSnap(ctx, snapID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -312,7 +324,6 @@ func (s *Store) CreateSpill(ctx context.Context, snapID pgtype.UUID, email, firs
 	}
 
 	id := uuid.New()
-	rSchema := []byte("{}")
 	spill, err := s.queries.CreateSpill(ctx, db.CreateSpillParams{
 		ID:        pgtype.UUID{Bytes: id, Valid: true},
 		SnapID:    snapID,
@@ -329,6 +340,21 @@ func (s *Store) CreateSpill(ctx context.Context, snapID pgtype.UUID, email, firs
 	return api.SpillMetaDataDtoFromCreate(spill), nil
 }
 
+func (s *Store) UpdateSpill(ctx context.Context, spillID pgtype.UUID, rSchema json.RawMessage) (api.SpillDto, error) {
+	row, err := s.queries.UpdateSpill(ctx, db.UpdateSpillParams{
+		ID:      spillID,
+		RSchema: rSchema,
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return api.SpillDto{}, ErrNotFound
+		}
+		return api.SpillDto{}, err
+	}
+
+	return api.SpillDtoFromSpill(row), nil
+}
+
 func (s *Store) DeleteSpill(ctx context.Context, spillID pgtype.UUID) error {
 	rows, err := s.queries.DeleteSpill(ctx, spillID)
 	if err != nil {
@@ -342,27 +368,27 @@ func (s *Store) DeleteSpill(ctx context.Context, spillID pgtype.UUID) error {
 	return nil
 }
 
-func (s *Store) GetSpillSchema(ctx context.Context, spillID pgtype.UUID) (json.RawMessage, error) {
-	spill, err := s.queries.GetSpill(ctx, spillID)
+func (s *Store) GetSpillWithFormSchema(ctx context.Context, spillID pgtype.UUID) (api.SpillWithSchemaDto, error) {
+	row, err := s.queries.GetSpillWithSnapSchema(ctx, spillID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrNotFound
+			return api.SpillWithSchemaDto{}, ErrNotFound
 		}
+		return api.SpillWithSchemaDto{}, err
 	}
 
-	if completedAt := api.TimestamptzToPtr(spill.CompletedAt); completedAt != nil {
-		return nil, ErrSpillCompleted
+	if completedAt := api.TimestamptzToPtr(row.CompletedAt); completedAt != nil {
+		return api.SpillWithSchemaDto{}, ErrSpillCompleted
 	}
-	if expiredAt := api.TimestamptzToPtr(spill.ExpiredAt); expiredAt != nil && !expiredAt.After(time.Now()) {
-		return nil, ErrSpillExpired
-	}
-
-	snap, err := s.queries.GetSnap(ctx, spill.SnapID)
-	if err != nil {
-		return nil, ErrCannotResolveSnap
+	if expiredAt := api.TimestamptzToPtr(row.ExpiredAt); expiredAt != nil && !expiredAt.After(time.Now()) {
+		return api.SpillWithSchemaDto{}, ErrSpillExpired
 	}
 
-	return snap.Schema, nil
+	if len(row.SnapSchema) == 0 {
+		return api.SpillWithSchemaDto{}, ErrCannotResolveSnap
+	}
+
+	return api.SpillWithSchemaDtoFromRow(row), nil
 }
 
 type VersionConflictError struct {

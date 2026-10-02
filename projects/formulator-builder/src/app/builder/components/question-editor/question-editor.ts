@@ -14,6 +14,7 @@ export class QuestionEditor {
   protected readonly labelValue = computed(() => String(this.element().el.label));
   protected readonly requiredValue = computed(() => this.element().el.validators.required);
   protected readonly isOptionsQuestion = isOptionsQuestion;
+  protected readonly isCheckboxQuestion = computed(() => this.element().el.htmlType === 'checkbox');
 
   protected onLabelInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;

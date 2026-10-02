@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -124,6 +125,60 @@ func (q *Queries) GetSpill(ctx context.Context, id pgtype.UUID) (Spill, error) {
 	return i, err
 }
 
+const getSpillWithSnapSchema = `-- name: GetSpillWithSnapSchema :one
+SELECT
+    sp.id,
+    sp.snap_id,
+    sp.first_name,
+    sp.last_name,
+    sp.email,
+    sp.r_schema,
+    sp.created_at,
+    sp.last_modified_at,
+    sp.completed_at,
+    sp.sent_at,
+    sp.expired_at,
+    sn.schema AS snap_schema
+FROM spills sp
+LEFT JOIN snaps sn ON sn.id = sp.snap_id
+WHERE sp.id = $1
+`
+
+type GetSpillWithSnapSchemaRow struct {
+	ID             pgtype.UUID        `json:"id"`
+	SnapID         pgtype.UUID        `json:"snap_id"`
+	FirstName      string             `json:"first_name"`
+	LastName       string             `json:"last_name"`
+	Email          string             `json:"email"`
+	RSchema        []byte             `json:"r_schema"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	LastModifiedAt pgtype.Timestamptz `json:"last_modified_at"`
+	CompletedAt    pgtype.Timestamptz `json:"completed_at"`
+	SentAt         pgtype.Timestamptz `json:"sent_at"`
+	ExpiredAt      pgtype.Timestamptz `json:"expired_at"`
+	SnapSchema     json.RawMessage    `json:"snap_schema"`
+}
+
+func (q *Queries) GetSpillWithSnapSchema(ctx context.Context, id pgtype.UUID) (GetSpillWithSnapSchemaRow, error) {
+	row := q.db.QueryRow(ctx, getSpillWithSnapSchema, id)
+	var i GetSpillWithSnapSchemaRow
+	err := row.Scan(
+		&i.ID,
+		&i.SnapID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.RSchema,
+		&i.CreatedAt,
+		&i.LastModifiedAt,
+		&i.CompletedAt,
+		&i.SentAt,
+		&i.ExpiredAt,
+		&i.SnapSchema,
+	)
+	return i, err
+}
+
 const listSpillMetaDataBySnapId = `-- name: ListSpillMetaDataBySnapId :many
 SELECT
     id,
@@ -183,4 +238,51 @@ func (q *Queries) ListSpillMetaDataBySnapId(ctx context.Context, snapID pgtype.U
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateSpill = `-- name: UpdateSpill :one
+UPDATE spills
+SET
+    r_schema = $2,
+    last_modified_at = NOW(),
+    completed_at = NOW()
+WHERE id = $1
+  AND completed_at IS NULL
+  AND (expired_at IS NULL OR expired_at > NOW())
+RETURNING
+    id,
+    snap_id,
+    first_name,
+    last_name,
+    email,
+    r_schema,
+    created_at,
+    last_modified_at,
+    completed_at,
+    sent_at,
+    expired_at
+`
+
+type UpdateSpillParams struct {
+	ID      pgtype.UUID `json:"id"`
+	RSchema []byte      `json:"r_schema"`
+}
+
+func (q *Queries) UpdateSpill(ctx context.Context, arg UpdateSpillParams) (Spill, error) {
+	row := q.db.QueryRow(ctx, updateSpill, arg.ID, arg.RSchema)
+	var i Spill
+	err := row.Scan(
+		&i.ID,
+		&i.SnapID,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.RSchema,
+		&i.CreatedAt,
+		&i.LastModifiedAt,
+		&i.CompletedAt,
+		&i.SentAt,
+		&i.ExpiredAt,
+	)
+	return i, err
 }

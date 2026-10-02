@@ -114,6 +114,24 @@ func SpreadIdMismatch() ProblemDetail {
 	}
 }
 
+func SpillCompleted(id string) ProblemDetail {
+	return ProblemDetail{
+		Status: 409,
+		Title:  "Spill completed",
+		Detail: "Spill with id " + id + " has already been completed.",
+		Code:   CodeSpillCompleted,
+	}
+}
+
+func SpillExpired(id string) ProblemDetail {
+	return ProblemDetail{
+		Status: 410,
+		Title:  "Spill expired",
+		Detail: "Spill with id " + id + " has expired.",
+		Code:   CodeSpillExpired,
+	}
+}
+
 func VersionConflict(expectedVersion, actualVersion int32) VersionConflictDetail {
 	return VersionConflictDetail{
 		ProblemDetail: ProblemDetail{

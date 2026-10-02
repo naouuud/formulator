@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject } from '@angular/core';
-import { CreateElementParams, newElement, newOption, newPage } from '@formulator/schema';
+import { CreateElementParams, newElement, newOption, newPage, RSchema } from '@formulator/schema';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { produce } from 'immer';
@@ -237,10 +237,11 @@ export const DomainStore = signalStore(
 
         createSpills: rxMethod<{
           snapId: string;
+          rSchema: RSchema;
           responders: { email: string; firstName?: string; lastName?: string }[];
         }>(
           pipe(
-            exhaustMap(({ snapId, responders }) => {
+            exhaustMap(({ snapId, rSchema, responders }) => {
               if (!responders.length) return EMPTY;
               patchState(store, {
                 createSpillsLoading: true,
@@ -251,6 +252,7 @@ export const DomainStore = signalStore(
                 responders.map((responder) =>
                   spillService.create({
                     snapId,
+                    rSchema,
                     email: responder.email,
                     firstName: responder.firstName,
                     lastName: responder.lastName,

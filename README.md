@@ -2,7 +2,7 @@
 
 A web-based form builder for creating multi-page surveys and questionnaires. Authors design **spreads** in the builder, publish **snaps** (immutable snapshots), and send **spills** (per-recipient links). Respondents open a spill URL and fill the form in a separate app.
 
-> **Status:** Active development. The builder and Go API support spreads, snaps, and spills end to end. The **responder** loads a spill’s schema from the API and renders most question types with Angular signal forms; **submission** (persisting `RSchema`) and richer error handling for completed/expired spills are still in progress.
+> **Status:** Active development. The **builder** and **Go API** support spreads, snaps, and spills end to end (create, list, publish, share, submit). The **responder** loads a spill from the API (`GET /spills/{id}?schema=true`), renders text/select/radio/checkbox questions and notes with Angular signal forms, validates **`RSchema`** client-side, submits via **`PATCH /spills/{id}`**, and routes to a thank-you page. Load failures (missing, completed, expired, server error) show dedicated status screens. **Save-and-resume**, hydrating in-progress answers from `rSchema` on load, and server-side semantic validation of `RSchema` are not implemented yet.
 
 ---
 
@@ -11,21 +11,29 @@ A web-based form builder for creating multi-page surveys and questionnaires. Aut
 | App                      | npm script                | Dev URL               | Role                                                                                             |
 | ------------------------ | ------------------------- | --------------------- | ------------------------------------------------------------------------------------------------ |
 | **formulator-builder**   | `npm run start:builder`   | http://localhost:4200 | Build workspace (canvas, JSON/rendered preview) and Share workspace (snaps, spills, send survey) |
-| **formulator-responder** | `npm run start:responder` | http://localhost:4222 | Public form filler at `/:spillId`                                                                |
+| **formulator-responder** | `npm run start:responder` | http://localhost:4222 | Public form filler: `/:spillId` (form), `/:spillId/complete` (after submit)                      |
 
-Both apps share **`@formulator/schema`** (`projects/schema`) for form structure types and helpers.
+Both apps share **`@formulator/schema`** (`projects/schema`) for the spread document model, **`RSchema`** / response helpers, and validation (`validateNewRSchema`, `validateFinalRSchema`, option bool-map rules).
 
 ---
 
 ## Domain model
 
-| Term       | Meaning                                                                                                          |
-| ---------- | ---------------------------------------------------------------------------------------------------------------- |
-| **Spread** | Editable draft form (title, pages, questions, notes). Stored with optimistic concurrency (`version`).            |
-| **Snap**   | Published snapshot of a spread’s schema at a point in time. Used when creating spills.                           |
-| **Spill**  | A single recipient instance tied to a snap (email, names, sent time). The responder route uses the spill **id**. |
+| Term       | Meaning                                                                                                               |
+| ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Spread** | Editable draft form (title, pages, questions, notes). Stored with optimistic concurrency (`version`).                 |
+| **Snap**   | Published snapshot of a spread’s schema at a point in time. Used when creating spills.                                |
+| **Spill**  | A single recipient instance tied to a snap (email, names, `rSchema`, sent time). The spill **id** is the share token. |
 
-The HTTP API is defined in **`api/openapi.yaml`** (and generated **`api/openapi.json`**). Notable responder endpoint: **`GET /spills/{id}/schema`** — returns the snap’s schema for an open spill (404/409/410 when missing, completed, or expired).
+The HTTP API is defined in **`api/openapi.yaml`** (and **`api/openapi.json`**).
+
+| Method  | Path                       | Typical use                                                                                                          |
+| ------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `GET`   | `/spills/{id}?schema=true` | Responder: spill metadata + `rSchema` + published form **`schema`** from the snap (409 if completed, 410 if expired) |
+| `PATCH` | `/spills/{id}`             | Responder: one-shot submit `{ rSchema }` (sets `completedAt`)                                                        |
+| `POST`  | `/spills`                  | Builder share: create spill with `snapId`, `email`, initial `rSchema`                                                |
+
+Plain `GET /spills/{id}` (without `schema=true`) returns **`SpillDto`** only—useful for metadata without joining the snap’s form definition.
 
 ---
 
@@ -50,9 +58,16 @@ The HTTP API is defined in **`api/openapi.yaml`** (and generated **`api/openapi.
 
 **Builder** — Angular UI over **DomainStore** (spreads, snaps, spills, autosave) and **UiStore** (workspace, modals, selection). HTTP clients live under `projects/formulator-builder/src/external/api/`. Mock data is available via an HTTP interceptor when `APP_MODE` is `mock`.
 
-**Responder** — Route `/:spillId` → guard → **AppShell** → **AppStore** (hand-rolled `@Injectable` with private signals—not NgRx Signal Store) loads schema via **SpillService** (`external/api/`). **`app/form/`** (**FormParent** + component-scoped **FormService**) builds the signal form from the schema. Mock data uses an HTTP interceptor when `APP_MODE` is `mock`. Notes and questions (text, select, radio, checkbox) are rendered; validation currently focuses on **required** fields.
+**Responder** — Routes: **`/:spillId`** (form), **`/:spillId/complete`** (post-submit), **`/`** and unknown paths → **invalid link**. **`spillIdGuard`** validates the UUID param before the shell loads.
 
-**Backend** — chi handlers in `internal/httpapi`, persistence and rules in `internal/store`, JSON DTOs in `internal/api`, [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807)-style **ProblemDetail** errors in `internal/apperrors`.
+- **`AppShell`** (scoped **`AppStore`**) loads **`SpillWithSchema`** via **`SpillService`**, tracks paging and load errors (`400` / `404` / `409` / `410` / `500`).
+- **`app/form/`** — **FormParent** + component-scoped **FormService**: maps **`Schema`** → signal form, builds final **`RSchema`**, **`validateFinalRSchema`**, **`PATCH`** submit, then **`Router`** navigates to **`/:spillId/complete`** (destroying the shell store).
+- Revisiting a completed spill on **`/:spillId`** hits API **409** and shows an “already submitted” screen (separate from the thank-you page on **`/complete`**).
+- HTTP wire types and mappers: `external/api/wire/`. Mock interceptor when `APP_MODE` is `mock`.
+
+**Backend** — chi handlers in `internal/httpapi`, persistence in `internal/store` (including spill ↔ snap join for `?schema=true`), JSON DTOs in `internal/api`, [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807)-style **ProblemDetail** in `internal/apperrors`. Spill create/submit validate **`rSchema`** as JSON on the wire; semantic rules are enforced in TypeScript today.
+
+**Schema package** — Framework-agnostic types for spreads, pages, elements, **`RSchema`**, and validators used by builder, responder, and tests (`npm run test:schema`).
 
 ---
 
@@ -105,13 +120,24 @@ npm run start:builder
 npm run start:responder
 ```
 
+### Open a spill in the responder (local dev)
+
+The responder URL is **`http://localhost:4222/{spillId}`**. The spill **`id`** is the share token (UUID returned when the spill is created).
+
+**From the builder (Share workspace)**
+
+1. Publish a snap and open the Share tab on that snap.
+2. With DevTools → **Network** open, send the survey to at least one responder.
+3. Select the **`POST …/spills`** request (one per recipient) and read **`id`** from the JSON response body.
+4. Open **`http://localhost:4222/{id}`** in the browser (works in both **`mock`** and **`api`** modes).
+
 ### Other commands
 
 ```bash
 npx ng build formulator-builder
 npx ng build formulator-responder
-npm run test:schema        # Vitest for projects/schema
-npm run test:responder     # Vitest for responder pure helpers (form mapping, spill id)
+npm run test:schema        # Vitest: @formulator/schema
+npm run test:responder     # Vitest: responder mappers, spill-id guard
 cd backend && make test    # Go tests
 ```
 
@@ -132,7 +158,8 @@ backend/
     ├── httpapi/              # chi router and handlers
     └── store/                # Application layer + sqlc-generated repo
 projects/
-├── schema/                   # @formulator/schema (shared types)
+├── schema/                   # @formulator/schema (shared types + RSchema validation)
+│   └── src/lib/              # schema, element, question, option, r-schema, …
 ├── formulator-builder/
 │   └── src/
 │       ├── app/              # Routes, env, app-shell
@@ -143,12 +170,19 @@ projects/
 │       └── ui/               # UiStore
 └── formulator-responder/
     └── src/
-        ├── app/              # Routes, env, app-shell, invalid-link
-        │   └── form/         # Form feature: FormService, form.model, components/
-        ├── external/         # external/api/* + mock interceptor
-        ├── store/            # AppStore (schema load, paging)
-        ├── guards/           # spillId route guard
-        └── utils/            # Shared helpers (e.g. UUID check)
+        ├── app/
+        │   ├── app-shell/    # Load spill, error/loading UI, form host
+        │   ├── app-store.ts  # Spill session state (provided on AppShell)
+        │   ├── form/         # FormService, mappers, question/page components
+        │   ├── submission-complete/
+        │   ├── invalid-link/
+        │   ├── app.routes.ts
+        │   └── env.ts
+        ├── external/
+        │   ├── api/          # SpillService, wire DTOs/mappers
+        │   └── mock/         # Mock interceptor + mock schema
+        ├── guards/           # spillIdGuard, param validation
+        └── utils/            # e.g. isUuid
 tailwind.config.js            # Shared Tailwind config (both apps)
 ```
 
