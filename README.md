@@ -15,6 +15,14 @@ A web-based form builder for creating multi-page surveys and questionnaires. Aut
 
 Both apps share **`@formulator/schema`** (`projects/schema`) for the spread document model, **`RSchema`** / response helpers, and validation (`validateNewRSchema`, `validateFinalRSchema`, option bool-map rules).
 
+### Live demo (builder)
+
+A static **builder** demo is hosted on GitHub Pages:
+
+**https://naouuud.github.io/formulator/**
+
+The published app runs with **`APP_MODE: 'mock'`** (in-memory spreads, snaps, and spills), so no backend is required. Refreshing the page clears mock data. The **responder** is not deployed there; spill links from the demo are for UI flow only unless you run the responder locally or deploy it separately.
+
 ---
 
 ## Domain model
