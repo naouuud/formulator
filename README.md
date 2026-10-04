@@ -10,7 +10,7 @@ A web-based form builder for creating multi-page surveys and questionnaires. Aut
 
 | App                      | npm script                | Dev URL               | Role                                                                                             |
 | ------------------------ | ------------------------- | --------------------- | ------------------------------------------------------------------------------------------------ |
-| **formulator-builder**   | `npm run start:builder`   | http://localhost:4200 | Build workspace (canvas, JSON/rendered preview) and Share workspace (snaps, spills, send survey) |
+| **formulator-builder**   | `npm run start:builder`   | http://localhost:4200 (home), `/workspace` (builder UI) | Landing page explains spreads/snaps/spills; workspace is Build + Share (canvas, JSON/rendered preview, snaps, spills) |
 | **formulator-responder** | `npm run start:responder` | http://localhost:4222 | Public form filler: `/:spillId` (form), `/:spillId/complete` (after submit)                      |
 
 Both apps share **`@formulator/schema`** (`projects/schema`) for the spread document model, **`RSchema`** / response helpers, and validation (`validateNewRSchema`, `validateFinalRSchema`, option bool-map rules).
@@ -21,7 +21,7 @@ A static **builder** demo is hosted on GitHub Pages:
 
 **https://naouuud.github.io/formulator/**
 
-The published app runs with **`APP_MODE: 'mock'`** (in-memory spreads, snaps, and spills), so no backend is required. Refreshing the page clears mock data. The **responder** is not deployed there; spill links from the demo are for UI flow only unless you run the responder locally or deploy it separately.
+The published app runs with **`APP_MODE: 'mock'`** (in-memory spreads, snaps, and spills), so no backend is required. Refreshing the page clears mock data. Open **`/workspace`** on the same host for the builder UI after the landing page. The **responder** is not deployed there; spill links from the demo are for UI flow only unless you run the responder locally or deploy it separately.
 
 ---
 
