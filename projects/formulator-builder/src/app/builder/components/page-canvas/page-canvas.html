@@ -99,7 +99,7 @@
 
           <div class="mt-2 flex gap-2">
             <!-- Add Question button with type picker -->
-            <div class="relative">
+            <div #typePickerHost class="relative">
               <button
                 class="flex items-center gap-2 px-4 py-2 border-2 border-dashed rounded-lg text-sm transition-colors"
                 [class.border-violet-400]="showTypePicker()"
@@ -109,7 +109,7 @@
                 [class.text-slate-500]="!showTypePicker()"
                 [class.hover:border-violet-400]="!showTypePicker()"
                 [class.hover:text-violet-600]="!showTypePicker()"
-                (click)="toggleTypePicker()"
+                (click)="toggleTypePicker($event)"
               >
                 Add Question
                 <svg
@@ -128,12 +128,13 @@
               </button>
 
               @if (showTypePicker()) {
-                <!-- Backdrop to close on outside click -->
-                <div class="fixed inset-0 z-10" (click)="closeTypePicker()"></div>
-
-                <!-- Dropdown menu -->
                 <div
-                  class="absolute left-0 top-full mt-1.5 z-20 w-52 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+                  class="absolute left-0 z-20 w-52 overflow-y-auto overscroll-contain bg-white border border-slate-200 rounded-xl shadow-lg"
+                  [class.top-full]="!typePickerOpensAbove()"
+                  [class.mt-1.5]="!typePickerOpensAbove()"
+                  [class.bottom-full]="typePickerOpensAbove()"
+                  [class.mb-1.5]="typePickerOpensAbove()"
+                  [style.max-height.px]="typePickerMaxHeightPx()"
                 >
                   <p
                     class="px-3 pt-2.5 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-widest"

@@ -1,4 +1,14 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  ElementRef,
+  HostListener,
+  inject,
+  Injector,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { HTMLType } from '@formulator/schema';
 import { DomainStore } from '../../../../domain/store/domain-store';
 import { NoteEditor } from '../note-editor/note-editor';
@@ -18,6 +28,13 @@ const QUESTION_TYPE_OPTIONS: QuestionTypeOption[] = [
   { htmlType: 'checkbox', label: 'Checkbox', description: 'Checkboxes, multiple choices' },
 ];
 
+/** Gap between picker panel and viewport edge (and anchor button). */
+const TYPE_PICKER_VIEWPORT_MARGIN_PX = 16;
+const TYPE_PICKER_GAP_PX = 6;
+const TYPE_PICKER_MAX_HEIGHT_PX = 256;
+/** Prefer opening upward when less than this space remains below the button. */
+const TYPE_PICKER_FLIP_THRESHOLD_PX = 180;
+
 @Component({
   selector: 'app-page-canvas',
   imports: [QuestionEditor, NoteEditor],
@@ -26,7 +43,11 @@ const QUESTION_TYPE_OPTIONS: QuestionTypeOption[] = [
 export class PageCanvas {
   protected readonly domainStore = inject(DomainStore);
   protected readonly uiStore = inject(UiStore);
+  private readonly injector = inject(Injector);
+  private readonly typePickerHost = viewChild<ElementRef<HTMLElement>>('typePickerHost');
   protected readonly showTypePicker = signal(false);
+  protected readonly typePickerOpensAbove = signal(false);
+  protected readonly typePickerMaxHeightPx = signal(TYPE_PICKER_MAX_HEIGHT_PX);
   protected readonly questionTypeOptions = QUESTION_TYPE_OPTIONS;
   protected readonly selectedElement = computed(() => {
     const id = this.uiStore.selectedElementId();
@@ -58,12 +79,51 @@ export class PageCanvas {
     else this.uiStore.setSelectedElementId(id);
   }
 
-  protected toggleTypePicker(): void {
-    this.showTypePicker.update((v) => !v);
+  protected toggleTypePicker(event: Event): void {
+    event.stopPropagation();
+    if (this.showTypePicker()) {
+      this.closeTypePicker();
+      return;
+    }
+    this.showTypePicker.set(true);
+    afterNextRender(() => this.layoutTypePicker(), { injector: this.injector });
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected closeTypePickerOnOutsideClick(event: MouseEvent): void {
+    if (!this.showTypePicker()) return;
+    const host = this.typePickerHost()?.nativeElement;
+    if (host && !host.contains(event.target as Node)) {
+      this.closeTypePicker();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  protected closeTypePickerOnEscape(): void {
+    this.closeTypePicker();
   }
 
   protected closeTypePicker(): void {
     this.showTypePicker.set(false);
+    this.typePickerOpensAbove.set(false);
+  }
+
+  private layoutTypePicker(): void {
+    if (!this.showTypePicker()) return;
+
+    const host = this.typePickerHost()?.nativeElement;
+    const button = host?.querySelector('button');
+    if (!button) return;
+
+    const rect = button.getBoundingClientRect();
+    const margin = TYPE_PICKER_VIEWPORT_MARGIN_PX;
+    const spaceBelow = window.innerHeight - rect.bottom - margin;
+    const spaceAbove = rect.top - margin;
+    const openAbove = spaceBelow < TYPE_PICKER_FLIP_THRESHOLD_PX && spaceAbove > spaceBelow;
+
+    this.typePickerOpensAbove.set(openAbove);
+    const available = Math.max(0, (openAbove ? spaceAbove : spaceBelow) - TYPE_PICKER_GAP_PX);
+    this.typePickerMaxHeightPx.set(Math.min(TYPE_PICKER_MAX_HEIGHT_PX, available));
   }
 
   protected addQuestionOfType(htmlType: HTMLType): void {
