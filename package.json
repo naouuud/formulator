@@ -9,7 +9,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:schema": "vitest run projects/schema",
-    "test:responder": "vitest run projects/formulator-responder"
+    "test:responder": "vitest run projects/formulator-responder",
+    "deploy:builder": "ng deploy formulator-builder"
   },
   "prettier": {
     "printWidth": 100,
@@ -43,6 +44,7 @@
     "@angular/build": "^22.1.8",
     "@angular/cli": "^22.1.8",
     "@angular/compiler-cli": "^22.1.6",
+    "angular-cli-ghpages": "^3.1.0",
     "autoprefixer": "^10.4.22",
     "gh-pages": "^6.3.0",
     "jsdom": "^27.1.0",

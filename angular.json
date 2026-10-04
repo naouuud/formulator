@@ -77,6 +77,13 @@
           "options": {
             "tsConfig": "projects/main-app/tsconfig.spec.json"
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {
+            "baseHref": "/formulator/",
+            "dir": "dist/formulator-builder/browser"
+          }
         }
       }
     },
