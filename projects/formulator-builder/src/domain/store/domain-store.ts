@@ -87,6 +87,44 @@ const initialState: DomainState = {
   createSnapError: false,
 };
 
+/** Domain slice applied by `resetWorkspace()` — no selected spread/snap or canvas session. */
+const resetWorkspaceDomainState: Pick<
+  DomainState,
+  | 'activeSpread'
+  | 'activeSpreadLoading'
+  | 'loadSpreadError'
+  | 'activePageIdx'
+  | 'activeSnap'
+  | 'activeSnapLoading'
+  | 'loadSnapError'
+  | 'spills'
+  | 'loadSpillsError'
+  | 'createSpillsLoading'
+  | 'createSpillsError'
+  | 'createSpillsSuccessCount'
+  | 'deletingSpillId'
+  | 'deleteSpillError'
+  | 'createSpreadError'
+  | 'createSnapError'
+> = {
+  activeSpread: null,
+  activeSpreadLoading: false,
+  loadSpreadError: false,
+  activePageIdx: 0,
+  activeSnap: null,
+  activeSnapLoading: false,
+  loadSnapError: false,
+  spills: [],
+  loadSpillsError: false,
+  createSpillsLoading: false,
+  createSpillsError: null,
+  createSpillsSuccessCount: null,
+  deletingSpillId: null,
+  deleteSpillError: false,
+  createSpreadError: null,
+  createSnapError: false,
+};
+
 export const DomainStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
@@ -326,6 +364,10 @@ export const DomainStore = signalStore(
 
         clearDeleteSpillError(): void {
           patchState(store, { deleteSpillError: false });
+        },
+
+        resetWorkspace(): void {
+          patchState(store, resetWorkspaceDomainState);
         },
 
         loadSpread: rxMethod<string>(

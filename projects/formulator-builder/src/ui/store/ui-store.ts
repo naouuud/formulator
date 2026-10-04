@@ -123,5 +123,9 @@ export const UiStore = signalStore(
     hideRenameSpreadModal(): void {
       patchState(store, { renameSpreadModal: false });
     },
+    /** Logo / home: default build workspace with no selection, modals, or in-flight chrome. */
+    resetWorkspace(): void {
+      patchState(store, { ...initialState });
+    },
   })),
 );

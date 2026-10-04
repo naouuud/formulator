@@ -54,4 +54,9 @@ export class AppShell {
 
     this.uiStore.setWorkspace(workspace);
   }
+
+  protected resetWorkspace(): void {
+    this.domainStore.resetWorkspace();
+    this.uiStore.resetWorkspace();
+  }
 }
